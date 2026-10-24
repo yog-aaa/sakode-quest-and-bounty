@@ -7,7 +7,7 @@
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import type { TaskDocument, FirestoreDate } from '@/types/database';
-import { TASK_STATUS, TASK_DEADLINE_TYPES } from '@/lib/constants';
+import { TASK_STATUS, TASK_DEADLINE_TYPES, TASK_MODES } from '@/lib/constants';
 import { createTaskSchema, type CreateTaskInput } from '@/lib/validations/task';
 import { assertAdminPrivilege } from './user.service';
 
@@ -43,6 +43,8 @@ export async function createTask(
     deliverableGuidelines: validated.deliverableGuidelines,
     acceptanceCriteria: validated.acceptanceCriteria,
     mode: validated.mode,
+    minTeamSize: validated.mode === TASK_MODES.TEAM ? validated.minTeamSize || 2 : null,
+    maxTeamSize: validated.mode === TASK_MODES.TEAM ? validated.maxTeamSize || 4 : null,
     assignmentType: validated.assignmentType,
     requiredSkills: validated.requiredSkills,
     totalReward: validated.totalReward, // Integer Rupiah

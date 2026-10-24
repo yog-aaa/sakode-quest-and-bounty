@@ -1,4 +1,10 @@
-import type { UserDocument, TaskDocument, ApplicationDocument } from '@/types/database';
+import type {
+  UserDocument,
+  TaskDocument,
+  ApplicationDocument,
+  TeamDocument,
+  TeamMembershipDocument,
+} from '@/types/database';
 
 function serializeDate(d: unknown): string {
   if (!d) return new Date().toISOString();
@@ -48,5 +54,22 @@ export function serializeApplicationDoc(app: ApplicationDocument): ApplicationDo
     ...app,
     createdAt: serializeDate(app.createdAt),
     updatedAt: serializeDate(app.updatedAt),
+  };
+}
+
+export function serializeTeamDoc(team: TeamDocument): TeamDocument {
+  return {
+    ...team,
+    createdAt: serializeDate(team.createdAt),
+    updatedAt: serializeDate(team.updatedAt),
+  };
+}
+
+export function serializeTeamMembershipDoc(m: TeamMembershipDocument): TeamMembershipDocument {
+  return {
+    ...m,
+    agreedTermsAt: serializeNullableDate(m.agreedTermsAt),
+    createdAt: serializeDate(m.createdAt),
+    updatedAt: m.updatedAt ? serializeDate(m.updatedAt) : undefined,
   };
 }

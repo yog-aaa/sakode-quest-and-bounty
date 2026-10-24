@@ -12,17 +12,30 @@
 
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
-import type { TaskDocument, ApplicationDocument, UserDocument, FirestoreDate } from '@/types/database';
+import type {
+  TaskDocument,
+  ApplicationDocument,
+  UserDocument,
+  FirestoreDate,
+  TeamDocument,
+  TeamMembershipDocument,
+} from '@/types/database';
 import {
   TASK_STATUS,
+  TASK_MODES,
   TASK_ASSIGNMENT_TYPES,
   TASK_DEADLINE_TYPES,
+  TEAM_STATUS,
+  TEAM_ROLES,
+  TEAM_MEMBERSHIP_STATUS,
+  INITIAL_SPLIT_PRINCIPLES,
   APPLICATION_STATUS,
   USER_APPROVAL_STATUS,
   INVARIANTS,
 } from '@/lib/constants';
 import type { ApplyTaskInput } from '@/lib/validations/task';
 import { assertAdminPrivilege } from './user.service';
+import { generateInviteCode } from './team.service';
 
 /**
  * Transaksi Atomik Instant Take (Mencegah perebutan slot bersamaan & batas 1 active task)
@@ -92,38 +105,108 @@ export async function instantTakeTask(
       }
     }
 
-    // 6. Mutasi Atomik Bersamaan
-    transaction.update(taskRef, {
-      status: TASK_STATUS.ACTIVE,
-      assignedUserId: userId,
-      deadlineAt: deadlineTimestamp as unknown as FirestoreDate,
-      updatedAt: FieldValue.serverTimestamp() as unknown as FirestoreDate,
-    });
+    const isTeamTask = taskData.mode === TASK_MODES.TEAM;
+    let createdTeamId: string | null = null;
 
-    transaction.update(userRef, {
-      activeTaskId: taskId,
-      updatedAt: FieldValue.serverTimestamp() as unknown as FirestoreDate,
-    });
+    if (isTeamTask) {
+      // 5a. Team Task: Orang pertama menjadi Team Lead, tim masuk fase RECRUITING, durasi belum berjalan
+      const teamRef = db.collection('teams').doc();
+      const membershipRef = db.collection('teamMemberships').doc();
+      createdTeamId = teamRef.id;
 
-    // 7. Catat Audit Trail
+      const inviteCode = generateInviteCode();
+      const minMembers = taskData.minTeamSize || 2;
+      const maxMembers = taskData.maxTeamSize || 4;
+
+      const newTeamData: Omit<TeamDocument, 'id'> = {
+        taskId,
+        teamLeadUserId: userId,
+        minMembers,
+        maxMembers,
+        memberCount: 1,
+        rosterLocked: false,
+        initialSplitPrinciple: INITIAL_SPLIT_PRINCIPLES.EQUAL,
+        inviteCode,
+        status: TEAM_STATUS.RECRUITING,
+        taskTitle: taskData.title,
+        taskTotalReward: taskData.totalReward,
+        createdAt: FieldValue.serverTimestamp() as unknown as FirestoreDate,
+        updatedAt: FieldValue.serverTimestamp() as unknown as FirestoreDate,
+      };
+
+      const newMembershipData: Omit<TeamMembershipDocument, 'id'> = {
+        teamId: teamRef.id,
+        taskId,
+        userId,
+        roleInTeam: TEAM_ROLES.LEAD,
+        status: TEAM_MEMBERSHIP_STATUS.TERMS_ACCEPTED,
+        agreedTermsAt: FieldValue.serverTimestamp() as unknown as FirestoreDate,
+        agreedTermsVersion,
+        agreedSplitPrinciple: INITIAL_SPLIT_PRINCIPLES.EQUAL,
+        userDisplayName: userData.displayName || 'Team Lead',
+        userEmail: userData.email,
+        userContactNumber: userData.contactNumber,
+        userSkills: userData.skills || [],
+        createdAt: FieldValue.serverTimestamp() as unknown as FirestoreDate,
+        updatedAt: FieldValue.serverTimestamp() as unknown as FirestoreDate,
+      };
+
+      transaction.set(teamRef, newTeamData);
+      transaction.set(membershipRef, newMembershipData);
+
+      transaction.update(taskRef, {
+        status: TASK_STATUS.RECRUITING,
+        assignedTeamId: teamRef.id,
+        assignedUserId: userId,
+        deadlineAt: null,
+        updatedAt: FieldValue.serverTimestamp() as unknown as FirestoreDate,
+      });
+
+      transaction.update(userRef, {
+        activeTaskId: taskId,
+        updatedAt: FieldValue.serverTimestamp() as unknown as FirestoreDate,
+      });
+    } else {
+      // 5b. Solo Task: Mutasi Atomik Bersamaan (Langsung ACTIVE & timer berjalan)
+      transaction.update(taskRef, {
+        status: TASK_STATUS.ACTIVE,
+        assignedUserId: userId,
+        deadlineAt: deadlineTimestamp as unknown as FirestoreDate,
+        updatedAt: FieldValue.serverTimestamp() as unknown as FirestoreDate,
+      });
+
+      transaction.update(userRef, {
+        activeTaskId: taskId,
+        updatedAt: FieldValue.serverTimestamp() as unknown as FirestoreDate,
+      });
+    }
+
+    // 6. Catat Audit Trail
     const auditRef = db.collection('auditEvents').doc();
     transaction.set(auditRef, {
       actorId: userId,
       actorRole: userData.role,
-      action: 'TASK_TAKEN_INSTANT',
-      entityType: 'TASK',
-      entityId: taskId,
+      action: isTeamTask ? 'TEAM_INITIALIZED' : 'TASK_TAKEN_INSTANT',
+      entityType: isTeamTask ? 'TEAM' : 'TASK',
+      entityId: isTeamTask ? createdTeamId! : taskId,
       beforeSnapshot: { status: TASK_STATUS.OPEN, assignedUserId: null },
-      afterSnapshot: { status: TASK_STATUS.ACTIVE, assignedUserId: userId },
-      reason: `Member ${userData.displayName || userId} mengambil task secara instan.`,
+      afterSnapshot: {
+        status: isTeamTask ? TASK_STATUS.RECRUITING : TASK_STATUS.ACTIVE,
+        assignedUserId: userId,
+        assignedTeamId: createdTeamId,
+      },
+      reason: isTeamTask
+        ? `Member ${userData.displayName || userId} mengambil task tim sebagai Team Lead.`
+        : `Member ${userData.displayName || userId} mengambil task solo secara instan.`,
       timestamp: FieldValue.serverTimestamp(),
     });
 
     return {
       ...taskData,
       id: taskId,
-      status: TASK_STATUS.ACTIVE,
+      status: isTeamTask ? TASK_STATUS.RECRUITING : TASK_STATUS.ACTIVE,
       assignedUserId: userId,
+      assignedTeamId: createdTeamId,
       deadlineAt: (deadlineTimestamp?.toDate().toISOString() || null) as unknown as FirestoreDate,
     };
   });
@@ -318,46 +401,122 @@ export async function selectApplicant(
       }
     }
 
-    // 1. Update task menjadi ACTIVE
-    transaction.update(taskRef, {
-      status: TASK_STATUS.ACTIVE,
-      assignedUserId: applicantId,
-      deadlineAt: deadlineTimestamp as unknown as FirestoreDate,
-      updatedAt: FieldValue.serverTimestamp() as unknown as FirestoreDate,
-    });
+    const isTeamTask = taskData.mode === TASK_MODES.TEAM;
+    let createdTeamId: string | null = null;
 
-    // 2. Update aplikasi terpilih menjadi ACCEPTED
-    transaction.update(appRef, {
-      status: APPLICATION_STATUS.ACCEPTED,
-      updatedAt: FieldValue.serverTimestamp() as unknown as FirestoreDate,
-    });
+    if (isTeamTask) {
+      // 1a. Team Task: Applicant terpilih otomatis menjadi Team Lead
+      const teamRef = db.collection('teams').doc();
+      const membershipRef = db.collection('teamMemberships').doc();
+      createdTeamId = teamRef.id;
 
-    // 3. Update member terpilih: activeTaskId terisi, pending count di-reset
-    transaction.update(applicantRef, {
-      activeTaskId: taskId,
-      pendingApplicationCount: 0,
-      updatedAt: FieldValue.serverTimestamp() as unknown as FirestoreDate,
-    });
+      const inviteCode = generateInviteCode();
+      const minMembers = taskData.minTeamSize || 2;
+      const maxMembers = taskData.maxTeamSize || 4;
+
+      const newTeamData: Omit<TeamDocument, 'id'> = {
+        taskId,
+        teamLeadUserId: applicantId,
+        minMembers,
+        maxMembers,
+        memberCount: 1,
+        rosterLocked: false,
+        initialSplitPrinciple: INITIAL_SPLIT_PRINCIPLES.EQUAL,
+        inviteCode,
+        status: TEAM_STATUS.RECRUITING,
+        taskTitle: taskData.title,
+        taskTotalReward: taskData.totalReward,
+        createdAt: FieldValue.serverTimestamp() as unknown as FirestoreDate,
+        updatedAt: FieldValue.serverTimestamp() as unknown as FirestoreDate,
+      };
+
+      const newMembershipData: Omit<TeamMembershipDocument, 'id'> = {
+        teamId: teamRef.id,
+        taskId,
+        userId: applicantId,
+        roleInTeam: TEAM_ROLES.LEAD,
+        status: TEAM_MEMBERSHIP_STATUS.TERMS_ACCEPTED,
+        agreedTermsAt: FieldValue.serverTimestamp() as unknown as FirestoreDate,
+        agreedTermsVersion: taskData.termsSnapshot?.version || 1,
+        agreedSplitPrinciple: INITIAL_SPLIT_PRINCIPLES.EQUAL,
+        userDisplayName: applicantData.displayName || 'Team Lead',
+        userEmail: applicantData.email,
+        userContactNumber: applicantData.contactNumber,
+        userSkills: applicantData.skills || [],
+        createdAt: FieldValue.serverTimestamp() as unknown as FirestoreDate,
+        updatedAt: FieldValue.serverTimestamp() as unknown as FirestoreDate,
+      };
+
+      transaction.set(teamRef, newTeamData);
+      transaction.set(membershipRef, newMembershipData);
+
+      transaction.update(taskRef, {
+        status: TASK_STATUS.RECRUITING,
+        assignedTeamId: teamRef.id,
+        assignedUserId: applicantId,
+        deadlineAt: null,
+        updatedAt: FieldValue.serverTimestamp() as unknown as FirestoreDate,
+      });
+
+      transaction.update(appRef, {
+        status: APPLICATION_STATUS.ACCEPTED,
+        updatedAt: FieldValue.serverTimestamp() as unknown as FirestoreDate,
+      });
+
+      transaction.update(applicantRef, {
+        activeTaskId: taskId,
+        pendingApplicationCount: 0,
+        updatedAt: FieldValue.serverTimestamp() as unknown as FirestoreDate,
+      });
+    } else {
+      // 1b. Solo Task: Update task menjadi ACTIVE
+      transaction.update(taskRef, {
+        status: TASK_STATUS.ACTIVE,
+        assignedUserId: applicantId,
+        deadlineAt: deadlineTimestamp as unknown as FirestoreDate,
+        updatedAt: FieldValue.serverTimestamp() as unknown as FirestoreDate,
+      });
+
+      // 2. Update aplikasi terpilih menjadi ACCEPTED
+      transaction.update(appRef, {
+        status: APPLICATION_STATUS.ACCEPTED,
+        updatedAt: FieldValue.serverTimestamp() as unknown as FirestoreDate,
+      });
+
+      // 3. Update member terpilih: activeTaskId terisi, pending count di-reset
+      transaction.update(applicantRef, {
+        activeTaskId: taskId,
+        pendingApplicationCount: 0,
+        updatedAt: FieldValue.serverTimestamp() as unknown as FirestoreDate,
+      });
+    }
 
     // 4. Audit Trail
     const auditRef = db.collection('auditEvents').doc();
     transaction.set(auditRef, {
       actorId: adminUid,
       actorRole: adminData.role,
-      action: 'TASK_APPLICANT_SELECTED',
-      entityType: 'TASK',
-      entityId: taskId,
+      action: isTeamTask ? 'TEAM_APPLICANT_SELECTED_LEAD' : 'TASK_APPLICANT_SELECTED',
+      entityType: isTeamTask ? 'TEAM' : 'TASK',
+      entityId: isTeamTask ? createdTeamId! : taskId,
       beforeSnapshot: { assignedUserId: null, status: TASK_STATUS.OPEN },
-      afterSnapshot: { assignedUserId: applicantId, status: TASK_STATUS.ACTIVE },
-      reason: `Admin ${adminData.displayName || adminUid} memilih applicant ${applicantData.displayName || applicantId}.`,
+      afterSnapshot: {
+        assignedUserId: applicantId,
+        status: isTeamTask ? TASK_STATUS.RECRUITING : TASK_STATUS.ACTIVE,
+        assignedTeamId: createdTeamId,
+      },
+      reason: isTeamTask
+        ? `Admin ${adminData.displayName || adminUid} memilih applicant ${applicantData.displayName || applicantId} sebagai Team Lead.`
+        : `Admin ${adminData.displayName || adminUid} memilih applicant ${applicantData.displayName || applicantId}.`,
       timestamp: FieldValue.serverTimestamp(),
     });
 
     return {
       ...taskData,
       id: taskId,
-      status: TASK_STATUS.ACTIVE,
+      status: isTeamTask ? TASK_STATUS.RECRUITING : TASK_STATUS.ACTIVE,
       assignedUserId: applicantId,
+      assignedTeamId: createdTeamId,
     };
   }).then(async (result) => {
     // Jalankan auto-withdrawal & penolakan pendaftar lain di luar transaction agar tidak melampaui batas reads

@@ -130,6 +130,8 @@ export interface TaskDocument {
   deliverableGuidelines: string;
   acceptanceCriteria: string[];
   mode: TaskMode;
+  minTeamSize?: number | null;
+  maxTeamSize?: number | null;
   assignmentType: TaskAssignmentType;
   requiredSkills: string[];
   totalReward: number; // Integer Rupiah
@@ -185,6 +187,8 @@ export interface TeamDocument {
   initialSplitPrinciple: InitialSplitPrinciple;
   inviteCode: string;
   status: TeamStatus;
+  taskTitle?: string;
+  taskTotalReward?: number;
   createdAt: FirestoreDate;
   updatedAt: FirestoreDate;
 }
@@ -200,7 +204,14 @@ export interface TeamMembershipDocument {
   roleInTeam: TeamRole;
   status: TeamMembershipStatus;
   agreedTermsAt: FirestoreDate | null;
+  agreedTermsVersion: number | null;
+  agreedSplitPrinciple: InitialSplitPrinciple | null;
+  userDisplayName?: string;
+  userEmail?: string;
+  userContactNumber?: string;
+  userSkills?: string[];
   createdAt: FirestoreDate;
+  updatedAt?: FirestoreDate;
 }
 
 // =============================================================================

@@ -12,7 +12,12 @@ import { formatCurrencyIDR, formatDateWIB } from '@/lib/utils';
 import { TASK_STATUS, TASK_MODES, TASK_ASSIGNMENT_TYPES } from '@/lib/constants';
 import { getAllTasksForAdminAction, publishTaskAction } from '@/server/actions/task.actions';
 import { getApplicationsForTaskAction, selectApplicantAction } from '@/server/actions/assignment.actions';
-import type { TaskDocument, ApplicationDocument } from '@/types/database';
+import {
+  getTeamDetailAction,
+  getTeamMembersAction,
+  adminOverrideTeamRosterAction,
+} from '@/server/actions/team.actions';
+import type { TaskDocument, ApplicationDocument, TeamDocument, TeamMembershipDocument } from '@/types/database';
 import {
   Compass,
   Plus,
@@ -32,6 +37,11 @@ import {
   Phone,
   Mail,
   Loader2,
+  Shield,
+  Crown,
+  Lock,
+  Unlock,
+  AlertTriangle,
 } from 'lucide-react';
 
 export default function AdminTasksPage() {
@@ -48,6 +58,16 @@ export default function AdminTasksPage() {
   const [applicants, setApplicants] = useState<ApplicationDocument[]>([]);
   const [loadingApplicants, setLoadingApplicants] = useState(false);
   const [actionInProgress, setActionInProgress] = useState<string | null>(null);
+
+  // Team Roster Drawer State
+  const [selectedTaskForTeam, setSelectedTaskForTeam] = useState<TaskDocument | null>(null);
+  const [selectedTeam, setSelectedTeam] = useState<TeamDocument | null>(null);
+  const [teamMembers, setTeamMembers] = useState<TeamMembershipDocument[]>([]);
+  const [loadingTeam, setLoadingTeam] = useState(false);
+  const [overrideAction, setOverrideAction] = useState<'ADD' | 'REMOVE'>('ADD');
+  const [overrideTargetUserId, setOverrideTargetUserId] = useState('');
+  const [overrideReason, setOverrideReason] = useState('');
+  const [isOverriding, setIsOverriding] = useState(false);
 
   // Load tasks callback
   const loadTasks = useCallback(async () => {
@@ -140,6 +160,69 @@ export default function AdminTasksPage() {
       setErrorMsg('Gagal memproses seleksi applicant.');
     } finally {
       setActionInProgress(null);
+    }
+  };
+
+  // Open Team Roster Drawer
+  const handleOpenTeamRoster = async (task: TaskDocument) => {
+    if (!task.assignedTeamId) return;
+    setSelectedTaskForTeam(task);
+    setLoadingTeam(true);
+    setTeamMembers([]);
+    setSelectedTeam(null);
+    try {
+      const resTeam = await getTeamDetailAction(task.assignedTeamId);
+      if (resTeam.success && resTeam.team) {
+        setSelectedTeam(resTeam.team);
+      }
+      const resMembers = await getTeamMembersAction(task.assignedTeamId);
+      if (resMembers.success && resMembers.members) {
+        setTeamMembers(resMembers.members);
+      }
+    } catch (err: unknown) {
+      console.error(err);
+    } finally {
+      setLoadingTeam(false);
+    }
+  };
+
+  // Execute Admin Override
+  const handleExecuteOverride = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !selectedTeam) return;
+    if (overrideReason.trim().length < 10) {
+      setErrorMsg('Alasan override wajib diisi minimal 10 karakter untuk audit trail.');
+      return;
+    }
+
+    setIsOverriding(true);
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    try {
+      const res = await adminOverrideTeamRosterAction(user.id, {
+        teamId: selectedTeam.id,
+        action: overrideAction,
+        targetUserId: overrideTargetUserId.trim(),
+        reason: overrideReason.trim(),
+      });
+
+      if (res.success) {
+        setSuccessMsg(`Admin override roster (${overrideAction}) berhasil dieksekusi.`);
+        setOverrideTargetUserId('');
+        setOverrideReason('');
+        const resMembers = await getTeamMembersAction(selectedTeam.id);
+        if (resMembers.success && resMembers.members) {
+          setTeamMembers(resMembers.members);
+        }
+        loadTasks();
+      } else {
+        setErrorMsg(res.error || 'Gagal mengeksekusi override.');
+      }
+    } catch (err: unknown) {
+      console.error(err);
+      setErrorMsg('Gagal mengeksekusi override roster.');
+    } finally {
+      setIsOverriding(false);
     }
   };
 
@@ -390,6 +473,18 @@ export default function AdminTasksPage() {
                         </Button>
                       )}
 
+                      {task.mode === TASK_MODES.TEAM && task.assignedTeamId && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleOpenTeamRoster(task)}
+                          className="font-bold text-xs gap-1.5 h-9 text-purple-800 border-purple-200 hover:bg-purple-50"
+                        >
+                          <Users className="h-3.5 w-3.5 text-sakode-purple" />
+                          <span>Roster Tim</span>
+                        </Button>
+                      )}
+
                       <Link href={`/member/tasks/${task.id}`}>
                         <Button variant="ghost" size="sm" className="text-xs gap-1 h-8 text-sakode-text-muted">
                           <span>Pratinjau</span>
@@ -568,6 +663,301 @@ export default function AdminTasksPage() {
               <div className="p-3 sm:p-4 border-t border-sakode-border bg-sakode-bg flex justify-between items-center text-xs text-sakode-text-muted">
                 <span>Total Pelamar: {applicants.length}</span>
                 <Button variant="outline" size="sm" onClick={() => setSelectedTaskForApplicants(null)} className="text-xs">
+                  Tutup
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal / Drawer: Team Roster & Emergency Override */}
+        {selectedTaskForTeam && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
+            <div className="bg-white rounded-xl shadow-2xl border border-sakode-border w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+              {/* Modal Header */}
+              <div className="p-4 sm:p-5 border-b border-sakode-border flex items-start justify-between bg-purple-50/50">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2 mb-1">
+                    <Badge variant="purple" leftIcon={<Users className="h-3 w-3" />}>
+                      Roster Tim
+                    </Badge>
+                    {selectedTeam && (
+                      <>
+                        <StatusPill status={selectedTeam.status} size="sm" />
+                        {selectedTeam.rosterLocked ? (
+                          <Badge variant="orange" leftIcon={<Lock className="h-3 w-3" />}>
+                            Roster Terkunci
+                          </Badge>
+                        ) : (
+                          <Badge variant="cyan" leftIcon={<Unlock className="h-3 w-3" />}>
+                            Recruiting
+                          </Badge>
+                        )}
+                      </>
+                    )}
+                  </div>
+                  <h2 className="text-base sm:text-lg font-black text-sakode-text leading-snug">
+                    {selectedTaskForTeam.title}
+                  </h2>
+                  <p className="text-xs text-sakode-text-muted mt-0.5">
+                    Bounty: <strong className="text-sakode-text">{formatCurrencyIDR(selectedTaskForTeam.totalReward)}</strong>
+                    {selectedTeam && (
+                      <span> • Kode Undangan: <span className="font-mono font-bold text-sakode-purple">{selectedTeam.inviteCode}</span></span>
+                    )}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setSelectedTaskForTeam(null);
+                    setSelectedTeam(null);
+                    setTeamMembers([]);
+                  }}
+                  className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-4 sm:p-5 overflow-y-auto space-y-6 flex-1">
+                {loadingTeam ? (
+                  <div className="py-12 text-center">
+                    <Loader2 className="h-7 w-7 animate-spin mx-auto text-sakode-purple" />
+                    <p className="text-xs text-sakode-text-muted mt-2">Memuat data tim dan roster...</p>
+                  </div>
+                ) : !selectedTeam ? (
+                  <div className="py-12 text-center">
+                    <AlertTriangle className="h-10 w-10 text-amber-400 mx-auto" />
+                    <h4 className="text-sm font-bold text-sakode-text mt-2">Data Tim Belum Tersedia</h4>
+                    <p className="text-xs text-sakode-text-muted max-w-xs mx-auto mt-1">
+                      Task tim ini belum diinisialisasi atau data tim tidak ditemukan.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {/* Team Metrics Bar */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 rounded-lg bg-slate-50 border border-slate-200">
+                      <div>
+                        <div className="text-[10px] uppercase font-bold text-slate-500">Anggota</div>
+                        <div className="text-sm font-black text-sakode-text mt-0.5">
+                          {selectedTeam.memberCount} / {selectedTeam.maxMembers}
+                        </div>
+                        <div className="text-[10px] text-slate-400">Min: {selectedTeam.minMembers} orang</div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] uppercase font-bold text-slate-500">Prinsip Split</div>
+                        <div className="text-sm font-black text-sakode-purple mt-0.5">
+                          {selectedTeam.initialSplitPrinciple || 'EQUAL'}
+                        </div>
+                        <div className="text-[10px] text-slate-400">Konsensus Tim</div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] uppercase font-bold text-slate-500">Status Roster</div>
+                        <div className="text-sm font-black text-slate-700 mt-0.5">
+                          {selectedTeam.rosterLocked ? 'Terkunci' : 'Terbuka'}
+                        </div>
+                        <div className="text-[10px] text-slate-400">
+                          {selectedTeam.rosterLocked ? 'Locked permanently' : 'Menerima anggota'}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] uppercase font-bold text-slate-500">Dibuat</div>
+                        <div className="text-xs font-semibold text-slate-700 mt-0.5">
+                          {formatDateWIB(selectedTeam.createdAt)}
+                        </div>
+                        <div className="text-[10px] text-slate-400">Waktu WIB</div>
+                      </div>
+                    </div>
+
+                    {/* Member List */}
+                    <div className="space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-sakode-text-muted flex items-center gap-1.5">
+                          <Users className="h-3.5 w-3.5 text-sakode-purple" />
+                          <span>Daftar Anggota Tim ({teamMembers.length})</span>
+                        </h3>
+                      </div>
+
+                      {teamMembers.length === 0 ? (
+                        <div className="p-4 text-center text-xs text-sakode-text-muted border border-dashed rounded-lg">
+                          Belum ada anggota terdaftar.
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {teamMembers.map((member) => {
+                            const isLead = member.roleInTeam === 'LEAD';
+                            return (
+                              <div
+                                key={member.id}
+                                className={`p-3 rounded-lg border flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 transition-colors ${
+                                  isLead ? 'border-purple-200 bg-purple-50/40' : 'border-sakode-border bg-white'
+                                }`}
+                              >
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    {isLead ? (
+                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold bg-purple-100 text-sakode-purple border border-purple-200">
+                                        <Crown className="h-3 w-3" />
+                                        <span>Team Lead</span>
+                                      </span>
+                                    ) : (
+                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-700">
+                                        <User className="h-3 w-3" />
+                                        <span>Member</span>
+                                      </span>
+                                    )}
+                                    <span className="font-bold text-sm text-sakode-text">
+                                      {member.userDisplayName || member.userEmail || member.userId}
+                                    </span>
+                                    <StatusPill status={member.status} size="sm" />
+                                  </div>
+
+                                  <div className="flex flex-wrap items-center gap-x-3 text-xs text-sakode-text-muted">
+                                    {member.userEmail && <span>{member.userEmail}</span>}
+                                    <span className="font-mono text-[11px] text-slate-400">UID: {member.userId}</span>
+                                    {member.agreedTermsAt && (
+                                      <span className="text-emerald-600 font-medium">✓ Setuju Syarat & Pembagian</span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center gap-2 sm:self-center">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    type="button"
+                                    onClick={() => {
+                                      setOverrideAction('REMOVE');
+                                      setOverrideTargetUserId(member.userId);
+                                    }}
+                                    className="text-xs text-rose-600 hover:bg-rose-50 hover:text-rose-700 h-8 px-2.5"
+                                  >
+                                    Pilih untuk Hapus
+                                  </Button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Admin Emergency Override Section */}
+                    <div className="p-4 rounded-xl border border-amber-300 bg-amber-50/50 space-y-4">
+                      <div className="flex items-start gap-2.5">
+                        <Shield className="h-5 w-5 text-amber-700 shrink-0 mt-0.5" />
+                        <div>
+                          <h4 className="text-xs sm:text-sm font-bold text-amber-900">
+                            Emergency Override Roster (Hak Khusus Admin)
+                          </h4>
+                          <p className="text-xs text-amber-800 leading-relaxed mt-0.5">
+                            Gunakan hanya untuk kondisi darurat (misal: anggota tidak aktif atau keadaan force majeure).
+                            Penambahan atau penghapusan anggota saat status tim ACTIVE akan memodifikasi kepemilikan task aktif dan seluruh mutasi tercatat permanen di <code className="bg-amber-100 px-1 py-0.5 rounded text-[11px] font-mono">auditEvents</code>.
+                          </p>
+                        </div>
+                      </div>
+
+                      <form onSubmit={handleExecuteOverride} className="space-y-3 pt-2 border-t border-amber-200">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {/* Action toggle */}
+                          <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-1">
+                              Tindakan Override
+                            </label>
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setOverrideAction('ADD')}
+                                className={`py-2 px-3 text-xs font-bold rounded-lg border text-center transition-all ${
+                                  overrideAction === 'ADD'
+                                    ? 'bg-purple-600 text-white border-purple-600 shadow-xs'
+                                    : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                                }`}
+                              >
+                                + Tambah Anggota
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setOverrideAction('REMOVE')}
+                                className={`py-2 px-3 text-xs font-bold rounded-lg border text-center transition-all ${
+                                  overrideAction === 'REMOVE'
+                                    ? 'bg-rose-600 text-white border-rose-600 shadow-xs'
+                                    : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                                }`}
+                              >
+                                - Hapus Anggota
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Target User ID */}
+                          <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-1">
+                              Target User UID (Firestore)
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={overrideTargetUserId}
+                              onChange={(e) => setOverrideTargetUserId(e.target.value)}
+                              placeholder="Masukkan Firestore UID member..."
+                              className="w-full text-xs font-mono p-2 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-purple-500"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Reason Textarea */}
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 mb-1">
+                            Alasan Override (Audit Trail - Wajib Minimal 10 Karakter)
+                          </label>
+                          <textarea
+                            required
+                            rows={2}
+                            minLength={10}
+                            value={overrideReason}
+                            onChange={(e) => setOverrideReason(e.target.value)}
+                            placeholder="Contoh: Mengganti anggota yang tidak responsif selama 48 jam sesuai kesepakatan tim..."
+                            className="w-full text-xs p-2.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-purple-500"
+                          />
+                        </div>
+
+                        {/* Submit Button */}
+                        <div className="flex justify-end">
+                          <Button
+                            type="submit"
+                            variant="primary"
+                            size="sm"
+                            disabled={isOverriding || overrideReason.trim().length < 10 || !overrideTargetUserId.trim()}
+                            className="gap-1.5 font-bold text-xs bg-amber-600 hover:bg-amber-700 border-amber-600 text-white shadow-xs"
+                          >
+                            {isOverriding ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <Shield className="h-3.5 w-3.5" />
+                            )}
+                            <span>Eksekusi Admin Override</span>
+                          </Button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-3 sm:p-4 border-t border-sakode-border bg-sakode-bg flex justify-between items-center text-xs text-sakode-text-muted">
+                <span>Roster Locking Invariant SAKODE</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedTaskForTeam(null);
+                    setSelectedTeam(null);
+                    setTeamMembers([]);
+                  }}
+                  className="text-xs"
+                >
                   Tutup
                 </Button>
               </div>

@@ -17,6 +17,7 @@ import {
   Compass,
   ShieldCheck,
   User,
+  Users,
   CheckCircle2,
   AlertTriangle,
   Zap,
@@ -323,6 +324,15 @@ export default function MemberDashboardPage() {
                       </div>
 
                       <div className="flex items-center gap-2">
+                        {activeTask.assignedTeamId && (
+                          <Link href={`/member/teams/${activeTask.assignedTeamId}`}>
+                            <Button variant="team" size="sm" className="text-xs font-bold h-10 gap-1.5">
+                              <Users className="h-4 w-4" />
+                              <span>Ruang Tim</span>
+                            </Button>
+                          </Link>
+                        )}
+
                         <Link href={`/member/tasks/${activeTask.id}`}>
                           <Button variant="outline" size="sm" className="text-xs font-bold h-10">
                             Lihat Rincian Lengkap

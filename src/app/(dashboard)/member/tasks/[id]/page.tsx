@@ -391,11 +391,29 @@ function TaskDetailContent() {
                   </div>
 
                   {/* State Handling & Actions */}
+                  {task.assignedTeamId && (
+                    <div className="p-3 rounded-lg bg-purple-50 border border-purple-200 space-y-2">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-purple-900">
+                        <Users className="h-4 w-4 text-sakode-purple" />
+                        <span>Ruang Tim Tersedia</span>
+                      </div>
+                      <p className="text-[11px] text-purple-700">
+                        Task ini dikerjakan secara berkelompok. Akses ruang kolaborasi untuk melihat roster anggota dan kode undangan.
+                      </p>
+                      <Link href={`/member/teams/${task.assignedTeamId}`} className="block pt-1">
+                        <Button variant="team" size="sm" className="w-full font-bold text-xs h-9 gap-1.5">
+                          <Users className="h-3.5 w-3.5" />
+                          <span>Masuk ke Ruang Tim</span>
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
+
                   {isAssignedToMe ? (
                     <div className="space-y-2">
                       <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 font-bold flex items-center gap-1.5">
                         <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
-                        <span>Anda sedang mengerjakan task ini!</span>
+                        <span>Anda terdaftar pada task ini!</span>
                       </div>
                       <Link href="/member" className="block">
                         <Button variant="primary" className="w-full font-bold text-xs h-10">
@@ -473,7 +491,15 @@ function TaskDetailContent() {
                 <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
                   <ShieldAlert className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-bold">Konfirmasi Invariant:</span> Task akan langsung menjadi Active Task Anda, batas waktu pengerjaan akan dimulai, dan slot langsung dikunci di Firestore.
+                    {isSolo ? (
+                      <span>
+                        <strong className="font-bold">Konfirmasi Invariant:</strong> Task akan langsung menjadi Active Task Anda, batas waktu pengerjaan akan dimulai, dan slot langsung dikunci di Firestore.
+                      </span>
+                    ) : (
+                      <span>
+                        <strong className="font-bold">Konfirmasi Mode Tim:</strong> Anda akan menjadi <strong>Team Lead</strong>, ruang tim akan dibuat dalam fase perekrutan (RECRUITING), dan timer durasi baru akan dimulai setelah seluruh anggota siap.
+                      </span>
+                    )}
                   </div>
                 </div>
 
