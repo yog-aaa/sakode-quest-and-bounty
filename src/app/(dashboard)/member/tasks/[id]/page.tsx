@@ -15,7 +15,9 @@ import { TASK_STATUS, TASK_MODES, TASK_ASSIGNMENT_TYPES } from '@/lib/constants'
 import { getTaskDetailAction } from '@/server/actions/task.actions';
 import { instantTakeTaskAction, submitApplicationAction } from '@/server/actions/assignment.actions';
 import { getSubmissionsForTaskAction } from '@/server/actions/submission.actions';
-import type { TaskDocument, SubmissionDocument } from '@/types/database';
+import { fileSubmissionAppealAction } from '@/server/actions/appeal.actions';
+import { FileUploadDropzone } from '@/components/submission/FileUploadDropzone';
+import type { TaskDocument, SubmissionDocument, EvidenceFile } from '@/types/database';
 import {
   ArrowLeft,
   Compass,
@@ -33,6 +35,8 @@ import {
   Check,
   X,
   ExternalLink,
+  Scale,
+  PieChart,
 } from 'lucide-react';
 
 function TaskDetailContent() {
@@ -57,6 +61,12 @@ function TaskDetailContent() {
   const [portfolioInput, setPortfolioInput] = useState('');
   const [agreedCommitment, setAgreedCommitment] = useState(false);
   const [isSubmittingApp, setIsSubmittingApp] = useState(false);
+
+  // Appeal Modal State
+  const [showAppealModal, setShowAppealModal] = useState(false);
+  const [appealReason, setAppealReason] = useState('');
+  const [appealEvidenceFiles, setAppealEvidenceFiles] = useState<EvidenceFile[]>([]);
+  const [isSubmittingAppeal, setIsSubmittingAppeal] = useState(false);
 
   // Load Task
   const loadTask = useCallback(async () => {
@@ -161,6 +171,44 @@ function TaskDetailContent() {
     }
   };
 
+  // Handle Submit Appeal (One-Time Appeal Engine)
+  const handleFileAppeal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !task || submissions.length === 0) return;
+    const latestSub = submissions[0];
+
+    if (appealReason.trim().length < 20) {
+      setErrorMsg('Alasan sanggahan wajib diisi minimal 20 karakter.');
+      return;
+    }
+
+    setIsSubmittingAppeal(true);
+    setErrorMsg(null);
+    try {
+      const res = await fileSubmissionAppealAction(user.id, {
+        submissionId: latestSub.id,
+        appealReason: appealReason.trim(),
+        evidenceFiles: appealEvidenceFiles,
+      });
+
+      if (res.success && res.task && res.submission) {
+        setTask(res.task);
+        setSubmissions([res.submission, ...submissions.slice(1)]);
+        setShowAppealModal(false);
+        setSuccessMsg(
+          'Sanggahan (Appeal) berhasil diajukan! Sesuai aturan anti-konflik kepentingan, sanggahan Anda akan ditinjau secara independen oleh Admin lain.'
+        );
+      } else {
+        setErrorMsg(res.error || 'Gagal mengajukan sanggahan.');
+      }
+    } catch (err: unknown) {
+      console.error(err);
+      setErrorMsg('Gagal mengajukan sanggahan.');
+    } finally {
+      setIsSubmittingAppeal(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-sakode-bg py-20 text-center">
@@ -243,6 +291,31 @@ function TaskDetailContent() {
               <button onClick={() => setSuccessMsg(null)} className="text-emerald-600 hover:text-emerald-900">
                 <X className="h-4 w-4" />
               </button>
+            </div>
+          )}
+
+          {/* Linked Task Banners */}
+          {task.parentTaskId && (
+            <div className="p-3.5 rounded-xl border border-sky-200 bg-sky-50 text-xs text-sky-900 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <PieChart className="h-4 w-4 text-sky-600 shrink-0" />
+                <span>Task ini merupakan Continuation Task kelanjutan dari pengerjaan sebelumnya.</span>
+              </div>
+              <Link href={`/member/tasks/${task.parentTaskId}`} className="font-bold underline text-sky-700 hover:text-sky-900 shrink-0">
+                Lihat Task Induk ↗
+              </Link>
+            </div>
+          )}
+
+          {task.continuationTaskId && (
+            <div className="p-3.5 rounded-xl border border-blue-200 bg-blue-50 text-xs text-blue-900 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <PieChart className="h-4 w-4 text-blue-600 shrink-0" />
+                <span>Task ini diselesaikan sebagian (Partial). Telah diterbitkan Continuation Task lanjutan resmi.</span>
+              </div>
+              <Link href={`/member/tasks/${task.continuationTaskId}`} className="font-bold underline text-blue-700 hover:text-blue-900 shrink-0">
+                Lihat Task Lanjutan ↗
+              </Link>
             </div>
           )}
 
@@ -505,6 +578,51 @@ function TaskDetailContent() {
                         </Link>
                       )}
 
+                      {/* One-Time Appeal Engine */}
+                      {(task.status === TASK_STATUS.FAILED || task.status === TASK_STATUS.PARTIAL) && (
+                        <>
+                          {submissions.length > 0 && submissions[0].appealed ? (
+                            <div className="p-3 rounded-lg bg-slate-100 border border-slate-200 text-xs text-slate-700 space-y-1">
+                              <span className="font-bold text-[11px] uppercase tracking-wider block text-slate-500">
+                                Status Sanggahan:
+                              </span>
+                              <p className="text-[11px]">
+                                Hak sanggahan 1-time appeal untuk submission ini telah digunakan.
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="p-3 rounded-lg bg-violet-50 border border-violet-200 space-y-2">
+                              <div className="flex items-center gap-1.5 text-xs font-bold text-violet-900">
+                                <Scale className="h-4 w-4 text-violet-600" />
+                                <span>1 Kesempatan Sanggah Tersedia</span>
+                              </div>
+                              <p className="text-[11px] text-violet-700 leading-relaxed">
+                                Anda berhak mengajukan 1 kali sanggahan independen yang akan dievaluasi oleh Admin lain.
+                              </p>
+                              <Button
+                                variant="primary"
+                                onClick={() => {
+                                  setAppealReason('');
+                                  setAppealEvidenceFiles([]);
+                                  setShowAppealModal(true);
+                                }}
+                                className="w-full font-bold text-xs h-10 gap-1.5 bg-violet-600 hover:bg-violet-700 border-violet-600 text-white"
+                              >
+                                <Scale className="h-4 w-4" />
+                                <span>Ajukan Sanggahan (Appeal)</span>
+                              </Button>
+                            </div>
+                          )}
+                        </>
+                      )}
+
+                      {task.status === TASK_STATUS.APPEALED && (
+                        <div className="p-3 rounded-lg bg-violet-50 border border-violet-300 text-xs text-violet-900 font-bold flex items-center gap-2">
+                          <Scale className="h-4 w-4 text-violet-700 shrink-0" />
+                          <span>Sanggahan sedang ditinjau secara independen oleh Admin lain.</span>
+                        </div>
+                      )}
+
                       <Link href="/member" className="block">
                         <Button variant="outline" className="w-full font-bold text-xs h-10">
                           Buka Dashboard Pengerjaan
@@ -706,6 +824,94 @@ function TaskDetailContent() {
                   <span>Kirim Permohonan</span>
                 </Button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal: Submit Appeal (One-Time Appeal Engine) */}
+        {showAppealModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
+            <div className="bg-white rounded-xl shadow-2xl border border-violet-200 w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+              <div className="p-4 border-b border-sakode-border flex items-center justify-between bg-violet-50/50">
+                <div className="flex items-center gap-2">
+                  <Scale className="h-5 w-5 text-violet-600" />
+                  <div>
+                    <h3 className="text-base font-bold text-violet-950">
+                      Pengajuan Sanggahan (One-Time Appeal Engine)
+                    </h3>
+                    <p className="text-xs text-violet-700">1 kali kesempatan banding per submission</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowAppealModal(false)}
+                  className="text-slate-400 hover:text-slate-700"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleFileAppeal} className="p-5 overflow-y-auto space-y-4 flex-1">
+                <div className="p-3.5 rounded-lg bg-violet-50 border border-violet-200 text-xs text-violet-900 leading-relaxed space-y-1">
+                  <strong>Regulasi Sistem SAKODE:</strong> Sanggahan Anda akan diteruskan kepada <strong>Admin lain yang independen</strong> (bukan admin yang memberikan keputusan awal). Sertakan penjelasan kronologis yang objektif dan bukti tambahan.
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Alasan & Kronologi Sanggahan (Wajib, minimal 20 karakter) <span className="text-rose-500">*</span>
+                  </label>
+                  <textarea
+                    rows={4}
+                    required
+                    minLength={20}
+                    value={appealReason}
+                    onChange={(e) => setAppealReason(e.target.value)}
+                    placeholder="Jelaskan secara rinci mengapa hasil pekerjaan Anda memenuhi kriteria dan tanggapan Anda terhadap catatan evaluator awal..."
+                    className="w-full text-xs p-3 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-violet-500"
+                  />
+                  <div className="text-right text-[10px] text-slate-400 mt-0.5">
+                    {appealReason.length} karakter (min. 20)
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Berkas Bukti Sanggahan Tambahan (Opsional, maks. 5 berkas)
+                  </label>
+                  <FileUploadDropzone
+                    taskId={task.id}
+                    files={appealEvidenceFiles}
+                    onFilesChange={setAppealEvidenceFiles}
+                    disabled={isSubmittingAppeal}
+                  />
+                </div>
+
+                <div className="p-4 border-t border-sakode-border bg-slate-50 flex justify-end gap-2 -mx-5 -mb-5 mt-4">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowAppealModal(false)}
+                    disabled={isSubmittingAppeal}
+                    className="text-xs"
+                  >
+                    Batal
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    size="sm"
+                    disabled={isSubmittingAppeal || appealReason.trim().length < 20}
+                    className="bg-violet-600 hover:bg-violet-700 font-bold text-xs gap-1.5 text-white"
+                  >
+                    {isSubmittingAppeal ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Scale className="h-3.5 w-3.5" />
+                    )}
+                    <span>Kirim Sanggahan Sekarang</span>
+                  </Button>
+                </div>
+              </form>
             </div>
           </div>
         )}

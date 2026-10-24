@@ -405,7 +405,9 @@ export async function reviewSubmission(
     } else if (validated.action === 'REJECT') {
       subUpdates.status = SUBMISSION_STATUS.REJECTED;
       subUpdates.revisionNotes = validated.reason;
+      subUpdates.firstReviewerAdminId = adminUid;
       taskUpdates.status = TASK_STATUS.FAILED;
+      taskUpdates.firstReviewerAdminId = adminUid;
     }
 
     // 5. Eksekusi Pembaruan Dokumen

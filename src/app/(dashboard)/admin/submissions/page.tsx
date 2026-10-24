@@ -13,6 +13,7 @@ import {
   getAllSubmissionsForAdminAction,
   getPendingSubmissionsQueueAction,
 } from '@/server/actions/submission.actions';
+import { getAppealsQueueAction } from '@/server/actions/appeal.actions';
 import type { SubmissionDocument } from '@/types/database';
 import { SUBMISSION_STATUS } from '@/lib/constants';
 import {
@@ -26,6 +27,8 @@ import {
   Loader2,
   ChevronRight,
   Layers,
+  Scale,
+  PieChart,
 } from 'lucide-react';
 
 export default function AdminSubmissionsQueuePage() {
@@ -33,9 +36,9 @@ export default function AdminSubmissionsQueuePage() {
   const [submissions, setSubmissions] = useState<SubmissionDocument[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [filterTab, setFilterTab] = useState<'PENDING' | 'ALL' | 'APPROVED' | 'REVISION' | 'REJECTED'>(
-    'PENDING'
-  );
+  const [filterTab, setFilterTab] = useState<
+    'PENDING' | 'APPEALS' | 'ALL' | 'APPROVED' | 'REVISION' | 'REJECTED'
+  >('PENDING');
   const [searchQuery, setSearchQuery] = useState('');
 
   const loadSubmissions = useCallback(async () => {
@@ -48,6 +51,13 @@ export default function AdminSubmissionsQueuePage() {
           setSubmissions(res.submissions);
         } else {
           setErrorMsg(res.error || 'Gagal memuat antrean submission.');
+        }
+      } else if (filterTab === 'APPEALS') {
+        const res = await getAppealsQueueAction();
+        if (res.success && res.submissions) {
+          setSubmissions(res.submissions);
+        } else {
+          setErrorMsg(res.error || 'Gagal memuat antrean sanggahan.');
         }
       } else {
         const res = await getAllSubmissionsForAdminAction();
@@ -136,6 +146,7 @@ export default function AdminSubmissionsQueuePage() {
             <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
               {[
                 { id: 'PENDING', label: 'Antrean Aktif' },
+                { id: 'APPEALS', label: 'Sanggahan (Appeals)' },
                 { id: 'ALL', label: 'Semua Submission' },
                 { id: 'APPROVED', label: 'Disetujui' },
                 { id: 'REVISION', label: 'Revisi' },
@@ -219,6 +230,16 @@ export default function AdminSubmissionsQueuePage() {
                       <div className="flex flex-wrap items-center gap-1.5">
                         <Badge variant="cyan">Versi {sub.version}</Badge>
                         <StatusPill status={sub.status} size="sm" />
+                        {sub.appeal && (
+                          <Badge variant="purple" leftIcon={<Scale className="h-3 w-3" />}>
+                            Sanggahan Aktif
+                          </Badge>
+                        )}
+                        {sub.status === 'PARTIAL' && (
+                          <Badge variant="outline" leftIcon={<PieChart className="h-3 w-3 text-blue-600" />}>
+                            Partial
+                          </Badge>
+                        )}
 
                         {/* Review Lock Indicators */}
                         {isLockedByOther ? (

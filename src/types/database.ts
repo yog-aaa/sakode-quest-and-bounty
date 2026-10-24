@@ -147,6 +147,8 @@ export interface TaskDocument {
   reviewLockedUntil: FirestoreDate | null;
   parentTaskId: string | null; // Terisi jika Continuation Task
   continuationTaskId: string | null; // Terisi jika task ini dilanjutkan
+  partialRewardAmount?: number | null; // Terisi jika task Partial Completion
+  firstReviewerAdminId?: string | null; // Admin pemutus awal jika Failed/Partial
   createdByAdminId: string;
   createdAt: FirestoreDate;
   updatedAt: FirestoreDate;
@@ -231,6 +233,12 @@ export interface SubmissionDocument {
   revisionDeadlineAt: FirestoreDate | null;
   extensionReason: string | null;
   appeal: SubmissionAppeal | null;
+  appealed?: boolean;
+  partialAcceptedNotes?: string | null;
+  partialRemainingScope?: string | null;
+  partialRewardAmount?: number | null;
+  continuationTaskId?: string | null;
+  firstReviewerAdminId?: string | null;
   reviewedByAdminId: string | null;
   reviewedAt?: FirestoreDate | null;
   // Shared Review Queue Lock fields

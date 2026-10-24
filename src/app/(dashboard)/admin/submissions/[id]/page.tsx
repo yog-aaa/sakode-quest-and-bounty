@@ -16,8 +16,12 @@ import {
   releaseReviewLockAction,
   reviewSubmissionAction,
 } from '@/server/actions/submission.actions';
+import {
+  setPartialCompletionAction,
+  decideAppealAction,
+} from '@/server/actions/appeal.actions';
 import type { SubmissionDocument, TaskDocument } from '@/types/database';
-import { SUBMISSION_STATUS } from '@/lib/constants';
+import { SUBMISSION_STATUS, TASK_STATUS } from '@/lib/constants';
 import {
   ArrowLeft,
   CheckCircle2,
@@ -32,6 +36,9 @@ import {
   Calendar,
   XCircle,
   X,
+  PieChart,
+  Scale,
+  ArrowUpRight,
 } from 'lucide-react';
 
 function SubmissionDetailInner() {
@@ -55,7 +62,14 @@ function SubmissionDetailInner() {
 
   // Modal Decision State
   const [activeModal, setActiveModal] = useState<
-    'APPROVE' | 'REVISION' | 'EXTEND' | 'REJECT' | null
+    | 'APPROVE'
+    | 'REVISION'
+    | 'EXTEND'
+    | 'REJECT'
+    | 'PARTIAL'
+    | 'DECIDE_APPEAL_APPROVE'
+    | 'DECIDE_APPEAL_REJECT'
+    | null
   >(null);
   const [revisionNotes, setRevisionNotes] = useState('');
   const [revisionDeadline, setRevisionDeadline] = useState('');
@@ -63,6 +77,16 @@ function SubmissionDetailInner() {
   const [extensionReason, setExtensionReason] = useState('');
   const [rejectReason, setRejectReason] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Partial Completion State
+  const [partialAcceptedNotes, setPartialAcceptedNotes] = useState('');
+  const [partialRemainingScope, setPartialRemainingScope] = useState('');
+  const [partialRewardAmount, setPartialRewardAmount] = useState<number>(0);
+  const [partialReason, setPartialReason] = useState('');
+  const [publishContinuationNow, setPublishContinuationNow] = useState(true);
+
+  // Appeal Decision State
+  const [appealResolutionNotes, setAppealResolutionNotes] = useState('');
 
   // Preview Image Modal
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -77,6 +101,9 @@ function SubmissionDetailInner() {
       if (res.success && res.submission && res.task) {
         setSubmission(res.submission);
         setTask(res.task);
+        if (res.task.totalReward) {
+          setPartialRewardAmount(Math.floor(res.task.totalReward * 0.5));
+        }
 
         // Attempt to acquire review lock
         const lockRes = await acquireReviewLockAction(user.id, submissionId);
@@ -174,6 +201,9 @@ function SubmissionDetailInner() {
       if (res.success && res.submission && res.task) {
         setSubmission(res.submission);
         setTask(res.task);
+        if (res.task.totalReward) {
+          setPartialRewardAmount(Math.floor(res.task.totalReward * 0.5));
+        }
         setActiveModal(null);
         setIsLockedByMe(false);
 
@@ -196,6 +226,91 @@ function SubmissionDetailInner() {
     } catch (err: unknown) {
       console.error(err);
       setErrorMsg('Gagal memproses evaluasi submission.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Execute Partial Completion
+  const handleExecutePartialCompletion = async () => {
+    if (!user || !submission || !task) return;
+    setIsProcessing(true);
+    setErrorMsg(null);
+    setSuccessMsg(null);
+
+    try {
+      const res = await setPartialCompletionAction(user.id, {
+        submissionId: submission.id,
+        acceptedNotes: partialAcceptedNotes.trim(),
+        remainingScope: partialRemainingScope.trim(),
+        partialRewardAmount: Number(partialRewardAmount),
+        reason: partialReason.trim(),
+        publishContinuationNow,
+      });
+
+      if (res.success && res.originalTask && res.submission) {
+        setTask(res.originalTask);
+        setSubmission(res.submission);
+        setActiveModal(null);
+        setIsLockedByMe(false);
+        setSuccessMsg(
+          `Evaluasi Partial Completion berhasil! Continuation Task baru (#${res.continuationTask?.id.slice(
+            0,
+            8
+          )}...) telah dibentuk secara otomatis.`
+        );
+
+        setTimeout(() => {
+          router.push('/admin/submissions');
+        }, 2200);
+      } else {
+        setErrorMsg(res.error || 'Gagal menetapkan partial completion.');
+      }
+    } catch (err: unknown) {
+      console.error(err);
+      setErrorMsg('Gagal menetapkan partial completion.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Execute Appeal Decision (Independent Review)
+  const handleExecuteAppealDecision = async (decision: 'APPROVE' | 'REJECT') => {
+    if (!user || !submission) return;
+    setIsProcessing(true);
+    setErrorMsg(null);
+    setSuccessMsg(null);
+
+    try {
+      const res = await decideAppealAction(user.id, {
+        submissionId: submission.id,
+        decision,
+        resolutionNotes: appealResolutionNotes.trim(),
+      });
+
+      if (res.success && res.submission && res.task) {
+        setSubmission(res.submission);
+        setTask(res.task);
+        if (res.task.totalReward) {
+          setPartialRewardAmount(Math.floor(res.task.totalReward * 0.5));
+        }
+        setActiveModal(null);
+        setIsLockedByMe(false);
+        const actionText =
+          decision === 'APPROVE'
+            ? 'Sanggahan DITERIMA (Approved)! Status task dipulihkan menjadi APPROVED.'
+            : 'Sanggahan DITOLAK (Final Reject). Status task tetap pada keputusan awal.';
+        setSuccessMsg(actionText);
+
+        setTimeout(() => {
+          router.push('/admin/submissions');
+        }, 2200);
+      } else {
+        setErrorMsg(res.error || 'Gagal memutuskan sanggahan.');
+      }
+    } catch (err: unknown) {
+      console.error(err);
+      setErrorMsg('Gagal memutuskan sanggahan.');
     } finally {
       setIsProcessing(false);
     }
@@ -480,11 +595,11 @@ function SubmissionDetailInner() {
             <div>
               <h3 className="text-sm font-black text-sakode-text">Keputusan Evaluasi Admin</h3>
               <p className="text-xs text-sakode-text-muted mt-0.5">
-                Pilih salah satu dari 4 tindakan evaluasi resmi SAKODE Academy. Keputusan dicatat permanen di audit trail.
+                Pilih salah satu dari 5 tindakan evaluasi resmi SAKODE Academy. Keputusan dicatat permanen di audit trail.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-5 gap-2.5">
               {/* Approve */}
               <Button
                 variant="primary"
@@ -494,6 +609,20 @@ function SubmissionDetailInner() {
               >
                 <CheckCircle2 className="h-4 w-4" />
                 <span>Setujui Hasil</span>
+              </Button>
+
+              {/* Partial Completion */}
+              <Button
+                variant="outline"
+                disabled={isLockedByOther || isProcessing}
+                onClick={() => {
+                  setPartialRewardAmount(Math.floor(task.totalReward * 0.5));
+                  setActiveModal('PARTIAL');
+                }}
+                className="font-bold text-xs gap-1.5 h-11 text-blue-700 border-blue-300 hover:bg-blue-50"
+              >
+                <PieChart className="h-4 w-4 text-blue-600" />
+                <span>Selesai Sebagian</span>
               </Button>
 
               {/* Request Revision */}
@@ -529,6 +658,141 @@ function SubmissionDetailInner() {
                 <span>Tolak Hasil</span>
               </Button>
             </div>
+          </Card>
+        )}
+
+        {/* Section: Continuation Task Banner if Partial */}
+        {task.continuationTaskId && (
+          <div className="p-4 rounded-xl border border-blue-200 bg-blue-50 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <PieChart className="h-5 w-5 text-blue-600 shrink-0" />
+              <div>
+                <h4 className="font-bold text-xs sm:text-sm text-blue-950">
+                  Task Ini Telah Diselesaikan Sebagian (Partial Completion)
+                </h4>
+                <p className="text-[11px] text-blue-800">
+                  Continuation Task telah diterbitkan secara otomatis dengan sisa reward dan ruang lingkup tersisa.
+                </p>
+              </div>
+            </div>
+            <Link href={`/member/tasks/${task.continuationTaskId}`} target="_blank">
+              <Button variant="outline" size="sm" className="text-xs bg-white text-blue-700 border-blue-300 hover:bg-blue-100/50">
+                <span>Lihat Task Lanjutan</span>
+                <ArrowUpRight className="h-3.5 w-3.5 ml-1" />
+              </Button>
+            </Link>
+          </div>
+        )}
+
+        {/* Section: Active Appeal Review Panel (if APPEALED) */}
+        {task.status === TASK_STATUS.APPEALED && submission.appeal && (
+          <Card className="p-5 border-2 border-violet-400 bg-violet-50/30 space-y-4">
+            <div className="flex items-start justify-between gap-3 border-b border-violet-200 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-violet-100 text-violet-700 flex items-center justify-center shrink-0">
+                  <Scale className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-violet-950 flex items-center gap-1.5">
+                    <span>Sanggahan Member (One-Time Appeal Engine)</span>
+                    <Badge variant="purple">Aktif</Badge>
+                  </h3>
+                  <p className="text-[11px] text-violet-700 mt-0.5">
+                    Diajukan pada: {formatDateWIB(submission.appeal.filedAt)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="text-right text-[11px] text-slate-500">
+                <span>Evaluator Awal: </span>
+                <span className="font-mono font-bold text-slate-700">
+                  {submission.firstReviewerAdminId || submission.reviewedByAdminId || 'Admin'}
+                </span>
+              </div>
+            </div>
+
+            {/* Appeal Reason */}
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-violet-900 uppercase tracking-wider">
+                Alasan & Kronologi Sanggahan dari Member:
+              </label>
+              <div className="p-3.5 rounded-lg bg-white border border-violet-200 text-xs text-slate-800 whitespace-pre-line leading-relaxed">
+                {submission.appeal.reason}
+              </div>
+            </div>
+
+            {/* Evidence files attached to appeal */}
+            {submission.appeal.evidenceFiles && submission.appeal.evidenceFiles.length > 0 && (
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold text-violet-900 uppercase tracking-wider">
+                  Berkas Bukti Sanggahan Tambahan:
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {submission.appeal.evidenceFiles.map((f, idx) => (
+                    <a
+                      key={idx}
+                      href={f.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-violet-200 text-xs font-semibold text-violet-700 hover:bg-violet-100/50 transition-colors"
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                      <span>{f.fileName}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Conflict of Interest Warning & Decision Buttons */}
+            {user?.id ===
+            (submission.firstReviewerAdminId ||
+              submission.reviewedByAdminId ||
+              task.firstReviewerAdminId) ? (
+              <div className="p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs space-y-1">
+                <div className="font-bold flex items-center gap-1.5 text-rose-900">
+                  <AlertCircle className="h-4 w-4 text-rose-600" />
+                  <span>Aturan Anti-Konflik Kepentingan (Conflict of Interest)</span>
+                </div>
+                <p className="leading-relaxed">
+                  Anda adalah Admin yang menetapkan evaluasi awal pada task ini. Sesuai regulasi sistem SAKODE, peninjauan sanggahan <strong>MUTLAK harus dilakukan oleh Admin lain secara independen</strong>. Tombol keputusan dinonaktifkan untuk akun Anda.
+                </p>
+              </div>
+            ) : (
+              <div className="pt-2 border-t border-violet-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <p className="text-xs text-violet-800">
+                  Sebagai Admin independen, Anda berwenang memutuskan sanggahan ini secara final.
+                </p>
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => {
+                      setAppealResolutionNotes('');
+                      setActiveModal('DECIDE_APPEAL_APPROVE');
+                    }}
+                    disabled={isProcessing}
+                    className="font-bold text-xs gap-1.5 h-10 bg-emerald-600 hover:bg-emerald-700 text-white"
+                  >
+                    <CheckCircle2 className="h-4 w-4" />
+                    <span>Terima Sanggahan (Approve)</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setAppealResolutionNotes('');
+                      setActiveModal('DECIDE_APPEAL_REJECT');
+                    }}
+                    disabled={isProcessing}
+                    className="font-bold text-xs gap-1.5 h-10 text-rose-700 border-rose-300 hover:bg-rose-50"
+                  >
+                    <XCircle className="h-4 w-4 text-rose-600" />
+                    <span>Tolak Sanggahan (Final Reject)</span>
+                  </Button>
+                </div>
+              </div>
+            )}
           </Card>
         )}
 
@@ -741,6 +1005,272 @@ function SubmissionDetailInner() {
                 >
                   {isProcessing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
                   <span>Tolak Hasil Sekarang</span>
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal: Partial Completion */}
+        {activeModal === 'PARTIAL' && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
+            <div className="bg-white rounded-xl shadow-2xl border border-blue-200 w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+              <div className="p-4 border-b border-sakode-border flex items-center justify-between bg-blue-50/50">
+                <div className="flex items-center gap-2">
+                  <PieChart className="h-5 w-5 text-blue-600" />
+                  <div>
+                    <h3 className="text-base font-bold text-blue-950">Selesai Sebagian (Partial Completion)</h3>
+                    <p className="text-xs text-blue-800">Evaluasi parsial & pembentukan Continuation Task</p>
+                  </div>
+                </div>
+                <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-slate-700">
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="p-5 overflow-y-auto space-y-4 flex-1">
+                {/* Live Reward Calculation Banner */}
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 grid grid-cols-3 gap-2 text-center text-xs">
+                  <div>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase block">Bounty Awal</span>
+                    <span className="font-black text-sakode-text text-sm block mt-0.5">
+                      {formatCurrencyIDR(task.totalReward)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-bold text-blue-600 uppercase block">Reward Parsial</span>
+                    <span className="font-black text-blue-700 text-sm block mt-0.5">
+                      {formatCurrencyIDR(partialRewardAmount || 0)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-bold text-emerald-600 uppercase block">Sisa Task Lanjutan</span>
+                    <span
+                      className={`font-black text-sm block mt-0.5 ${
+                        task.totalReward - partialRewardAmount <= 0
+                          ? 'text-rose-600'
+                          : 'text-emerald-700'
+                      }`}
+                    >
+                      {formatCurrencyIDR(Math.max(0, task.totalReward - partialRewardAmount))}
+                    </span>
+                  </div>
+                </div>
+
+                {partialRewardAmount >= task.totalReward && (
+                  <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs">
+                    <strong>Peringatan Invariant:</strong> Nilai reward parsial harus lebih kecil dari total bounty task ({formatCurrencyIDR(task.totalReward)}). Jika diterima penuh, gunakan aksi &quot;Setujui Hasil&quot;.
+                  </div>
+                )}
+
+                {/* Accepted notes */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Bagian Pekerjaan yang Diterima (Accepted Deliverable) <span className="text-rose-500">*</span>
+                  </label>
+                  <textarea
+                    rows={3}
+                    required
+                    minLength={15}
+                    value={partialAcceptedNotes}
+                    onChange={(e) => setPartialAcceptedNotes(e.target.value)}
+                    placeholder="Sebutkan fitur/komponen apa saja yang telah selesai dan dapat diterima kualitasnya..."
+                    className="w-full text-xs p-2.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                  <div className="text-right text-[10px] text-slate-400 mt-0.5">
+                    {partialAcceptedNotes.length} karakter (min. 15)
+                  </div>
+                </div>
+
+                {/* Remaining scope for continuation task */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Ruang Lingkup Tersisa untuk Task Lanjutan (Continuation Scope) <span className="text-rose-500">*</span>
+                  </label>
+                  <textarea
+                    rows={3}
+                    required
+                    minLength={15}
+                    value={partialRemainingScope}
+                    onChange={(e) => setPartialRemainingScope(e.target.value)}
+                    placeholder="Jelaskan sisa scope pekerjaan yang belum tuntas yang akan dikerjakan pada Continuation Task..."
+                    className="w-full text-xs p-2.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                  <div className="text-right text-[10px] text-slate-400 mt-0.5">
+                    {partialRemainingScope.length} karakter (min. 15)
+                  </div>
+                </div>
+
+                {/* Partial reward input */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Nominal Reward Parsial untuk Member (Integer Rupiah) <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    step={1000}
+                    min={1000}
+                    max={task.totalReward - 1000}
+                    value={partialRewardAmount}
+                    onChange={(e) => setPartialRewardAmount(parseInt(e.target.value) || 0)}
+                    className="w-full text-xs font-bold p-2.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* Reason */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Alasan Evaluasi Parsial (Audit Trail) <span className="text-rose-500">*</span>
+                  </label>
+                  <textarea
+                    rows={2}
+                    required
+                    minLength={10}
+                    value={partialReason}
+                    onChange={(e) => setPartialReason(e.target.value)}
+                    placeholder="Alasan mengapa diputuskan selesai sebagian..."
+                    className="w-full text-xs p-2.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* Checkbox: publish continuation now */}
+                <label className="flex items-center gap-2 cursor-pointer pt-1">
+                  <input
+                    type="checkbox"
+                    checked={publishContinuationNow}
+                    onChange={(e) => setPublishContinuationNow(e.target.checked)}
+                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-xs font-semibold text-slate-800">
+                    Langsung terbitkan Continuation Task ke status OPEN (Terbuka untuk pelamar baru)
+                  </span>
+                </label>
+              </div>
+
+              <div className="p-4 border-t border-sakode-border bg-slate-50 flex justify-end gap-2">
+                <Button variant="ghost" size="sm" onClick={() => setActiveModal(null)} disabled={isProcessing} className="text-xs">
+                  Batal
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  disabled={
+                    isProcessing ||
+                    partialAcceptedNotes.trim().length < 15 ||
+                    partialRemainingScope.trim().length < 15 ||
+                    partialReason.trim().length < 10 ||
+                    partialRewardAmount <= 0 ||
+                    partialRewardAmount >= task.totalReward
+                  }
+                  onClick={handleExecutePartialCompletion}
+                  className="bg-blue-600 hover:bg-blue-700 font-bold text-xs gap-1.5 text-white"
+                >
+                  {isProcessing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <PieChart className="h-3.5 w-3.5" />}
+                  <span>Terapkan Selesai Sebagian</span>
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal: Decide Appeal (APPROVE) */}
+        {activeModal === 'DECIDE_APPEAL_APPROVE' && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
+            <div className="bg-white rounded-xl shadow-2xl border border-sakode-border w-full max-w-lg p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-center gap-2.5 border-b border-sakode-border pb-3">
+                <div className="w-9 h-9 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-sakode-text">Terima Sanggahan Member (Approve)</h3>
+                  <p className="text-xs text-sakode-text-muted">Keputusan peninjauan independen</p>
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-700 leading-relaxed">
+                Menerima sanggahan ini akan membatalkan penolakan sebelumnya dan mengubah status task &amp; submission menjadi <strong>APPROVED</strong>.
+              </p>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Catatan Resolusi Banding (Wajib, minimal 15 karakter)
+                </label>
+                <textarea
+                  rows={4}
+                  required
+                  minLength={15}
+                  value={appealResolutionNotes}
+                  onChange={(e) => setAppealResolutionNotes(e.target.value)}
+                  placeholder="Jelaskan pertimbangan mengapa bukti atau penjelasan tambahan member dapat diterima..."
+                  className="w-full text-xs p-3 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-sakode-border">
+                <Button variant="ghost" size="sm" onClick={() => setActiveModal(null)} disabled={isProcessing} className="text-xs">
+                  Batal
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  disabled={isProcessing || appealResolutionNotes.trim().length < 15}
+                  onClick={() => handleExecuteAppealDecision('APPROVE')}
+                  className="bg-emerald-600 hover:bg-emerald-700 font-bold text-xs gap-1.5 text-white"
+                >
+                  {isProcessing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                  <span>Terima Sanggahan Sekarang</span>
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal: Decide Appeal (REJECT) */}
+        {activeModal === 'DECIDE_APPEAL_REJECT' && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
+            <div className="bg-white rounded-xl shadow-2xl border border-rose-200 w-full max-w-lg p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-center gap-2.5 border-b border-sakode-border pb-3">
+                <div className="w-9 h-9 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                  <XCircle className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-rose-900">Tolak Sanggahan Member (Final Reject)</h3>
+                  <p className="text-xs text-rose-700">Keputusan akhir yang tidak dapat diajukan banding lagi</p>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-800 leading-relaxed">
+                Penolakan ini bersifat final. Status task akan tetap <strong>FAILED</strong> atau <strong>PARTIAL</strong> dan hak sanggah 1-time appeal untuk submission ini ditutup secara permanen.
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Catatan Alasan Penolakan Banding (Wajib, minimal 15 karakter)
+                </label>
+                <textarea
+                  rows={4}
+                  required
+                  minLength={15}
+                  value={appealResolutionNotes}
+                  onChange={(e) => setAppealResolutionNotes(e.target.value)}
+                  placeholder="Jelaskan secara transparan pertimbangan objektif mengapa sanggahan ini tidak dapat diterima..."
+                  className="w-full text-xs p-3 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-rose-500"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-sakode-border">
+                <Button variant="ghost" size="sm" onClick={() => setActiveModal(null)} disabled={isProcessing} className="text-xs">
+                  Batal
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  disabled={isProcessing || appealResolutionNotes.trim().length < 15}
+                  onClick={() => handleExecuteAppealDecision('REJECT')}
+                  className="bg-rose-600 hover:bg-rose-700 font-bold text-xs gap-1.5 text-white"
+                >
+                  {isProcessing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
+                  <span>Tolak Sanggahan Secara Final</span>
                 </Button>
               </div>
             </div>
