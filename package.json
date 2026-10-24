@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:concurrency": "node scripts/run-concurrency-test.mjs"
   },
   "dependencies": {
     "cloudinary": "^2.11.0",

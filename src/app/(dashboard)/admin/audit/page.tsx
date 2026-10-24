@@ -67,6 +67,18 @@ export default function AdminAuditTrailPage() {
     return () => clearTimeout(timer);
   }, [loadAuditLogs]);
 
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape' && activeSnapshotEvent) {
+        setActiveSnapshotEvent(null);
+      }
+    }
+    if (activeSnapshotEvent) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeSnapshotEvent]);
+
   // Client-side text filter
   const filteredEvents = events.filter((ev) => {
     if (!searchTerm) return true;

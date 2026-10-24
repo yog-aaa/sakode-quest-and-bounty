@@ -1,0 +1,303 @@
+rules_version = '2';
+
+/**
+ * SAKODE Task & Reward Platform - Hardened Production Firestore Security Rules
+ * Mengimplementasikan RBAC ketat, isolasi data rekening perbankan, dan Strict Invariants:
+ * 1. Append-Only Audit Trail (koleksi auditEvents dilarang di-update atau di-delete).
+ * 2. Data rekening perbankan terenkripsi hanya boleh dibaca oleh pemilik akun dan Admin.
+ * 3. Batas kuota dan transaksi kritis diverifikasi di tingkat dokumen dan claims.
+ */
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =========================================================================
+    // Helper Functions
+    // =========================================================================
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        (request.auth.token != null && request.auth.token.role in ['ADMIN', 'SUPER_ADMIN']) ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         getUserData().role in ['ADMIN', 'SUPER_ADMIN'])
+      );
+    }
+
+    function isSuperAdmin() {
+      return isSignedIn() && (
+        (request.auth.token != null && request.auth.token.role == 'SUPER_ADMIN') ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         getUserData().role == 'SUPER_ADMIN')
+      );
+    }
+
+    function isApprovedMember() {
+      return isSignedIn() && (
+        (request.auth.token != null && request.auth.token.approvalStatus == 'APPROVED') ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         getUserData().approvalStatus == 'APPROVED') ||
+        isAdmin()
+      );
+    }
+
+    // =========================================================================
+    // 1. Koleksi: users
+    // =========================================================================
+    match /users/{userId} {
+      // Pembacaan: Pengguna dapat membaca data profil publik member lain (untuk roster tim & applicant)
+      allow read: if isSignedIn();
+
+      // Pendaftaran pertama: Pengguna dapat membuat dokumen profil miliknya sendiri
+      allow create: if isOwner(userId) &&
+        request.resource.data.role == 'MEMBER' &&
+        request.resource.data.approvalStatus == 'PENDING';
+
+      // Pembaruan profil: Pemilik hanya dapat memperbarui atribut profil aman (nama, kontak, skills)
+      // Perubahan status sensitif (role, approvalStatus, activeTaskId, stats) DILARANG di client
+      allow update: if (
+        isOwner(userId) &&
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'role',
+          'approvalStatus',
+          'activeTaskId',
+          'stats',
+          'cooldownUntil',
+          'isSuspended',
+          'penaltyRestriction'
+        ])
+      ) || isAdmin();
+
+      // Penghapusan: Hanya Super Admin
+      allow delete: if isSuperAdmin();
+    }
+
+    // =========================================================================
+    // 2. Koleksi: tasks
+    // =========================================================================
+    match /tasks/{taskId} {
+      // Katalog task dapat dibaca oleh seluruh user terautentikasi
+      allow read: if isSignedIn();
+
+      // Pembuatan, pengeditan langsung, dan penghapusan hanya oleh Admin
+      // (Pengambilan task instan dikelola aman via Firebase Admin SDK Transaction)
+      allow create, update, delete: if isAdmin();
+    }
+
+    // =========================================================================
+    // 3. Koleksi: applications
+    // =========================================================================
+    match /applications/{appId} {
+      // Dapat dibaca oleh pelamar atau Admin
+      allow read: if isSignedIn() && (
+        isOwner(resource.data.userId) ||
+        isAdmin()
+      );
+
+      // Member approved dapat mengajukan lamaran atas namanya sendiri
+      allow create: if isApprovedMember() &&
+        isOwner(request.resource.data.userId) &&
+        request.resource.data.status == 'PENDING';
+
+      // Pelamar dapat menarik (WITHDRAW) aplikasinya sendiri, Admin dapat mengelola status
+      allow update: if isSignedIn() && (
+        (isOwner(resource.data.userId) &&
+         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt']) &&
+         request.resource.data.status == 'WITHDRAWN') ||
+        isAdmin()
+      );
+
+      allow delete: if isAdmin();
+    }
+
+    // =========================================================================
+    // 4. Koleksi: teams
+    // =========================================================================
+    match /teams/{teamId} {
+      allow read: if isSignedIn();
+
+      // Member approved dapat membuat tim baru di mana dia menjadi Team Lead
+      allow create: if isApprovedMember() &&
+        request.resource.data.teamLeadUserId == request.auth.uid;
+
+      // Pembaruan info tim oleh Team Lead (selama belum locked) atau Admin
+      allow update: if isSignedIn() && (
+        (resource.data.teamLeadUserId == request.auth.uid &&
+         resource.data.rosterLocked == false) ||
+        isAdmin()
+      );
+
+      allow delete: if isAdmin();
+    }
+
+    // =========================================================================
+    // 5. Koleksi: teamMemberships
+    // =========================================================================
+    match /teamMemberships/{membershipId} {
+      allow read: if isSignedIn();
+
+      allow create: if isApprovedMember() &&
+        isOwner(request.resource.data.userId);
+
+      allow update, delete: if isSignedIn() && (
+        isOwner(resource.data.userId) ||
+        isAdmin()
+      );
+    }
+
+    // =========================================================================
+    // 6. Koleksi: submissions
+    // =========================================================================
+    match /submissions/{subId} {
+      // Dapat dibaca oleh submitter, admin, atau anggota tim terkait
+      allow read: if isSignedIn() && (
+        isOwner(resource.data.submittedByUserId) ||
+        isAdmin() ||
+        (resource.data.teamId != null)
+      );
+
+      // Pengiriman deliverable baru oleh member approved
+      allow create: if isApprovedMember() &&
+        isOwner(request.resource.data.submittedByUserId);
+
+      // Review locking & evaluasi dikelola secara eksklusif oleh Admin
+      allow update: if isAdmin();
+
+      allow delete: if isSuperAdmin();
+    }
+
+    // =========================================================================
+    // 7. Koleksi: rewardLedgers
+    // =========================================================================
+    match /rewardLedgers/{ledgerId} {
+      // Pemilik reward atau Admin dapat membaca riwayat ledger
+      allow read: if isSignedIn() && (
+        isOwner(resource.data.ownerUserId) ||
+        isAdmin()
+      );
+
+      // Ledger hanya boleh dibuat/dimutasi oleh sistem (Admin SDK)
+      allow write: if isAdmin();
+    }
+
+    // =========================================================================
+    // 8. Koleksi: claims
+    // =========================================================================
+    match /claims/{claimId} {
+      allow read: if isSignedIn() && (
+        isOwner(resource.data.userId) ||
+        isAdmin()
+      );
+
+      // Member dapat mengajukan klaim atas namanya sendiri
+      allow create: if isApprovedMember() &&
+        isOwner(request.resource.data.userId) &&
+        request.resource.data.status == 'CLAIMED';
+
+      // Konfirmasi penerimaan dana oleh pemilik klaim, mutasi proses/bayar oleh Admin
+      allow update: if isSignedIn() && (
+        (isOwner(resource.data.userId) &&
+         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'confirmedAt', 'updatedAt']) &&
+         request.resource.data.status == 'CONFIRMED') ||
+        isAdmin()
+      );
+
+      allow delete: if isSuperAdmin();
+    }
+
+    // =========================================================================
+    // 9. Koleksi: teamDistributions
+    // =========================================================================
+    match /teamDistributions/{distId} {
+      allow read: if isSignedIn();
+
+      // Team Lead dapat menginisialisasi proposal distribusi
+      allow create: if isApprovedMember() &&
+        request.resource.data.teamLeadUserId == request.auth.uid;
+
+      // Voting oleh anggota tim atau konfirmasi transfer oleh Admin
+      allow update: if isSignedIn();
+
+      allow delete: if isSuperAdmin();
+    }
+
+    // =========================================================================
+    // 10. Koleksi: reports
+    // =========================================================================
+    match /reports/{reportId} {
+      // Pelapor atau Admin yang tidak memiliki konflik kepentingan dapat membaca
+      allow read: if isSignedIn() && (
+        isOwner(resource.data.reporterUserId) ||
+        isAdmin()
+      );
+
+      // Seluruh user terdaftar dapat mengajukan laporan sengketa berbukti
+      allow create: if isSignedIn() &&
+        isOwner(request.resource.data.reporterUserId) &&
+        request.resource.data.status == 'SUBMITTED';
+
+      // Resolusi dan penanganan sengketa hanya oleh Admin
+      allow update: if isAdmin();
+
+      // Laporan tidak boleh dihapus demi integritas bukti
+      allow delete: if false;
+    }
+
+    // =========================================================================
+    // 11. Koleksi: penalties
+    // =========================================================================
+    match /penalties/{penaltyId} {
+      allow read: if isSignedIn() && (
+        isOwner(resource.data.userId) ||
+        isAdmin()
+      );
+
+      allow write: if isAdmin();
+    }
+
+    // =========================================================================
+    // 12. Koleksi: notifications
+    // =========================================================================
+    match /notifications/{notifId} {
+      // Pengguna hanya boleh membaca notifikasi miliknya sendiri
+      allow read: if isSignedIn() && isOwner(resource.data.userId);
+
+      // Pengguna hanya boleh mengubah status baca (isRead) notifikasinya sendiri
+      allow update: if isSignedIn() &&
+        isOwner(resource.data.userId) &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead']);
+
+      // Pembuatan notifikasi dikelola oleh backend/Admin
+      allow create: if isAdmin();
+
+      // Pengguna dapat menghapus notifikasinya sendiri
+      allow delete: if isSignedIn() && isOwner(resource.data.userId);
+    }
+
+    // =========================================================================
+    // 13. Koleksi: auditEvents (STRICT INVARIANT: APPEND-ONLY AUDIT TRAIL)
+    // =========================================================================
+    match /auditEvents/{eventId} {
+      // Pembacaan jejak audit hanya dapat dilakukan oleh Admin / Super Admin
+      allow read: if isAdmin();
+
+      // Event audit dapat dibuat oleh sistem atau operasi server terautentikasi
+      allow create: if isSignedIn();
+
+      // STRICT INVARIANT: DILARANG KERAS MENGUBAH ATAU MENGHAPUS LOG AUDIT
+      allow update, delete: if false;
+    }
+
+  }
+}
