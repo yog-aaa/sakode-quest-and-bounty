@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Compass, Layers, ShieldAlert } from 'lucide-react';
+import { Compass, Layers, ShieldAlert, ClipboardCheck } from 'lucide-react';
 
 export const MobileNav: React.FC = () => {
   const pathname = usePathname();
@@ -12,8 +12,8 @@ export const MobileNav: React.FC = () => {
   const navItems = [
     { href: '/member/tasks', label: 'Eksplor', icon: Compass },
     { href: '/member', label: 'Task Saya', icon: Layers },
-    { href: '/admin/tasks', label: 'Task Admin', icon: ShieldAlert },
-    { href: '/admin/members', label: 'Member Admin', icon: ShieldAlert },
+    { href: '/admin/submissions', label: 'Review', icon: ClipboardCheck },
+    { href: '/admin/tasks', label: 'Admin', icon: ShieldAlert },
   ];
 
   return (

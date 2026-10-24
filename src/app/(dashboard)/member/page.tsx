@@ -339,15 +339,16 @@ export default function MemberDashboardPage() {
                           </Button>
                         </Link>
 
-                        <Button
-                          variant="primary"
-                          size="sm"
-                          onClick={() => setShowSubmissionNotice(true)}
-                          className="font-bold text-xs h-10 gap-1.5 px-4 shadow-sm"
-                        >
-                          <FileCheck2 className="h-4 w-4" />
-                          <span>Kirim Hasil Pekerjaan</span>
-                        </Button>
+                        <Link href={`/member/tasks/${activeTask.id}/submit`}>
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            className="font-bold text-xs h-10 gap-1.5 px-4 shadow-sm bg-emerald-600 hover:bg-emerald-700 border-emerald-600 text-white"
+                          >
+                            <FileCheck2 className="h-4 w-4" />
+                            <span>Kirim Hasil Pekerjaan</span>
+                          </Button>
+                        </Link>
                       </div>
                     </div>
                   </CardContent>

@@ -15,6 +15,7 @@ import {
   Layers,
   LogOut,
   UserCheck,
+  ClipboardCheck,
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -27,6 +28,7 @@ export const Navbar: React.FC = () => {
     ...(user?.isAdmin
       ? [
           { href: '/admin/tasks', label: 'Kelola Task', icon: Compass },
+          { href: '/admin/submissions', label: 'Antrean Review', icon: ClipboardCheck },
           { href: '/admin/members', label: 'Antrean Member', icon: ShieldAlert },
         ]
       : []),

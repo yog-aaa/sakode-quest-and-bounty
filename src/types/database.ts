@@ -232,6 +232,16 @@ export interface SubmissionDocument {
   extensionReason: string | null;
   appeal: SubmissionAppeal | null;
   reviewedByAdminId: string | null;
+  reviewedAt?: FirestoreDate | null;
+  // Shared Review Queue Lock fields
+  reviewLockedByAdminId?: string | null;
+  reviewLockedUntil?: FirestoreDate | null;
+  reviewerDisplayName?: string | null;
+  // Metadata helper fields
+  taskTitle?: string;
+  taskTotalReward?: number;
+  submitterDisplayName?: string;
+  submitterEmail?: string;
   createdAt: FirestoreDate;
   updatedAt: FirestoreDate;
 }

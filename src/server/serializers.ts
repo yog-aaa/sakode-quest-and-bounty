@@ -4,6 +4,7 @@ import type {
   ApplicationDocument,
   TeamDocument,
   TeamMembershipDocument,
+  SubmissionDocument,
 } from '@/types/database';
 
 function serializeDate(d: unknown): string {
@@ -71,5 +72,23 @@ export function serializeTeamMembershipDoc(m: TeamMembershipDocument): TeamMembe
     agreedTermsAt: serializeNullableDate(m.agreedTermsAt),
     createdAt: serializeDate(m.createdAt),
     updatedAt: m.updatedAt ? serializeDate(m.updatedAt) : undefined,
+  };
+}
+
+export function serializeSubmissionDoc(sub: SubmissionDocument): SubmissionDocument {
+  return {
+    ...sub,
+    revisionDeadlineAt: serializeNullableDate(sub.revisionDeadlineAt),
+    reviewedAt: serializeNullableDate(sub.reviewedAt),
+    reviewLockedUntil: serializeNullableDate(sub.reviewLockedUntil),
+    appeal: sub.appeal
+      ? {
+          ...sub.appeal,
+          filedAt: serializeDate(sub.appeal.filedAt),
+          reviewedAt: serializeNullableDate(sub.appeal.reviewedAt),
+        }
+      : null,
+    createdAt: serializeDate(sub.createdAt),
+    updatedAt: serializeDate(sub.updatedAt),
   };
 }

@@ -14,7 +14,8 @@ import { formatCurrencyIDR, formatDateWIB } from '@/lib/utils';
 import { TASK_STATUS, TASK_MODES, TASK_ASSIGNMENT_TYPES } from '@/lib/constants';
 import { getTaskDetailAction } from '@/server/actions/task.actions';
 import { instantTakeTaskAction, submitApplicationAction } from '@/server/actions/assignment.actions';
-import type { TaskDocument } from '@/types/database';
+import { getSubmissionsForTaskAction } from '@/server/actions/submission.actions';
+import type { TaskDocument, SubmissionDocument } from '@/types/database';
 import {
   ArrowLeft,
   Compass,
@@ -41,6 +42,7 @@ function TaskDetailContent() {
   const taskId = Array.isArray(params.id) ? params.id[0] : params.id;
 
   const [task, setTask] = useState<TaskDocument | null>(null);
+  const [submissions, setSubmissions] = useState<SubmissionDocument[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -67,6 +69,11 @@ function TaskDetailContent() {
         setTask(res.task);
       } else {
         setErrorMsg(res.error || 'Task tidak ditemukan.');
+      }
+
+      const resSubs = await getSubmissionsForTaskAction(taskId);
+      if (resSubs.success && resSubs.submissions) {
+        setSubmissions(resSubs.submissions);
       }
     } catch (err: unknown) {
       console.error(err);
@@ -343,6 +350,76 @@ function TaskDetailContent() {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Riwayat Deliverable / Submissions */}
+              {submissions.length > 0 && (
+                <Card className="p-5 space-y-4">
+                  <div className="flex items-center justify-between border-b border-sakode-border pb-3">
+                    <h3 className="text-sm font-black text-sakode-text flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-sakode-cyan" />
+                      <span>Riwayat Deliverable Diserahkan ({submissions.length})</span>
+                    </h3>
+                  </div>
+
+                  <div className="space-y-3">
+                    {submissions.map((sub) => (
+                      <div
+                        key={sub.id}
+                        className="p-4 rounded-xl border border-sakode-border bg-white space-y-2.5"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="cyan">Versi {sub.version}</Badge>
+                            <StatusPill status={sub.status} size="sm" />
+                          </div>
+                          <span className="text-[11px] text-sakode-text-muted">
+                            {formatDateWIB(sub.createdAt)}
+                          </span>
+                        </div>
+
+                        <p className="text-xs text-slate-700 whitespace-pre-line leading-relaxed bg-slate-50 p-2.5 rounded-lg border border-slate-200/70">
+                          {sub.notes}
+                        </p>
+
+                        {sub.deliverableLinks && sub.deliverableLinks.length > 0 && (
+                          <div className="space-y-1">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase">Tautan:</span>
+                            <div className="flex flex-wrap gap-2">
+                              {sub.deliverableLinks.map((link, idx) => (
+                                <a
+                                  key={idx}
+                                  href={link}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="text-xs text-sky-600 hover:underline flex items-center gap-1 font-semibold"
+                                >
+                                  <span>Tautan #{idx + 1}</span>
+                                  <ExternalLink className="h-3 w-3" />
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {sub.evidenceFiles && sub.evidenceFiles.length > 0 && (
+                          <div className="text-[11px] text-slate-500 font-medium">
+                            Lampiran Bukti: {sub.evidenceFiles.length} berkas
+                          </div>
+                        )}
+
+                        {sub.revisionNotes && (
+                          <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
+                            <span className="font-bold text-[11px] uppercase tracking-wider block">
+                              Catatan Revisi dari Admin:
+                            </span>
+                            <p>{sub.revisionNotes}</p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
             </div>
 
             {/* Right 1 Col: Bounty Reward Card & Actions */}
@@ -415,8 +492,21 @@ function TaskDetailContent() {
                         <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
                         <span>Anda terdaftar pada task ini!</span>
                       </div>
+
+                      {(task.status === TASK_STATUS.ACTIVE || task.status === TASK_STATUS.REVISION) && (
+                        <Link href={`/member/tasks/${task.id}/submit`} className="block">
+                          <Button
+                            variant="primary"
+                            className="w-full font-bold text-xs h-11 gap-1.5 bg-emerald-600 hover:bg-emerald-700 border-emerald-600 text-white shadow-sm"
+                          >
+                            <Send className="h-4 w-4" />
+                            <span>Kirim Deliverable (Hasil)</span>
+                          </Button>
+                        </Link>
+                      )}
+
                       <Link href="/member" className="block">
-                        <Button variant="primary" className="w-full font-bold text-xs h-10">
+                        <Button variant="outline" className="w-full font-bold text-xs h-10">
                           Buka Dashboard Pengerjaan
                         </Button>
                       </Link>
