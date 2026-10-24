@@ -30,6 +30,7 @@ import {
   type DecideAppealInput,
 } from '@/lib/validations/appeal';
 import { assertAdminPrivilege } from './user.service';
+import { createRewardLedgerInsideTransaction } from './claim.service';
 
 /**
  * 1. Menetapkan Selesai Sebagian (Partial Completion) & Auto-Generate Continuation Task.
@@ -166,6 +167,17 @@ export async function setPartialCompletion(
       updatedAt: FieldValue.serverTimestamp(),
     };
     transaction.update(taskRef, taskUpdates);
+
+    // Buat item partial reward ledger untuk assigned user
+    const partialRecipientUserId = taskData.assignedUserId || subData.submittedByUserId;
+    if (partialRecipientUserId) {
+      createRewardLedgerInsideTransaction(transaction, {
+        taskId: taskData.id,
+        ownerUserId: partialRecipientUserId,
+        amount: validated.partialRewardAmount,
+        taskTitle: `[Parsial] ${taskData.title}`,
+      });
+    }
 
     // 8. Audit Trail (Append-Only)
     const auditRef1 = db.collection('auditEvents').doc();
@@ -460,6 +472,19 @@ export async function decideAppeal(
       reviewLockedUntil: null,
       updatedAt: FieldValue.serverTimestamp(),
     });
+
+    // Jika Appeal Disetujui (APPROVE), generate reward ledger untuk Solo Task
+    if (validated.decision === 'APPROVE') {
+      const appealRecipientUserId = taskData.assignedUserId || subData.submittedByUserId;
+      if (appealRecipientUserId && (taskData.mode === 'SOLO' || !taskData.assignedTeamId)) {
+        createRewardLedgerInsideTransaction(transaction, {
+          taskId: taskData.id,
+          ownerUserId: appealRecipientUserId,
+          amount: taskData.totalReward,
+          taskTitle: taskData.title,
+        });
+      }
+    }
 
     // 6. Catat Audit Event Permanen
     const auditRef = db.collection('auditEvents').doc();

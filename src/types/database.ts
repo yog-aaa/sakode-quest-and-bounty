@@ -82,9 +82,12 @@ export interface BankAccountSnapshot {
 
 export interface TeamAllocation {
   userId: string;
+  userDisplayName?: string;
+  userEmail?: string;
   amount: number; // Integer Rupiah
   agreed: boolean;
   agreedAt: FirestoreDate | null;
+  rejectionReason?: string | null;
 }
 
 export interface LeadTransferProof {
@@ -265,6 +268,7 @@ export interface RewardLedgerDocument {
   amount: number; // Integer Rupiah
   status: RewardLedgerStatus;
   claimId: string | null;
+  taskTitle?: string;
   createdAt: FirestoreDate;
   updatedAt: FirestoreDate;
 }
@@ -284,6 +288,9 @@ export interface ClaimDocument {
   processedByAdminId: string | null;
   processedAt: FirestoreDate | null;
   confirmedAt: FirestoreDate | null;
+  userDisplayName?: string;
+  userEmail?: string;
+  adminNotes?: string | null;
   createdAt: FirestoreDate;
   updatedAt: FirestoreDate;
 }
@@ -300,6 +307,12 @@ export interface TeamDistributionDocument {
   consensusReached: boolean;
   paidToLeadByAdmin: boolean;
   leadTransferProofs: LeadTransferProof[];
+  status?: 'DELIBERATION' | 'DELIBERATION_REJECTED' | 'CONSENSUS_REACHED' | 'COMPLETED';
+  taskTitle?: string;
+  teamName?: string;
+  teamLeadUserId?: string;
+  rejectionNotes?: string | null;
+  rejectedByUserId?: string | null;
   createdAt: FirestoreDate;
   updatedAt: FirestoreDate;
 }

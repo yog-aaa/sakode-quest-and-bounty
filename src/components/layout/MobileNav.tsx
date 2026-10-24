@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Compass, Layers, ShieldAlert, ClipboardCheck } from 'lucide-react';
+import { Compass, Layers, ShieldAlert, ClipboardCheck, Coins } from 'lucide-react';
 
 export const MobileNav: React.FC = () => {
   const pathname = usePathname();
@@ -12,6 +12,7 @@ export const MobileNav: React.FC = () => {
   const navItems = [
     { href: '/member/tasks', label: 'Eksplor', icon: Compass },
     { href: '/member', label: 'Task Saya', icon: Layers },
+    { href: '/member/rewards', label: 'Reward', icon: Coins },
     { href: '/admin/submissions', label: 'Review', icon: ClipboardCheck },
     { href: '/admin/tasks', label: 'Admin', icon: ShieldAlert },
   ];
@@ -21,7 +22,7 @@ export const MobileNav: React.FC = () => {
       aria-label="Navigasi Seluler"
       className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-sakode-border bg-sakode-card/95 backdrop-blur-md pb-safe"
     >
-      <div className="grid grid-cols-4 h-16 items-center px-2">
+      <div className="grid grid-cols-5 h-16 items-center px-1">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;

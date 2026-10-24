@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { TeamRosterCard } from '@/components/team/TeamRosterCard';
+import { TeamDistributionModal } from '@/components/team/TeamDistributionModal';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -369,6 +370,20 @@ function TeamDetailPageContent() {
             onStartTeamTask={handleStartTeamTask}
             actionLoadingId={actionLoadingId}
           />
+
+          {/* Team Distribution & 100% Consensus Module */}
+          {task && (
+            <TeamDistributionModal
+              teamId={team.id}
+              taskId={task.id}
+              taskTitle={task.title}
+              totalReward={task.totalReward}
+              members={members}
+              currentUserId={user?.id || ''}
+              isTeamLead={isTeamLead}
+              onRefresh={loadData}
+            />
+          )}
 
           {/* Join Form for Non-Members */}
           {!isMember && !team.rosterLocked && team.status === TEAM_STATUS.RECRUITING && (

@@ -16,6 +16,8 @@ import {
   LogOut,
   UserCheck,
   ClipboardCheck,
+  Coins,
+  Wallet,
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -25,10 +27,12 @@ export const Navbar: React.FC = () => {
   const navLinks = [
     { href: '/member/tasks', label: 'Eksplor Task', icon: Compass },
     { href: '/member', label: 'Dashboard Saya', icon: Layers },
+    { href: '/member/rewards', label: 'Klaim Reward', icon: Coins },
     ...(user?.isAdmin
       ? [
           { href: '/admin/tasks', label: 'Kelola Task', icon: Compass },
           { href: '/admin/submissions', label: 'Antrean Review', icon: ClipboardCheck },
+          { href: '/admin/claims', label: 'Pencairan Klaim', icon: Wallet },
           { href: '/admin/members', label: 'Antrean Member', icon: ShieldAlert },
         ]
       : []),

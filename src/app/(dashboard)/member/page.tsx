@@ -197,15 +197,24 @@ export default function MemberDashboardPage() {
               </span>
             </Card>
 
-            <Card className="p-4">
-              <div className="text-xs font-semibold text-sakode-text-muted uppercase">
-                Rekening Pencairan
-              </div>
-              <div className="text-sm font-mono font-bold text-sakode-text mt-1 truncate">
-                {user?.paymentAccountMasked || 'Belum terdaftar'}
+            <Card className="p-4 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-sakode-text-muted uppercase">
+                    Rekening & Klaim
+                  </span>
+                  <Link href="/member/rewards">
+                    <span className="text-[11px] font-bold text-sakode-cyan hover:underline flex items-center gap-0.5">
+                      Buka Dompet <ArrowRight className="h-3 w-3" />
+                    </span>
+                  </Link>
+                </div>
+                <div className="text-sm font-mono font-bold text-sakode-text mt-1 truncate">
+                  {user?.paymentAccountMasked || 'Belum terdaftar'}
+                </div>
               </div>
               <span className="text-[11px] text-emerald-700 font-semibold mt-1 block">
-                Terenkripsi AES-256
+                Terenkripsi AES-256 • Siap Pencairan
               </span>
             </Card>
           </div>

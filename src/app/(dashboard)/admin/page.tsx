@@ -37,16 +37,16 @@ export default function AdminDashboardPage() {
     {
       title: '3. Submission Masuk & Review Lock (Sprint 4)',
       desc: 'Evaluasi hasil pekerjaan, minta revisi, atau setujui bounty reward.',
-      href: '#',
-      badge: 'Sprint 4',
+      href: '/admin/submissions',
+      badge: 'Aktif & Siap Diuji',
       icon: FileCheck2,
       color: 'bg-emerald-100 text-emerald-800',
     },
     {
       title: '4. Permohonan Klaim Reward (Sprint 6)',
       desc: 'Antrean pencairan dana, upload bukti transfer bank, dan distribusi tim.',
-      href: '#',
-      badge: 'Sprint 6',
+      href: '/admin/claims',
+      badge: 'Aktif & Siap Diuji',
       icon: CreditCard,
       color: 'bg-amber-100 text-amber-800',
     },
@@ -70,15 +70,27 @@ export default function AdminDashboardPage() {
               </h1>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Link href="/admin/tasks">
-                <Button variant="primary" className="font-bold gap-2">
+                <Button variant="primary" className="font-bold gap-2 text-xs">
                   <Compass className="h-4 w-4" />
                   <span>Manajemen Task</span>
                 </Button>
               </Link>
+              <Link href="/admin/submissions">
+                <Button variant="outline" className="font-bold gap-2 text-xs">
+                  <FileCheck2 className="h-4 w-4" />
+                  <span>Review Submissions</span>
+                </Button>
+              </Link>
+              <Link href="/admin/claims">
+                <Button variant="outline" className="font-bold gap-2 text-xs">
+                  <CreditCard className="h-4 w-4" />
+                  <span>Antrean Klaim</span>
+                </Button>
+              </Link>
               <Link href="/admin/members">
-                <Button variant="outline" className="font-bold gap-2">
+                <Button variant="outline" className="font-bold gap-2 text-xs">
                   <Users className="h-4 w-4" />
                   <span>Antrean Member</span>
                 </Button>

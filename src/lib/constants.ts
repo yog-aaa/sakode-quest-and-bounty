@@ -87,6 +87,8 @@ export const TEAM_STATUS = {
   RECRUITING: 'RECRUITING',
   READY: 'READY',
   ACTIVE: 'ACTIVE',
+  COMPLETED: 'COMPLETED',
+  DISBANDED: 'DISBANDED',
 } as const;
 
 export type TeamStatus = (typeof TEAM_STATUS)[keyof typeof TEAM_STATUS];

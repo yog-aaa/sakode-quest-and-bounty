@@ -5,6 +5,9 @@ import type {
   TeamDocument,
   TeamMembershipDocument,
   SubmissionDocument,
+  RewardLedgerDocument,
+  ClaimDocument,
+  TeamDistributionDocument,
 } from '@/types/database';
 
 function serializeDate(d: unknown): string {
@@ -90,5 +93,42 @@ export function serializeSubmissionDoc(sub: SubmissionDocument): SubmissionDocum
       : null,
     createdAt: serializeDate(sub.createdAt),
     updatedAt: serializeDate(sub.updatedAt),
+  };
+}
+
+export function serializeRewardLedgerDoc(ledger: RewardLedgerDocument): RewardLedgerDocument {
+  return {
+    ...ledger,
+    createdAt: serializeDate(ledger.createdAt),
+    updatedAt: serializeDate(ledger.updatedAt),
+  };
+}
+
+export function serializeClaimDoc(claim: ClaimDocument): ClaimDocument {
+  return {
+    ...claim,
+    processedAt: serializeNullableDate(claim.processedAt),
+    confirmedAt: serializeNullableDate(claim.confirmedAt),
+    createdAt: serializeDate(claim.createdAt),
+    updatedAt: serializeDate(claim.updatedAt),
+  };
+}
+
+export function serializeTeamDistributionDoc(
+  dist: TeamDistributionDocument
+): TeamDistributionDocument {
+  return {
+    ...dist,
+    allocations: dist.allocations.map((a) => ({
+      ...a,
+      agreedAt: serializeNullableDate(a.agreedAt),
+    })),
+    leadTransferProofs: (dist.leadTransferProofs || []).map((p) => ({
+      ...p,
+      uploadedAt: serializeDate(p.uploadedAt),
+      confirmedAt: serializeNullableDate(p.confirmedAt),
+    })),
+    createdAt: serializeDate(dist.createdAt),
+    updatedAt: serializeDate(dist.updatedAt),
   };
 }

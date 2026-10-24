@@ -27,6 +27,7 @@ import {
   type ReviewSubmissionInput,
 } from '@/lib/validations/submission';
 import { assertAdminPrivilege } from './user.service';
+import { createRewardLedgerInsideTransaction } from './claim.service';
 
 /**
  * Mengirimkan hasil pekerjaan (Deliverable Submission).
@@ -373,6 +374,19 @@ export async function reviewSubmission(
     if (validated.action === 'APPROVE') {
       subUpdates.status = SUBMISSION_STATUS.APPROVED;
       taskUpdates.status = TASK_STATUS.APPROVED;
+
+      // Solo Task Reward Generator
+      if (taskData.mode === 'SOLO' || !taskData.assignedTeamId) {
+        const recipientUserId = taskData.assignedUserId || subData.submittedByUserId;
+        if (recipientUserId) {
+          createRewardLedgerInsideTransaction(transaction, {
+            taskId: taskData.id,
+            ownerUserId: recipientUserId,
+            amount: taskData.totalReward,
+            taskTitle: taskData.title,
+          });
+        }
+      }
     } else if (validated.action === 'REQUEST_REVISION') {
       subUpdates.status = SUBMISSION_STATUS.REVISION_REQUESTED;
       subUpdates.revisionNotes = validated.revisionNotes;
