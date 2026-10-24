@@ -14,6 +14,7 @@ import {
   FileCheck2,
   AlertTriangle,
   ArrowRight,
+  Bell,
 } from 'lucide-react';
 
 export default function AdminDashboardPage() {
@@ -65,6 +66,14 @@ export default function AdminDashboardPage() {
       badge: 'Aktif & Siap Diuji',
       icon: FileCheck2,
       color: 'bg-slate-100 text-slate-800',
+    },
+    {
+      title: '7. Pusat Notifikasi Masuk Staf (Sprint 8)',
+      desc: 'Pemberitahuan waktu nyata untuk seluruh submission, sanggahan appeal, dan laporan masuk.',
+      href: '/admin/notifications',
+      badge: 'Aktif & Realtime',
+      icon: Bell,
+      color: 'bg-cyan-100 text-cyan-800',
     },
   ];
 

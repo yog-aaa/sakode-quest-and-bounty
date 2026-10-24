@@ -8,6 +8,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { StatusPill } from '@/components/ui/StatusPill';
+import { NotificationBell } from '@/components/notification/NotificationBell';
 import {
   Compass,
   ShieldAlert,
@@ -95,11 +96,13 @@ export const Navbar: React.FC = () => {
         {/* Right Action Items */}
         <div className="flex items-center gap-2.5">
           <Badge variant="cyan" className="hidden sm:inline-flex" leftIcon={<Sparkles className="h-3 w-3" />}>
-            Sprint 2 Task & Solo Assignment
+            Platform Quest & Bounty
           </Badge>
 
           {user ? (
             <div className="flex items-center gap-2">
+              <NotificationBell />
+
               <div className="hidden sm:flex flex-col items-end text-right">
                 <span className="text-xs font-bold text-sakode-text flex items-center gap-1">
                   <UserCheck className="h-3.5 w-3.5 text-sakode-cyan" />

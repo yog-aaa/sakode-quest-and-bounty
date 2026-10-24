@@ -11,6 +11,7 @@ import type {
   ReportDocument,
   PenaltyDocument,
   AuditEventDocument,
+  NotificationDocument,
 } from '@/types/database';
 
 function serializeDate(d: unknown): string {
@@ -156,5 +157,12 @@ export function serializeAuditEventDoc(event: AuditEventDocument): AuditEventDoc
   return {
     ...event,
     timestamp: serializeDate(event.timestamp),
+  };
+}
+
+export function serializeNotificationDoc(notif: NotificationDocument): NotificationDocument {
+  return {
+    ...notif,
+    createdAt: serializeDate(notif.createdAt),
   };
 }

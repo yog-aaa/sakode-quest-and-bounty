@@ -19,6 +19,7 @@ import {
   TASK_MODES,
   SUBMISSION_STATUS,
   USER_ROLES,
+  NOTIFICATION_CATEGORIES,
 } from '@/lib/constants';
 import {
   createSubmissionSchema,
@@ -28,6 +29,9 @@ import {
 } from '@/lib/validations/submission';
 import { assertAdminPrivilege } from './user.service';
 import { createRewardLedgerInsideTransaction } from './claim.service';
+import { dispatchNotification } from './notification.service';
+import { revisionRequestedEmail } from './email/templates';
+import { formatDateWIB } from '@/lib/utils';
 
 /**
  * Mengirimkan hasil pekerjaan (Deliverable Submission).
@@ -465,6 +469,48 @@ export async function reviewSubmission(
       submission: updatedSub,
       task: updatedTask,
     };
+  }).then(async (result) => {
+    // Strict Invariant: Non-blocking Notification Dispatch
+    try {
+      const recipientUid = result.submission.submittedByUserId;
+      if (recipientUid) {
+        if (validated.action === 'APPROVE') {
+          dispatchNotification(recipientUid, {
+            title: `Deliverable Disetujui: ${result.task.title}`,
+            message: `Pengerjaan tugas "${result.task.title}" telah diverifikasi dan disetujui oleh Administrator SAKODE. Reward kini siap diklaim!`,
+            category: NOTIFICATION_CATEGORIES.SUBMISSION,
+            link: '/member/rewards',
+          }).catch((err) => console.warn('[reviewSubmission] approve notif error:', err));
+        } else if (validated.action === 'REQUEST_REVISION') {
+          const deadlineText = validated.revisionDeadline
+            ? formatDateWIB(new Date(validated.revisionDeadline))
+            : 'Sesuai instruksi';
+          const taskUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://sakode.id'}/member/tasks/${result.task.id}`;
+          const emailData = revisionRequestedEmail(
+            'Member SAKODE',
+            result.task.title,
+            validated.revisionNotes || 'Harap periksa kelengkapan kriteria pengerjaan.',
+            deadlineText,
+            taskUrl
+          );
+
+          dispatchNotification(recipientUid, {
+            title: `Revisi Diminta: ${result.task.title}`,
+            message: `Administrator meminta revisi untuk tugas "${result.task.title}". Catatan: "${validated.revisionNotes}".`,
+            category: NOTIFICATION_CATEGORIES.REVISION,
+            link: `/member/tasks/${result.task.id}`,
+            emailPayload: {
+              subject: emailData.subject,
+              html: emailData.html,
+              text: emailData.text,
+            },
+          }).catch((err) => console.warn('[reviewSubmission] revision notif error:', err));
+        }
+      }
+    } catch (notifErr) {
+      console.warn('[reviewSubmission] Notification non-blocking error:', notifErr);
+    }
+    return result;
   });
 }
 

@@ -8,6 +8,7 @@ import { getApps, initializeApp, cert, type App } from 'firebase-admin/app';
 import { getFirestore, type Firestore } from 'firebase-admin/firestore';
 import { getAuth, type Auth } from 'firebase-admin/auth';
 import { getStorage, type Storage } from 'firebase-admin/storage';
+import { getMessaging, type Messaging } from 'firebase-admin/messaging';
 
 let adminApp: App | null = null;
 
@@ -61,4 +62,8 @@ export function getAdminAuth(): Auth {
 
 export function getAdminStorage(): Storage {
   return getStorage(getAdminApp());
+}
+
+export function getAdminMessaging(): Messaging {
+  return getMessaging(getAdminApp());
 }

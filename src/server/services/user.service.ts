@@ -11,7 +11,7 @@
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import type { UserDocument } from '@/types/database';
-import { USER_APPROVAL_STATUS, USER_ROLES } from '@/lib/constants';
+import { USER_APPROVAL_STATUS, USER_ROLES, NOTIFICATION_CATEGORIES } from '@/lib/constants';
 import {
   profileCompletionSchema,
   type ProfileCompletionInput,
@@ -23,6 +23,8 @@ import {
 } from '@/lib/crypto';
 import { formatMaskedPaymentAccount } from '@/lib/utils';
 import { setCustomUserClaims } from './auth.service';
+import { dispatchNotification } from './notification.service';
+import { accountApprovedEmail } from './email/templates';
 
 /**
  * Memverifikasi apakah pengguna memiliki hak akses Admin atau Super Admin.
@@ -215,6 +217,27 @@ export async function approveUser(
     reason: 'Pendaftaran member disetujui setelah verifikasi kelengkapan profil.',
     timestamp: FieldValue.serverTimestamp(),
   });
+
+  // Strict Invariant: Non-blocking Notification Dispatch (In-App + FCM + Email)
+  try {
+    const loginUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://sakode.id'}/login`;
+    const emailData = accountApprovedEmail(beforeData.displayName || beforeData.email, loginUrl);
+
+    dispatchNotification(targetUserId, {
+      title: 'Selamat! Pendaftaran Akun Anda Telah Disetujui',
+      message: 'Akun SAKODE Anda telah diverifikasi oleh Administrator. Anda sekarang dapat mengambil task dan bergabung dalam tim.',
+      category: NOTIFICATION_CATEGORIES.ACCOUNT,
+      link: '/member/tasks',
+      emailPayload: {
+        toEmail: beforeData.email,
+        subject: emailData.subject,
+        html: emailData.html,
+        text: emailData.text,
+      },
+    }).catch((err) => console.warn('[approveUser] dispatchNotification background error:', err));
+  } catch (err) {
+    console.warn('[approveUser] Non-blocking notification dispatch error:', err);
+  }
 }
 
 /**

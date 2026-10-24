@@ -12,6 +12,7 @@ import type {
   ApplicationStatus,
   ClaimStatus,
   InitialSplitPrinciple,
+  NotificationCategory,
   PenaltyType,
   ReportStatus,
   ReportTargetType,
@@ -32,6 +33,7 @@ export type {
   ApplicationStatus,
   ClaimStatus,
   InitialSplitPrinciple,
+  NotificationCategory,
   PenaltyType,
   ReportStatus,
   ReportTargetType,
@@ -134,6 +136,7 @@ export interface UserDocument {
   activeTaskId: string | null; // Id task aktif saat ini (Maksimal 1)
   pendingApplicationCount: number; // Maksimal 3
   stats: UserStats;
+  fcmTokens?: string[]; // Token FCM perangkat aktif untuk Web Push
   cooldownUntil?: FirestoreDate | null;
   isSuspended?: boolean;
   suspendedUntil?: FirestoreDate | null;
@@ -396,7 +399,7 @@ export interface NotificationDocument {
   userId: string;
   title: string;
   message: string;
-  category: 'TASK' | 'CLAIM' | 'TEAM' | 'REPORT' | 'SYSTEM';
+  category: NotificationCategory;
   link: string | null;
   isRead: boolean;
   createdAt: FirestoreDate;

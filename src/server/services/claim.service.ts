@@ -19,9 +19,13 @@ import {
   TASK_STATUS,
   TEAM_STATUS,
   USER_ROLES,
+  NOTIFICATION_CATEGORIES,
   type ClaimStatus,
 } from '@/lib/constants';
 import { decryptBankAccount } from '@/lib/crypto';
+import { formatCurrencyIDR, formatMaskedPaymentAccount } from '@/lib/utils';
+import { dispatchNotification } from './notification.service';
+import { claimPaidEmail, teamConsensusEmail } from './email/templates';
 import {
   createClaimSchema,
   processClaimSchema,
@@ -384,6 +388,43 @@ export async function adminProcessClaim(
       updatedAt: Timestamp.now() as unknown as FirestoreDate,
       processedAt: updates.processedAt ? (Timestamp.now() as unknown as FirestoreDate) : claimData.processedAt,
     } as ClaimDocument;
+  }).then(async (updatedClaim) => {
+    // Strict Invariant: Non-blocking Notification Dispatch
+    try {
+      if (validated.action === 'PAY' && updatedClaim.userId) {
+        const maskedAccount = updatedClaim.bankAccountSnapshot
+          ? formatMaskedPaymentAccount(
+              updatedClaim.bankAccountSnapshot.bankName,
+              updatedClaim.bankAccountSnapshot.accountNumber,
+              updatedClaim.bankAccountSnapshot.accountHolderName
+            )
+          : 'Rekening Terdaftar';
+        const formattedAmount = formatCurrencyIDR(updatedClaim.totalAmount);
+        const claimUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://sakode.id'}/member/rewards`;
+        const emailData = claimPaidEmail(
+          updatedClaim.userDisplayName || 'Member SAKODE',
+          formattedAmount,
+          maskedAccount,
+          claimUrl
+        );
+
+        dispatchNotification(updatedClaim.userId, {
+          title: `Reward Berhasil Ditransfer: ${formattedAmount}`,
+          message: `Klaim reward Anda sebesar ${formattedAmount} telah berhasil ditransfer oleh Admin ke ${maskedAccount}. Silakan cek mutasi dan konfirmasi penerimaan.`,
+          category: NOTIFICATION_CATEGORIES.CLAIM,
+          link: '/member/rewards',
+          emailPayload: {
+            toEmail: updatedClaim.userEmail,
+            subject: emailData.subject,
+            html: emailData.html,
+            text: emailData.text,
+          },
+        }).catch((err) => console.warn('[adminProcessClaim] notif error:', err));
+      }
+    } catch (notifErr) {
+      console.warn('[adminProcessClaim] Notification non-blocking error:', notifErr);
+    }
+    return updatedClaim;
   });
 }
 
@@ -585,6 +626,38 @@ export async function proposeTeamSplitDistribution(
   });
 
   const saved = await distRef.get();
+
+  // Strict Invariant: Non-blocking notification dispatch ke seluruh anggota tim yang voting
+  try {
+    const membersToNotify = finalAllocations.filter((a) => a.userId !== teamLeadUid);
+    const voteUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://sakode.id'}/member/teams/${validated.teamId}`;
+
+    membersToNotify.forEach((alloc) => {
+      const emailData = teamConsensusEmail(
+        alloc.userDisplayName || 'Anggota Tim',
+        teamData.taskTitle ? `Tim ${teamData.taskTitle}` : 'Tim Task',
+        taskData.title,
+        formatCurrencyIDR(alloc.amount),
+        voteUrl
+      );
+
+      dispatchNotification(alloc.userId, {
+        title: `Proposal Musyawarah Reward: ${taskData.title}`,
+        message: `Team Lead telah mengajukan draf pembagian bounty tim untuk "${taskData.title}". Alokasi Anda: ${formatCurrencyIDR(alloc.amount)}. Suara persetujuan Anda diperlukan.`,
+        category: NOTIFICATION_CATEGORIES.CONSENSUS,
+        link: `/member/teams/${validated.teamId}`,
+        emailPayload: {
+          toEmail: alloc.userEmail,
+          subject: emailData.subject,
+          html: emailData.html,
+          text: emailData.text,
+        },
+      }).catch((err) => console.warn('[proposeTeamSplit] Member notif error:', err));
+    });
+  } catch (notifErr) {
+    console.warn('[proposeTeamSplit] Non-blocking notification error:', notifErr);
+  }
+
   return {
     ...(saved.data() as TeamDistributionDocument),
     id: distDocId,

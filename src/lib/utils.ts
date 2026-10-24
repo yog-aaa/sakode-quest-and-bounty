@@ -161,3 +161,38 @@ export function formatMaskedPaymentAccount(
 
   return `${cleanBank} •••• ${lastFour} a.n ${maskedHolder}`;
 }
+
+/**
+ * Format waktu relatif dalam Bahasa Indonesia.
+ * Contoh: "Baru saja", "5 menit lalu", "2 jam lalu", "Kemarin", "3 hari lalu", dst.
+ */
+export function formatRelativeTime(
+  date:
+    | Date
+    | string
+    | number
+    | { seconds: number; nanoseconds?: number; toDate?: () => Date }
+    | null
+    | undefined
+): string {
+  const d = toDateSafe(date);
+  if (!d) return '-';
+
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - d.getTime()) / 1000);
+
+  if (diffInSeconds < 30) return 'Baru saja';
+  if (diffInSeconds < 60) return `${diffInSeconds} dtk lalu`;
+
+  const diffInMinutes = Math.floor(diffInSeconds / 60);
+  if (diffInMinutes < 60) return `${diffInMinutes} mnt lalu`;
+
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  if (diffInHours < 24) return `${diffInHours} jam lalu`;
+
+  const diffInDays = Math.floor(diffInHours / 24);
+  if (diffInDays === 1) return 'Kemarin';
+  if (diffInDays < 7) return `${diffInDays} hari lalu`;
+
+  return formatDateOnlyWIB(d);
+}

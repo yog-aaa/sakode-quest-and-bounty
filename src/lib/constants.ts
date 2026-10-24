@@ -199,7 +199,26 @@ export const PENALTY_TYPES = {
 export type PenaltyType = (typeof PENALTY_TYPES)[keyof typeof PENALTY_TYPES];
 
 // =============================================================================
-// 8. Strict Business Invariants
+// 8. Kategori Notifikasi Resmi SAKODE (10 Kategori)
+// =============================================================================
+export const NOTIFICATION_CATEGORIES = {
+  ACCOUNT: 'ACCOUNT',
+  APPLICATION: 'APPLICATION',
+  TEAM: 'TEAM',
+  SUBMISSION: 'SUBMISSION',
+  REVISION: 'REVISION',
+  APPEAL: 'APPEAL',
+  REWARD: 'REWARD',
+  CLAIM: 'CLAIM',
+  CONSENSUS: 'CONSENSUS',
+  REPORT: 'REPORT',
+} as const;
+
+export type NotificationCategory =
+  (typeof NOTIFICATION_CATEGORIES)[keyof typeof NOTIFICATION_CATEGORIES];
+
+// =============================================================================
+// 9. Strict Business Invariants
 // =============================================================================
 export const INVARIANTS = {
   /** Maksimal task aktif per member dalam satu waktu */

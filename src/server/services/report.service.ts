@@ -16,7 +16,9 @@ import {
   REPORT_STATUS,
   PENALTY_TYPES,
   USER_ROLES,
+  NOTIFICATION_CATEGORIES,
 } from '@/lib/constants';
+import { dispatchNotification } from './notification.service';
 import {
   createReportSchema,
   resolveReportSchema,
@@ -443,5 +445,29 @@ export async function resolveReport(
       id: reportSnap.id,
       updatedAt: Timestamp.now() as unknown as FirestoreDate,
     } as ReportDocument;
+  }).then(async (resolvedReport) => {
+    // Strict Invariant: Non-blocking Notification Dispatch
+    try {
+      if (resolvedReport.reporterUserId) {
+        dispatchNotification(resolvedReport.reporterUserId, {
+          title: `Laporan Sengketa Selesai Diproses`,
+          message: `Laporan Anda terkait "${resolvedReport.targetTitle || 'sengketa'}" telah diselesaikan oleh Administrator. Catatan: "${validated.resolutionNotes}".`,
+          category: NOTIFICATION_CATEGORIES.REPORT,
+          link: '/member/notifications',
+        }).catch((err) => console.warn('[resolveReport] reporter notif error:', err));
+      }
+
+      if (validated.applyPenalty && validated.penaltyTargetUserId) {
+        dispatchNotification(validated.penaltyTargetUserId, {
+          title: `Pemberitahuan Keputusan Sanksi SAKODE`,
+          message: `Evaluasi integritas telah selesai dilakukan atas laporan terkait Anda. Sanksi diterapkan: ${validated.penaltyType}. Catatan: "${validated.resolutionNotes}".`,
+          category: NOTIFICATION_CATEGORIES.REPORT,
+          link: '/member/notifications',
+        }).catch((err) => console.warn('[resolveReport] target penalty notif error:', err));
+      }
+    } catch (notifErr) {
+      console.warn('[resolveReport] Notification non-blocking error:', notifErr);
+    }
+    return resolvedReport;
   });
 }
