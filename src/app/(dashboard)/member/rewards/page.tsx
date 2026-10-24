@@ -14,6 +14,7 @@ import {
   submitBatchClaimAction,
   confirmClaimReceiptAction,
 } from '@/server/actions/claim.actions';
+import { CreateReportModal } from '@/components/report/CreateReportModal';
 import type { RewardLedgerDocument, ClaimDocument } from '@/types/database';
 import {
   Coins,
@@ -582,7 +583,7 @@ export default function MemberRewardsPage() {
 
                         {/* Actions & Proof */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             {claim.transferProofUrl && (
                               <Button
                                 variant="outline"
@@ -594,6 +595,13 @@ export default function MemberRewardsPage() {
                                 <span>Lihat Bukti Transfer Admin</span>
                               </Button>
                             )}
+
+                            <CreateReportModal
+                              targetType="CLAIM"
+                              targetId={claim.id}
+                              targetTitle={`Klaim Reward #${claim.id.slice(0, 8)}`}
+                              onReportSubmitted={loadData}
+                            />
                           </div>
 
                           {isPaid && (

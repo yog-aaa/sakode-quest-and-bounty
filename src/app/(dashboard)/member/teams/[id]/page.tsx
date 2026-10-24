@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { TeamRosterCard } from '@/components/team/TeamRosterCard';
 import { TeamDistributionModal } from '@/components/team/TeamDistributionModal';
+import { CreateReportModal } from '@/components/report/CreateReportModal';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -292,14 +293,23 @@ function TeamDetailPageContent() {
               <span>Kembali ke Detail Task</span>
             </Link>
 
-            {team.taskId && (
-              <Link href={`/member/tasks/${team.taskId}`}>
-                <Button variant="outline" size="sm" className="text-xs font-bold gap-1">
-                  <Compass className="h-3.5 w-3.5" />
-                  <span>Lihat Spesifikasi Task</span>
-                </Button>
-              </Link>
-            )}
+            <div className="flex items-center gap-2">
+              <CreateReportModal
+                targetType="TEAM_DISTRIBUTION"
+                targetId={team.id}
+                targetTitle={`Tim: ${team.taskTitle || team.id}`}
+                onReportSubmitted={loadData}
+              />
+
+              {team.taskId && (
+                <Link href={`/member/tasks/${team.taskId}`}>
+                  <Button variant="outline" size="sm" className="text-xs font-bold gap-1">
+                    <Compass className="h-3.5 w-3.5" />
+                    <span>Lihat Spesifikasi Task</span>
+                  </Button>
+                </Link>
+              )}
+            </div>
           </div>
 
           {/* Alert Messages */}

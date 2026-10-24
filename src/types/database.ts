@@ -28,6 +28,26 @@ import type {
   UserRole,
 } from '@/lib/constants';
 
+export type {
+  ApplicationStatus,
+  ClaimStatus,
+  InitialSplitPrinciple,
+  PenaltyType,
+  ReportStatus,
+  ReportTargetType,
+  RewardLedgerStatus,
+  SubmissionStatus,
+  TaskAssignmentType,
+  TaskDeadlineType,
+  TaskMode,
+  TaskStatus,
+  TeamMembershipStatus,
+  TeamRole,
+  TeamStatus,
+  UserApprovalStatus,
+  UserRole,
+};
+
 // =============================================================================
 // Helper Timestamp Serializer
 // =============================================================================
@@ -114,6 +134,10 @@ export interface UserDocument {
   activeTaskId: string | null; // Id task aktif saat ini (Maksimal 1)
   pendingApplicationCount: number; // Maksimal 3
   stats: UserStats;
+  cooldownUntil?: FirestoreDate | null;
+  isSuspended?: boolean;
+  suspendedUntil?: FirestoreDate | null;
+  penaltyRestriction?: PenaltyType | null;
   rejectionReason?: string | null; // Catatan jika status REJECTED
   revisionNotes?: string | null; // Catatan perbaikan dari admin
   approvedByAdminId?: string | null;
@@ -323,14 +347,22 @@ export interface TeamDistributionDocument {
 export interface ReportDocument {
   id: string;
   reporterUserId: string;
+  reporterDisplayName?: string;
+  reporterEmail?: string;
   targetType: ReportTargetType;
   targetId: string;
+  targetTitle?: string;
   category: string;
   chronology: string;
   evidenceFiles: EvidenceFile[];
   status: ReportStatus;
+  involvesAdmin: boolean;
+  involvedAdminId: string | null;
+  escalatedToSuperAdmin: boolean;
   assignedAdminId: string | null;
+  assignedAdminName?: string | null;
   resolutionNotes: string | null;
+  penaltyId?: string | null;
   createdAt: FirestoreDate;
   updatedAt: FirestoreDate;
 }
@@ -341,13 +373,18 @@ export interface ReportDocument {
 export interface PenaltyDocument {
   id: string;
   userId: string;
+  userDisplayName?: string;
+  userEmail?: string;
   reportId: string | null;
   type: PenaltyType;
+  durationDays?: number | null;
   validUntil: FirestoreDate | null;
   reason: string;
   issuedByAdminId: string;
+  issuedByAdminName?: string;
   isOverridden: boolean;
   overrideReason: string | null;
+  isSystemRecommended?: boolean;
   createdAt: FirestoreDate;
 }
 
@@ -372,11 +409,13 @@ export interface AuditEventDocument {
   id: string;
   actorId: string;
   actorRole: string;
+  actorName?: string;
   action: string;
   entityType: string;
   entityId: string;
   beforeSnapshot: Record<string, unknown> | null;
   afterSnapshot: Record<string, unknown> | null;
+  metadata?: Record<string, unknown> | null;
   reason: string | null;
   timestamp: FirestoreDate;
 }

@@ -176,6 +176,17 @@ export const REPORT_STATUS = {
 
 export type ReportStatus = (typeof REPORT_STATUS)[keyof typeof REPORT_STATUS];
 
+export const REPORT_CATEGORIES = [
+  'Hasil atau scope tidak sesuai.',
+  'Pembayaran Admin belum diterima.',
+  'Team Lead tidak membagikan reward sesuai kesepakatan.',
+  'Bukti pembayaran tidak valid.',
+  'Anggota team tidak menjalankan tanggung jawab.',
+  'Perilaku atau keputusan melanggar Terms.',
+] as const;
+
+export type ReportCategory = (typeof REPORT_CATEGORIES)[number];
+
 export const PENALTY_TYPES = {
   WARNING: 'WARNING',
   COOLDOWN: 'COOLDOWN',

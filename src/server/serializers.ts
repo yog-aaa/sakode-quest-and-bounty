@@ -8,6 +8,9 @@ import type {
   RewardLedgerDocument,
   ClaimDocument,
   TeamDistributionDocument,
+  ReportDocument,
+  PenaltyDocument,
+  AuditEventDocument,
 } from '@/types/database';
 
 function serializeDate(d: unknown): string {
@@ -130,5 +133,28 @@ export function serializeTeamDistributionDoc(
     })),
     createdAt: serializeDate(dist.createdAt),
     updatedAt: serializeDate(dist.updatedAt),
+  };
+}
+
+export function serializeReportDoc(report: ReportDocument): ReportDocument {
+  return {
+    ...report,
+    createdAt: serializeDate(report.createdAt),
+    updatedAt: serializeDate(report.updatedAt),
+  };
+}
+
+export function serializePenaltyDoc(penalty: PenaltyDocument): PenaltyDocument {
+  return {
+    ...penalty,
+    validUntil: serializeNullableDate(penalty.validUntil),
+    createdAt: serializeDate(penalty.createdAt),
+  };
+}
+
+export function serializeAuditEventDoc(event: AuditEventDocument): AuditEventDocument {
+  return {
+    ...event,
+    timestamp: serializeDate(event.timestamp),
   };
 }

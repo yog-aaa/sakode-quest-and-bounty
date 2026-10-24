@@ -17,6 +17,7 @@ import { instantTakeTaskAction, submitApplicationAction } from '@/server/actions
 import { getSubmissionsForTaskAction } from '@/server/actions/submission.actions';
 import { fileSubmissionAppealAction } from '@/server/actions/appeal.actions';
 import { FileUploadDropzone } from '@/components/submission/FileUploadDropzone';
+import { CreateReportModal } from '@/components/report/CreateReportModal';
 import type { TaskDocument, SubmissionDocument, EvidenceFile } from '@/types/database';
 import {
   ArrowLeft,
@@ -258,8 +259,8 @@ function TaskDetailContent() {
     <AuthGuard requireApproved>
       <div className="min-h-screen bg-sakode-bg py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto space-y-6">
-          {/* Back Button */}
-          <div>
+          {/* Back Button & Report Action */}
+          <div className="flex items-center justify-between">
             <Link
               href="/member/tasks"
               className="inline-flex items-center gap-1.5 text-xs font-bold text-sakode-text-muted hover:text-sakode-text transition-colors"
@@ -267,6 +268,13 @@ function TaskDetailContent() {
               <ArrowLeft className="h-4 w-4" />
               <span>Kembali ke Daftar Task</span>
             </Link>
+
+            <CreateReportModal
+              targetType="TASK"
+              targetId={task.id}
+              targetTitle={task.title}
+              onReportSubmitted={loadTask}
+            />
           </div>
 
           {/* Alerts */}

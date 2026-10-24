@@ -11,12 +11,14 @@ import { USER_APPROVAL_STATUS } from '@/lib/constants';
 interface AuthGuardProps {
   children: React.ReactNode;
   requireAdmin?: boolean;
+  requireSuperAdmin?: boolean;
   requireApproved?: boolean;
 }
 
 export const AuthGuard: React.FC<AuthGuardProps> = ({
   children,
   requireAdmin = false,
+  requireSuperAdmin = false,
   requireApproved = false,
 }) => {
   const { user, isLoading } = useAuth();
@@ -63,7 +65,34 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
     );
   }
 
-  // 2. Proteksi Rute Admin (RBAC: Hanya ADMIN & SUPER_ADMIN)
+  // 2. Proteksi Rute Super Admin (Hanya SUPER_ADMIN)
+  if (requireSuperAdmin && !user.isSuperAdmin) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center p-4">
+        <Card className="max-w-md w-full text-center border-sakode-purple/40 bg-gradient-to-b from-white to-purple-50/20">
+          <CardHeader>
+            <div className="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-sakode-purple/15 text-sakode-purple">
+              <ShieldAlert className="h-7 w-7" />
+            </div>
+            <CardTitle className="text-xl">403 - Akses Khusus Super Admin</CardTitle>
+            <CardDescription className="text-xs leading-relaxed">
+              Halaman ini dibatasi secara ketat dan hanya dapat diakses oleh Super Administrator resmi SAKODE Academy. Akun Anda saat ini memiliki peran <strong className="font-bold text-sakode-text">{user.role}</strong>.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Link href="/admin" className="inline-block w-full">
+              <Button variant="outline" className="w-full gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                Kembali ke Dashboard Admin
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // 3. Proteksi Rute Admin (RBAC: Hanya ADMIN & SUPER_ADMIN)
   if (requireAdmin && !user.isAdmin) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center p-4">

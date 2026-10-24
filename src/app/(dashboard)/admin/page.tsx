@@ -50,6 +50,22 @@ export default function AdminDashboardPage() {
       icon: CreditCard,
       color: 'bg-amber-100 text-amber-800',
     },
+    {
+      title: '5. Laporan Sengketa & Investigasi (Sprint 7)',
+      desc: 'Investigasi laporan sengketa berbukti, penegakan anti-konflik, dan sanksi penalti.',
+      href: '/admin/reports',
+      badge: 'Aktif & Siap Diuji',
+      icon: AlertTriangle,
+      color: 'bg-rose-100 text-rose-800',
+    },
+    {
+      title: '6. Audit Trail Forensik Platform (Sprint 7)',
+      desc: 'Penelusuran log historis mutasi sensitif secara append-only dan permanen.',
+      href: '/admin/audit',
+      badge: 'Aktif & Siap Diuji',
+      icon: FileCheck2,
+      color: 'bg-slate-100 text-slate-800',
+    },
   ];
 
   return (
@@ -87,6 +103,18 @@ export default function AdminDashboardPage() {
                 <Button variant="outline" className="font-bold gap-2 text-xs">
                   <CreditCard className="h-4 w-4" />
                   <span>Antrean Klaim</span>
+                </Button>
+              </Link>
+              <Link href="/admin/reports">
+                <Button variant="outline" className="font-bold gap-2 text-xs">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span>Laporan</span>
+                </Button>
+              </Link>
+              <Link href="/admin/audit">
+                <Button variant="outline" className="font-bold gap-2 text-xs">
+                  <FileCheck2 className="h-4 w-4" />
+                  <span>Audit Trail</span>
                 </Button>
               </Link>
               <Link href="/admin/members">
