@@ -141,12 +141,12 @@ function AuthPageContent() {
     }
   };
 
-  if (isLoading || user) {
+  if (user) {
     return (
       <div className="min-h-screen bg-sakode-bg flex flex-col items-center justify-center p-6 space-y-3">
         <Loader2 className="h-8 w-8 animate-spin text-sakode-cyan" />
         <span className="text-xs font-semibold text-sakode-text-muted">
-          {user ? 'Mengarahkan ke dashboard...' : 'Memverifikasi status akses akun SAKODE...'}
+          Mengarahkan ke dashboard...
         </span>
       </div>
     );
