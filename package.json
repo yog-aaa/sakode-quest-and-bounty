@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:concurrency": "node scripts/run-concurrency-test.mjs"
+    "test:concurrency": "node scripts/run-concurrency-test.mjs",
+    "test:e2e": "node scripts/run-e2e-workflow.mjs"
   },
   "dependencies": {
     "cloudinary": "^2.11.0",
