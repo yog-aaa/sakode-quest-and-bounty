@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -22,23 +22,39 @@ import {
   ShieldCheck,
   UserCheck,
   Clock,
+  LogOut,
+  Loader2,
 } from 'lucide-react';
 
-export default function AuthPage() {
+function AuthPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const queryTab = searchParams.get('tab');
+
   const {
     user,
     signInWithEmail,
     signUpWithEmail,
     signInWithGoogle,
-    isLoading,
+    logout,
     error: authError,
     emailVerificationSent,
     setMockSession,
     isMockSession,
   } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
+  const [activeTab, setActiveTab] = useState<'login' | 'register'>(
+    queryTab === 'register' ? 'register' : 'login'
+  );
+
+  // Perbarui activeTab jika query param URL berubah
+  useEffect(() => {
+    if (queryTab === 'register') {
+      setActiveTab('register');
+    } else if (queryTab === 'login') {
+      setActiveTab('login');
+    }
+  }, [queryTab]);
 
   // Form states
   const [email, setEmail] = useState('');
@@ -46,6 +62,7 @@ export default function AuthPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [formSubmitting, setFormSubmitting] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   // Submit Handler
   const handleSubmit = async (e: React.FormEvent) => {
@@ -96,9 +113,14 @@ export default function AuthPage() {
   };
 
   const handleGoogleSignIn = async () => {
-    const ok = await signInWithGoogle();
-    if (ok) {
-      router.push('/onboarding');
+    setIsGoogleLoading(true);
+    try {
+      const ok = await signInWithGoogle();
+      if (ok) {
+        router.push('/onboarding');
+      }
+    } finally {
+      setIsGoogleLoading(false);
     }
   };
 
@@ -132,7 +154,7 @@ export default function AuthPage() {
               }}
               className={`py-2 text-xs font-bold rounded-md transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 activeTab === 'login'
-                  ? 'bg-sakode-card text-sakode-text shadow-xs'
+                  ? 'bg-sakode-card text-sakode-text shadow-xs border border-sakode-border/50'
                   : 'text-sakode-text-muted hover:text-sakode-text'
               }`}
             >
@@ -147,7 +169,7 @@ export default function AuthPage() {
               }}
               className={`py-2 text-xs font-bold rounded-md transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 activeTab === 'register'
-                  ? 'bg-sakode-card text-sakode-text shadow-xs'
+                  ? 'bg-sakode-card text-sakode-text shadow-xs border border-sakode-border/50'
                   : 'text-sakode-text-muted hover:text-sakode-text'
               }`}
             >
@@ -192,9 +214,10 @@ export default function AuthPage() {
           <Button
             type="button"
             variant="outline"
-            className="w-full h-11 border-sakode-border hover:bg-slate-50 gap-2.5 font-semibold text-xs"
+            className="w-full h-11 border-sakode-border hover:bg-slate-50 gap-2.5 font-semibold text-xs cursor-pointer"
             onClick={handleGoogleSignIn}
-            disabled={isLoading || formSubmitting}
+            disabled={formSubmitting || isGoogleLoading}
+            isLoading={isGoogleLoading}
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24">
               <path
@@ -269,13 +292,46 @@ export default function AuthPage() {
             <Button
               type="submit"
               variant="primary"
-              className="w-full font-bold mt-2 h-11"
+              className="w-full font-bold mt-2 h-11 cursor-pointer"
               isLoading={formSubmitting}
             >
               {activeTab === 'login' ? 'Masuk ke Platform' : 'Daftar & Lengkapi Profil'}
               <ArrowRight className="h-4 w-4 ml-1" />
             </Button>
           </form>
+
+          {/* Switcher Text Link */}
+          <div className="text-center pt-2">
+            {activeTab === 'login' ? (
+              <p className="text-xs text-sakode-text-muted">
+                Belum punya akun SAKODE?{' '}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('register');
+                    setValidationErrors({});
+                  }}
+                  className="font-bold text-[#09668d] hover:underline cursor-pointer"
+                >
+                  Daftar Member Baru
+                </button>
+              </p>
+            ) : (
+              <p className="text-xs text-sakode-text-muted">
+                Sudah memiliki akun?{' '}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('login');
+                    setValidationErrors({});
+                  }}
+                  className="font-bold text-[#09668d] hover:underline cursor-pointer"
+                >
+                  Masuk ke Akun
+                </button>
+              </p>
+            )}
+          </div>
 
           {/* Current Logged In State Notification */}
           {user && (
@@ -291,10 +347,20 @@ export default function AuthPage() {
                 <Button
                   size="sm"
                   variant="primary"
-                  className="w-full text-xs"
-                  onClick={() => router.push(user.isAdmin ? '/admin/members' : '/onboarding')}
+                  className="flex-1 text-xs"
+                  onClick={() => router.push(user.isAdmin ? '/admin' : '/onboarding')}
                 >
-                  {user.isAdmin ? 'Buka Antrean Admin' : 'Lengkapi / Cek Profil'}
+                  {user.isAdmin ? 'Dashboard Admin' : 'Lengkapi / Cek Profil'}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-xs gap-1"
+                  onClick={logout}
+                  title="Keluar dari akun ini"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                  <span>Keluar</span>
                 </Button>
               </div>
             </div>
@@ -374,5 +440,19 @@ export default function AuthPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-sakode-bg flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-sakode-cyan" />
+        </div>
+      }
+    >
+      <AuthPageContent />
+    </Suspense>
   );
 }

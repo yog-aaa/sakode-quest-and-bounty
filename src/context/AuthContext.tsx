@@ -75,25 +75,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isMockSession, setIsMockSession] = useState<boolean>(() => !!getInitialMockUser());
 
   // Muat profil dari Firestore
-  const loadProfile = useCallback(async (uid: string) => {
-    try {
-      const res = await getUserProfileAction(uid);
-      if (res.success && res.user) {
-        setUser(enrichUserProfile(res.user));
-      } else {
-        const syncRes = await syncUserAction({
-          uid,
-          email: firebaseUser?.email || 'user@sakode.id',
-          displayName: firebaseUser?.displayName || '',
-        });
-        if (syncRes.success && syncRes.user) {
-          setUser(enrichUserProfile(syncRes.user));
+  const loadProfile = useCallback(
+    async (uid: string, fallbackEmail?: string | null, fallbackDisplayName?: string | null) => {
+      try {
+        const res = await getUserProfileAction(uid);
+        if (res.success && res.user) {
+          setUser(enrichUserProfile(res.user));
+        } else {
+          const syncRes = await syncUserAction({
+            uid,
+            email: fallbackEmail || 'user@sakode.id',
+            displayName: fallbackDisplayName || '',
+          });
+          if (syncRes.success && syncRes.user) {
+            setUser(enrichUserProfile(syncRes.user));
+          }
         }
+      } catch (err: unknown) {
+        console.error('Error memuat profil user:', err);
       }
-    } catch (err: unknown) {
-      console.error('Error memuat profil user:', err);
-    }
-  }, [firebaseUser]);
+    },
+    []
+  );
 
   // Pantau status login Firebase Auth
   useEffect(() => {
@@ -102,25 +105,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
+    let isMounted = true;
     let unsubscribe: () => void = () => {};
+
+    // Safety timeout agar isLoading tidak pernah macet permanen
+    const safetyTimer = setTimeout(() => {
+      if (isMounted) {
+        setIsLoading(false);
+      }
+    }, 1500);
+
     try {
       unsubscribe = onAuthStateChanged(firebaseAuth, async (fbUser) => {
+        if (!isMounted) return;
         setFirebaseUser(fbUser);
         if (fbUser) {
-          await loadProfile(fbUser.uid);
+          await loadProfile(fbUser.uid, fbUser.email, fbUser.displayName);
         } else {
           setUser(null);
         }
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       });
     } catch (err: unknown) {
       console.warn('Firebase Client Auth belum dikonfigurasi aktif:', err);
-      setTimeout(() => {
+      if (isMounted) {
         setIsLoading(false);
-      }, 0);
+      }
     }
 
-    return () => unsubscribe();
+    return () => {
+      isMounted = false;
+      clearTimeout(safetyTimer);
+      unsubscribe();
+    };
   }, [loadProfile, isMockSession]);
 
   // Masuk dengan Email & Password
