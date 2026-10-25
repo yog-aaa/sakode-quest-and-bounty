@@ -55,7 +55,7 @@ export const Navbar: React.FC = () => {
           <Link href="/" className="flex items-center group py-1">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/sakode-work-logo.png"
+              src="/sakode-work-logo.svg"
               alt="SAKODE Work - Platform Task & Bounty Reward"
               className="h-9 sm:h-10 w-auto object-contain transition-transform group-hover:scale-[1.02]"
             />
