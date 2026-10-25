@@ -40,11 +40,16 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const LOCAL_STORAGE_MOCK_KEY = 'sakode_mock_auth_session';
 
 function enrichUserProfile(doc: UserDocument): AuthUserProfile {
+  const role = (doc.role ? String(doc.role).toUpperCase() : '') as UserRole;
+  const approvalStatus = (doc.approvalStatus ? String(doc.approvalStatus).toUpperCase() : '') as UserApprovalStatus;
+
   return {
     ...doc,
-    isSuperAdmin: doc.role === USER_ROLES.SUPER_ADMIN,
-    isAdmin: doc.role === USER_ROLES.ADMIN || doc.role === USER_ROLES.SUPER_ADMIN,
-    isApprovedMember: doc.approvalStatus === USER_APPROVAL_STATUS.APPROVED,
+    role: role || doc.role,
+    approvalStatus: approvalStatus || doc.approvalStatus,
+    isSuperAdmin: role === USER_ROLES.SUPER_ADMIN,
+    isAdmin: role === USER_ROLES.ADMIN || role === USER_ROLES.SUPER_ADMIN,
+    isApprovedMember: approvalStatus === USER_APPROVAL_STATUS.APPROVED,
   };
 }
 

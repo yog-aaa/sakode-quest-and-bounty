@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -24,14 +24,25 @@ export default function PendingApprovalPage() {
   const { user, refreshProfile, isLoading } = useAuth();
   const [checking, setChecking] = useState(false);
 
+  // Auto-redirect jika pengguna sudah disetujui atau merupakan Admin/Super Admin
+  useEffect(() => {
+    if (!isLoading && user) {
+      const isApproved =
+        user.approvalStatus === USER_APPROVAL_STATUS.APPROVED ||
+        String(user.approvalStatus).toUpperCase() === USER_APPROVAL_STATUS.APPROVED;
+
+      if (user.isAdmin || user.isSuperAdmin) {
+        router.replace('/admin');
+      } else if (isApproved) {
+        router.replace('/member');
+      }
+    }
+  }, [user, isLoading, router]);
+
   const handleRefresh = async () => {
     setChecking(true);
     await refreshProfile();
     setChecking(false);
-
-    if (user?.approvalStatus === USER_APPROVAL_STATUS.APPROVED) {
-      router.push('/member');
-    }
   };
 
   return (
