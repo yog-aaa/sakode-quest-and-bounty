@@ -52,26 +52,13 @@ export const Navbar: React.FC = () => {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Brand & Logo */}
         <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sakode-cyan/15 p-1 transition-transform group-hover:scale-105">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/sakode-brandmark.svg"
-                alt="SAKODE Brandmark"
-                className="h-full w-full object-contain"
-              />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-extrabold text-base tracking-tight text-sakode-text leading-tight flex items-center gap-1.5">
-                SAKODE
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-gradient-to-r from-sakode-cyan/20 to-sky-100 text-[#076991] font-black tracking-wider uppercase border border-sakode-cyan/30 shadow-2xs">
-                  Work
-                </span>
-              </span>
-              <span className="text-[10px] text-sakode-text-muted font-medium tracking-wide">
-                Task &amp; Reward Platform
-              </span>
-            </div>
+          <Link href="/" className="flex items-center group py-1">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/sakode-work-logo.png"
+              alt="SAKODE Work - Platform Task & Bounty Reward"
+              className="h-9 sm:h-10 w-auto object-contain transition-transform group-hover:scale-[1.02]"
+            />
           </Link>
 
           {/* Desktop Nav Links */}
