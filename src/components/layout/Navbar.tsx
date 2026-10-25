@@ -64,7 +64,7 @@ export const Navbar: React.FC = () => {
             <div className="flex flex-col">
               <span className="font-extrabold text-base tracking-tight text-sakode-text leading-tight flex items-center gap-1.5">
                 SAKODE
-                <span className="text-[11px] px-2 py-0.5 rounded-full bg-sakode-cyan/25 text-[#076991] font-extrabold tracking-wide uppercase">
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-gradient-to-r from-sakode-cyan/20 to-sky-100 text-[#076991] font-black tracking-wider uppercase border border-sakode-cyan/30 shadow-2xs">
                   Work
                 </span>
               </span>

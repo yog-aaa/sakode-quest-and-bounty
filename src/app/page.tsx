@@ -40,92 +40,129 @@ export default function HomePage() {
       <main className="flex-1">
         <section className="relative overflow-hidden border-b border-sakode-border bg-gradient-to-b from-white to-sakode-bg pt-10 pb-12 sm:pt-16 sm:pb-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl space-y-5">
-              <div className="inline-flex items-center gap-2 rounded-full border border-sakode-cyan/50 bg-sakode-cyan/15 px-3 py-1 text-xs font-bold text-[#09668d]">
-                <Sparkles className="h-3.5 w-3.5" />
-                <span>Sprint 2: Task Management & Solo Assignment Aktif</span>
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8 lg:gap-12">
+              <div className="max-w-2xl space-y-5">
+                {/* Official Brand Badge */}
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="inline-flex items-center gap-2.5 rounded-full border border-sakode-border bg-white px-3.5 py-1.5 shadow-xs">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/sakode-logo-sticker-blue.png"
+                      alt="Logo Resmi SAKODE"
+                      className="h-6 sm:h-7 w-auto object-contain"
+                    />
+                    <div className="h-4 w-px bg-sakode-border"></div>
+                    <span className="text-xs font-black tracking-tight text-sakode-text flex items-center gap-1.5">
+                      SAKODE WORK
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-sakode-cyan/25 text-[#076991] font-extrabold uppercase">
+                        Official Platform
+                      </span>
+                    </span>
+                  </div>
+
+                  <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800">
+                    <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
+                    <span>Sprint 2: Task Management Aktif</span>
+                  </div>
+                </div>
+
+                <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-sakode-text leading-[1.15]">
+                  SAKODE Task &amp; Reward Platform
+                </h1>
+
+                <p className="text-base sm:text-lg text-sakode-text-muted leading-relaxed">
+                  Platform pengerjaan task IT profesional, kolaborasi tim transparan, dan pencairan bounty instan.
+                  Dibangun dengan ketegasan arsitektur Firestore atomik, zona waktu WIB, dan identitas visual resmi SAKODE Academy.
+                </p>
+
+                {/* Quick Metric Bar */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+                  <div className="rounded-lg border border-sakode-border bg-sakode-card p-3 shadow-sm">
+                    <div className="text-[11px] font-semibold text-sakode-text-muted uppercase tracking-wider">
+                      Bounty Tersalurkan
+                    </div>
+                    <div className="mt-1 text-lg sm:text-xl font-extrabold text-sakode-text">
+                      {formatCurrencyIDR(24500000)}
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg border border-sakode-border bg-sakode-card p-3 shadow-sm">
+                    <div className="text-[11px] font-semibold text-sakode-text-muted uppercase tracking-wider">
+                      Task Selesai
+                    </div>
+                    <div className="mt-1 text-lg sm:text-xl font-extrabold text-sakode-text flex items-center gap-1.5">
+                      128 <span className="text-xs font-semibold text-emerald-600">100% WIB</span>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg border border-sakode-border bg-sakode-card p-3 shadow-sm">
+                    <div className="text-[11px] font-semibold text-sakode-text-muted uppercase tracking-wider">
+                      Member Terdaftar
+                    </div>
+                    <div className="mt-1 text-lg sm:text-xl font-extrabold text-sakode-text">
+                      480+
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg border border-sakode-border bg-sakode-card p-3 shadow-sm">
+                    <div className="text-[11px] font-semibold text-sakode-text-muted uppercase tracking-wider">
+                      Aturan Invariant
+                    </div>
+                    <div className="mt-1 text-lg sm:text-xl font-extrabold text-sakode-text flex items-center gap-1">
+                      <Check className="h-4 w-4 text-emerald-600" />
+                      <span>8 Strict Rules</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* CTA Buttons */}
+                <div className="flex flex-wrap items-center gap-3 pt-2">
+                  <Link href="/member/tasks">
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      leftIcon={<Compass className="h-4 w-4" />}
+                      rightIcon={<ArrowRight className="h-4 w-4" />}
+                    >
+                      Eksplor Papan Task
+                    </Button>
+                  </Link>
+
+                  <Link href="/login">
+                    <Button
+                      variant="outline"
+                      size="lg"
+                    >
+                      Masuk Akun
+                    </Button>
+                  </Link>
+
+                  <Link href="/admin/tasks">
+                    <Button
+                      variant="team"
+                      size="lg"
+                      leftIcon={<Layers className="h-4 w-4" />}
+                    >
+                      Manajemen Task Admin
+                    </Button>
+                  </Link>
+                </div>
               </div>
 
-              <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-sakode-text leading-[1.15]">
-                SAKODE Task & Reward Platform
-              </h1>
-
-              <p className="text-base sm:text-lg text-sakode-text-muted leading-relaxed">
-                Platform pengerjaan task IT profesional, kolaborasi tim transparan, dan pencairan bounty instan.
-                Dibangun dengan ketegasan arsitektur Firestore atomik, zona waktu WIB, dan identitas visual resmi SAKODE Academy.
-              </p>
-
-              {/* Quick Metric Bar */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-                <div className="rounded-lg border border-sakode-border bg-sakode-card p-3 shadow-sm">
-                  <div className="text-[11px] font-semibold text-sakode-text-muted uppercase tracking-wider">
-                    Bounty Tersalurkan
-                  </div>
-                  <div className="mt-1 text-lg sm:text-xl font-extrabold text-sakode-text">
-                    {formatCurrencyIDR(24500000)}
+              {/* Hero Graphic / Mascot Showcase */}
+              <div className="hidden lg:flex flex-col items-center justify-center shrink-0">
+                <div className="relative p-6 rounded-3xl bg-gradient-to-br from-sakode-cyan/15 via-white to-sky-50 border border-sakode-cyan/30 shadow-lg shadow-sky-100/50 flex flex-col items-center text-center max-w-sm">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/sakode-logo-official.png"
+                    alt="SAKODE Work Official Mascot"
+                    className="h-40 w-auto object-contain drop-shadow-md transition-transform hover:scale-105 duration-300"
+                  />
+                  <div className="mt-4 pt-3 border-t border-sakode-border/70 w-full">
+                    <div className="text-sm font-black text-sakode-text">SAKODE Work Academy</div>
+                    <div className="text-[11px] text-sakode-text-muted mt-0.5">Komunitas Developer &amp; Bounty Hunter IT</div>
                   </div>
                 </div>
-
-                <div className="rounded-lg border border-sakode-border bg-sakode-card p-3 shadow-sm">
-                  <div className="text-[11px] font-semibold text-sakode-text-muted uppercase tracking-wider">
-                    Task Selesai
-                  </div>
-                  <div className="mt-1 text-lg sm:text-xl font-extrabold text-sakode-text flex items-center gap-1.5">
-                    128 <span className="text-xs font-semibold text-emerald-600">100% WIB</span>
-                  </div>
-                </div>
-
-                <div className="rounded-lg border border-sakode-border bg-sakode-card p-3 shadow-sm">
-                  <div className="text-[11px] font-semibold text-sakode-text-muted uppercase tracking-wider">
-                    Member Terdaftar
-                  </div>
-                  <div className="mt-1 text-lg sm:text-xl font-extrabold text-sakode-text">
-                    480+
-                  </div>
-                </div>
-
-                <div className="rounded-lg border border-sakode-border bg-sakode-card p-3 shadow-sm">
-                  <div className="text-[11px] font-semibold text-sakode-text-muted uppercase tracking-wider">
-                    Aturan Invariant
-                  </div>
-                  <div className="mt-1 text-lg sm:text-xl font-extrabold text-sakode-text flex items-center gap-1">
-                    <Check className="h-4 w-4 text-emerald-600" />
-                    <span>8 Strict Rules</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* CTA Buttons */}
-              <div className="flex flex-wrap items-center gap-3 pt-2">
-                <Link href="/member/tasks">
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    leftIcon={<Compass className="h-4 w-4" />}
-                    rightIcon={<ArrowRight className="h-4 w-4" />}
-                  >
-                    Eksplor Papan Task
-                  </Button>
-                </Link>
-
-                <Link href="/login">
-                  <Button
-                    variant="outline"
-                    size="lg"
-                  >
-                    Masuk Akun
-                  </Button>
-                </Link>
-
-                <Link href="/admin/tasks">
-                  <Button
-                    variant="team"
-                    size="lg"
-                    leftIcon={<Layers className="h-4 w-4" />}
-                  >
-                    Manajemen Task Admin
-                  </Button>
-                </Link>
               </div>
             </div>
           </div>

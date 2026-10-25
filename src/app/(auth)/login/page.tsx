@@ -155,17 +155,25 @@ function AuthPageContent() {
   return (
     <div className="min-h-screen bg-sakode-bg py-10 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
       {/* Brand Header */}
-      <div className="text-center mb-8 space-y-2">
-        <Link href="/" className="inline-flex items-center gap-2 group">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sakode-cyan text-sakode-text font-black text-xl shadow-sm transition-transform group-hover:scale-105">
-            S
+      <div className="text-center mb-8 flex flex-col items-center space-y-3">
+        <Link href="/" className="inline-flex flex-col items-center group">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/sakode-logo-official.png"
+            alt="SAKODE Academy"
+            className="h-12 sm:h-14 w-auto object-contain transition-transform group-hover:scale-105"
+          />
+          <div className="mt-2.5 flex items-center gap-2">
+            <span className="font-extrabold text-2xl tracking-tight text-sakode-text">
+              SAKODE
+            </span>
+            <span className="text-xs px-2.5 py-0.5 rounded-full bg-sakode-cyan/25 text-[#076991] font-extrabold tracking-wide uppercase">
+              Work
+            </span>
           </div>
-          <span className="font-extrabold text-2xl tracking-tight text-sakode-text">
-            SAKODE Academy
-          </span>
         </Link>
-        <p className="text-xs text-sakode-text-muted">
-          Platform Kolaborasi Pengerjaan Task & Pencairan Bounty Reward
+        <p className="text-xs text-sakode-text-muted max-w-sm">
+          Platform Kolaborasi Pengerjaan Task &amp; Pencairan Bounty Reward
         </p>
       </div>
 

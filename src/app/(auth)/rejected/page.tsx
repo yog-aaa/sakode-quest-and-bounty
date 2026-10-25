@@ -26,13 +26,21 @@ export default function RejectedPage() {
       <div className="max-w-xl w-full space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <Link href="/" className="inline-flex items-center gap-2 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sakode-cyan text-sakode-text font-black text-lg shadow-sm">
-              S
+          <Link href="/" className="inline-flex items-center gap-2.5 group">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/sakode-logo-official.png"
+              alt="SAKODE Academy"
+              className="h-10 sm:h-12 w-auto object-contain transition-transform group-hover:scale-105"
+            />
+            <div className="flex items-center gap-1.5">
+              <span className="font-extrabold text-xl tracking-tight text-sakode-text">
+                SAKODE
+              </span>
+              <span className="text-[11px] px-2 py-0.5 rounded-full bg-sakode-cyan/25 text-[#076991] font-extrabold uppercase">
+                Work
+              </span>
             </div>
-            <span className="font-extrabold text-xl tracking-tight text-sakode-text">
-              SAKODE Academy
-            </span>
           </Link>
         </div>
 
