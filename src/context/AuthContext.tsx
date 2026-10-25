@@ -78,7 +78,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loadProfile = useCallback(
     async (uid: string, fallbackEmail?: string | null, fallbackDisplayName?: string | null) => {
       try {
-        const res = await getUserProfileAction(uid);
+        const timeoutPromise = new Promise<{ success: false; error: string }>((_, reject) =>
+          setTimeout(() => reject(new Error('Waktu muat profil habis (timeout)')), 5000)
+        );
+
+        const fetchPromise = getUserProfileAction(uid);
+        const res = await Promise.race([fetchPromise, timeoutPromise]);
+
         if (res.success && res.user) {
           setUser(enrichUserProfile(res.user));
         } else {
@@ -234,12 +240,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     setIsLoading(true);
     try {
-      if (isMockSession) {
-        clearMockSession();
-      } else {
+      localStorage.removeItem(LOCAL_STORAGE_MOCK_KEY);
+      setIsMockSession(false);
+      setUser(null);
+      setFirebaseUser(null);
+      try {
         await signOut(firebaseAuth);
-        setUser(null);
-        setFirebaseUser(null);
+      } catch (fbErr: unknown) {
+        console.warn('Firebase signOut error:', fbErr);
       }
     } catch (err: unknown) {
       console.error('Logout error:', err);
@@ -309,6 +317,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsMockSession(false);
     setUser(null);
     setFirebaseUser(null);
+    setIsLoading(false);
   };
 
   return (

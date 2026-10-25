@@ -1,11 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { ShieldAlert, ArrowLeft, LogIn, Clock, AlertCircle, Loader2 } from 'lucide-react';
+import { ShieldAlert, ArrowLeft, LogIn, Clock, AlertCircle, Loader2, RotateCw } from 'lucide-react';
 import { USER_APPROVAL_STATUS } from '@/lib/constants';
 
 interface AuthGuardProps {
@@ -21,9 +21,66 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
   requireSuperAdmin = false,
   requireApproved = false,
 }) => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, logout } = useAuth();
+  const [isTimedOut, setIsTimedOut] = useState(false);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout | undefined;
+    if (isLoading) {
+      timer = setTimeout(() => {
+        setIsTimedOut(true);
+      }, 2500);
+    } else {
+      setIsTimedOut(false);
+    }
+
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [isLoading]);
 
   if (isLoading) {
+    if (isTimedOut) {
+      return (
+        <div className="min-h-[70vh] flex items-center justify-center p-4">
+          <Card className="max-w-md w-full text-center border-amber-200 bg-amber-50/40">
+            <CardHeader>
+              <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                <Clock className="h-6 w-6" />
+              </div>
+              <CardTitle className="text-lg">Proses Verifikasi Sesi Terkendala</CardTitle>
+              <CardDescription className="text-xs leading-relaxed">
+                Verifikasi status akses akun SAKODE Anda membutuhkan waktu lebih lama dari biasanya. Hal ini dapat disebabkan oleh koneksi jaringan yang lambat atau sinkronisasi sesi yang tertunda.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button
+                variant="primary"
+                className="w-full gap-2 cursor-pointer"
+                onClick={() => window.location.reload()}
+              >
+                <RotateCw className="h-4 w-4" />
+                Muat Ulang Halaman
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full gap-2 cursor-pointer"
+                onClick={async () => {
+                  await logout();
+                  window.location.href = '/login';
+                }}
+              >
+                <LogIn className="h-4 w-4" />
+                Masuk Ulang ke Akun
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 space-y-3">
         <Loader2 className="h-8 w-8 animate-spin text-sakode-cyan" />

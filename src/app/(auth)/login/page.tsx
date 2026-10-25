@@ -20,7 +20,6 @@ import {
   CheckCircle2,
   AlertCircle,
   ShieldCheck,
-  UserCheck,
   Clock,
   LogOut,
   Loader2,
@@ -33,6 +32,7 @@ function AuthPageContent() {
 
   const {
     user,
+    isLoading,
     signInWithEmail,
     signUpWithEmail,
     signInWithGoogle,
@@ -42,6 +42,23 @@ function AuthPageContent() {
     setMockSession,
     isMockSession,
   } = useAuth();
+
+  // Auto-redirect jika pengguna sudah memiliki sesi aktif
+  useEffect(() => {
+    if (!isLoading && user) {
+      if (user.isAdmin || user.isSuperAdmin) {
+        router.replace('/admin');
+      } else if (user.isApprovedMember) {
+        router.replace('/member');
+      } else if (user.approvalStatus === USER_APPROVAL_STATUS.PENDING) {
+        router.replace('/pending-approval');
+      } else if (user.approvalStatus === USER_APPROVAL_STATUS.REJECTED) {
+        router.replace('/rejected');
+      } else {
+        router.replace('/');
+      }
+    }
+  }, [user, isLoading, router]);
 
   const [activeTab, setActiveTab] = useState<'login' | 'register'>(
     queryTab === 'register' ? 'register' : 'login'
@@ -123,6 +140,17 @@ function AuthPageContent() {
       setIsGoogleLoading(false);
     }
   };
+
+  if (isLoading || user) {
+    return (
+      <div className="min-h-screen bg-sakode-bg flex flex-col items-center justify-center p-6 space-y-3">
+        <Loader2 className="h-8 w-8 animate-spin text-sakode-cyan" />
+        <span className="text-xs font-semibold text-sakode-text-muted">
+          {user ? 'Mengarahkan ke dashboard...' : 'Memverifikasi status akses akun SAKODE...'}
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-sakode-bg py-10 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
@@ -332,39 +360,6 @@ function AuthPageContent() {
               </p>
             )}
           </div>
-
-          {/* Current Logged In State Notification */}
-          {user && (
-            <div className="mt-4 p-3 rounded-lg bg-sakode-cyan/15 border border-sakode-cyan/50 text-xs space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-sakode-text flex items-center gap-1.5">
-                  <UserCheck className="h-4 w-4 text-sakode-cyan" />
-                  Sesi Aktif: {user.displayName || user.email}
-                </span>
-                <Badge variant="cyan">{user.role}</Badge>
-              </div>
-              <div className="flex gap-2 pt-1">
-                <Button
-                  size="sm"
-                  variant="primary"
-                  className="flex-1 text-xs"
-                  onClick={() => router.push(user.isAdmin ? '/admin' : '/onboarding')}
-                >
-                  {user.isAdmin ? 'Dashboard Admin' : 'Lengkapi / Cek Profil'}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="text-xs gap-1"
-                  onClick={logout}
-                  title="Keluar dari akun ini"
-                >
-                  <LogOut className="h-3.5 w-3.5" />
-                  <span>Keluar</span>
-                </Button>
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
 

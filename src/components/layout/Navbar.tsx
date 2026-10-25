@@ -118,8 +118,11 @@ export const Navbar: React.FC = () => {
               <Button
                 variant="outline"
                 size="sm"
-                className="h-9 text-xs px-2.5 gap-1 text-slate-700"
-                onClick={logout}
+                className="h-9 text-xs px-2.5 gap-1 text-slate-700 cursor-pointer"
+                onClick={async () => {
+                  await logout();
+                  window.location.href = '/login';
+                }}
                 title="Keluar dari akun"
               >
                 <LogOut className="h-3.5 w-3.5" />
