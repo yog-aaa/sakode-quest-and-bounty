@@ -53,18 +53,23 @@ export const Navbar: React.FC = () => {
         {/* Brand & Logo */}
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sakode-cyan text-sakode-text font-black text-lg shadow-sm transition-transform group-hover:scale-105">
-              S
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sakode-cyan/15 p-1 transition-transform group-hover:scale-105">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/sakode-brandmark.svg"
+                alt="SAKODE Brandmark"
+                className="h-full w-full object-contain"
+              />
             </div>
             <div className="flex flex-col">
               <span className="font-extrabold text-base tracking-tight text-sakode-text leading-tight flex items-center gap-1.5">
                 SAKODE
-                <span className="text-xs px-1.5 py-0.2 rounded bg-sakode-cyan/20 text-[#076991] font-bold">
-                  Bounty
+                <span className="text-[11px] px-2 py-0.5 rounded-full bg-sakode-cyan/25 text-[#076991] font-extrabold tracking-wide uppercase">
+                  Work
                 </span>
               </span>
               <span className="text-[10px] text-sakode-text-muted font-medium tracking-wide">
-                Task & Reward Platform
+                Task &amp; Reward Platform
               </span>
             </div>
           </Link>

@@ -11,14 +11,45 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://work.sakode.com'),
   title: {
-    template: '%s | SAKODE Task & Reward',
-    default: 'SAKODE Task & Reward Platform - SAKODE Academy',
+    template: '%s | SAKODE Work',
+    default: 'SAKODE Work - Platform Task IT & Bounty Reward',
   },
   description:
     'Platform resmi SAKODE Academy untuk pengerjaan task IT profesional, kolaborasi tim transparan, dan pencairan bounty reward.',
   icons: {
-    icon: '/favicon.ico',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.png', type: 'image/png', sizes: '512x512' },
+    ],
+    apple: [
+      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
+  openGraph: {
+    title: 'SAKODE Work - Platform Task IT & Bounty Reward Developer',
+    description:
+      'Platform resmi SAKODE Academy untuk pengerjaan task IT profesional, kolaborasi tim transparan, dan pencairan bounty reward.',
+    url: 'https://work.sakode.com',
+    siteName: 'SAKODE Work',
+    images: [
+      {
+        url: '/opengraph-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'SAKODE Work - Platform Task IT & Bounty Reward Developer',
+      },
+    ],
+    locale: 'id_ID',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'SAKODE Work - Platform Task IT & Bounty Reward Developer',
+    description:
+      'Platform resmi SAKODE Academy untuk pengerjaan task IT profesional dan pencairan bounty reward.',
+    images: ['/opengraph-image.png'],
   },
 };
 
