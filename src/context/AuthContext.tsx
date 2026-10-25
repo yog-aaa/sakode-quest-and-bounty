@@ -11,7 +11,8 @@ import {
   sendEmailVerification,
   type User as FirebaseUser,
 } from 'firebase/auth';
-import { firebaseAuth } from '@/lib/firebase/client';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { firebaseAuth, getClientFirestore } from '@/lib/firebase/client';
 import type { AuthUserProfile } from '@/types/auth';
 import type { UserDocument } from '@/types/database';
 import { USER_ROLES, USER_APPROVAL_STATUS, type UserRole, type UserApprovalStatus } from '@/lib/constants';
@@ -53,6 +54,31 @@ function enrichUserProfile(doc: UserDocument): AuthUserProfile {
   };
 }
 
+function buildDefaultUserDoc(uid: string, email: string, displayName?: string | null): UserDocument {
+  const now = new Date().toISOString();
+  return {
+    id: uid,
+    email: email || '',
+    displayName: displayName || (email ? email.split('@')[0] : '') || 'Member SAKODE',
+    contactNumber: '',
+    skills: [],
+    role: USER_ROLES.MEMBER,
+    approvalStatus: USER_APPROVAL_STATUS.PENDING,
+    paymentAccountEncrypted: '',
+    paymentAccountMasked: '',
+    activeTaskId: null,
+    pendingApplicationCount: 0,
+    stats: {
+      completedTasks: 0,
+      onTimeTasks: 0,
+      failedTasks: 0,
+      provenReports: 0,
+    },
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
 function getInitialMockUser(): AuthUserProfile | null {
   if (typeof window === 'undefined') return null;
   try {
@@ -74,9 +100,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
   const [isMockSession, setIsMockSession] = useState<boolean>(() => !!getInitialMockUser());
 
-  // Muat profil dari Firestore
+  // Muat profil dari Firestore (dengan server action & client-side fallback)
   const loadProfile = useCallback(
     async (uid: string, fallbackEmail?: string | null, fallbackDisplayName?: string | null) => {
+      // 1. Coba via Server Actions terlebih dahulu
       try {
         const timeoutPromise = new Promise<{ success: false; error: string }>((_, reject) =>
           setTimeout(() => reject(new Error('Waktu muat profil habis (timeout)')), 5000)
@@ -87,18 +114,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (res.success && res.user) {
           setUser(enrichUserProfile(res.user));
-        } else {
-          const syncRes = await syncUserAction({
-            uid,
-            email: fallbackEmail || 'user@sakode.id',
-            displayName: fallbackDisplayName || '',
-          });
-          if (syncRes.success && syncRes.user) {
-            setUser(enrichUserProfile(syncRes.user));
-          }
+          return;
+        }
+
+        const syncRes = await syncUserAction({
+          uid,
+          email: fallbackEmail || 'user@sakode.id',
+          displayName: fallbackDisplayName || '',
+        });
+        if (syncRes.success && syncRes.user) {
+          setUser(enrichUserProfile(syncRes.user));
+          return;
         }
       } catch (err: unknown) {
-        console.error('Error memuat profil user:', err);
+        console.warn('Server action muat profil user gagal, mencoba client fallback:', err);
+      }
+
+      // 2. Client-Side Firestore Fallback (Mencegah user mental di login jika Server Action di Vercel bermasalah)
+      try {
+        const db = getClientFirestore();
+        const userDocRef = doc(db, 'users', uid);
+        const docSnap = await getDoc(userDocRef);
+
+        if (docSnap.exists()) {
+          const docData = docSnap.data() as UserDocument;
+          setUser(enrichUserProfile({ ...docData, id: uid }));
+        } else {
+          const defaultDoc = buildDefaultUserDoc(uid, fallbackEmail || '', fallbackDisplayName);
+          await setDoc(
+            userDocRef,
+            {
+              ...defaultDoc,
+              createdAt: serverTimestamp(),
+              updatedAt: serverTimestamp(),
+            },
+            { merge: true }
+          );
+          setUser(enrichUserProfile(defaultDoc));
+        }
+      } catch (clientErr: unknown) {
+        console.error('Client fallback Firestore error:', clientErr);
+        if (fallbackEmail) {
+          const memDoc = buildDefaultUserDoc(uid, fallbackEmail, fallbackDisplayName);
+          setUser(enrichUserProfile(memDoc));
+        }
       }
     },
     []
@@ -154,7 +213,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     try {
       const cred = await signInWithEmailAndPassword(firebaseAuth, email, pass);
-      await loadProfile(cred.user.uid);
+      await loadProfile(cred.user.uid, cred.user.email || email, cred.user.displayName);
       return true;
     } catch (err: unknown) {
       const code = (err as { code?: string })?.code || '';
@@ -179,17 +238,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     try {
       const cred = await createUserWithEmailAndPassword(firebaseAuth, email, pass);
-      await sendEmailVerification(cred.user);
-      setEmailVerificationSent(true);
 
-      const res = await syncUserAction({
-        uid: cred.user.uid,
-        email: cred.user.email || email,
-      });
+      // 1. Buat / sinkronkan dokumen user di Firestore TERLEBIH DAHULU
+      let userProfileSet = false;
+      try {
+        const res = await syncUserAction({
+          uid: cred.user.uid,
+          email: cred.user.email || email,
+        });
 
-      if (res.success && res.user) {
-        setUser(enrichUserProfile(res.user));
+        if (res.success && res.user) {
+          setUser(enrichUserProfile(res.user));
+          userProfileSet = true;
+        }
+      } catch (syncErr: unknown) {
+        console.warn('Server syncUserAction gagal, mencoba client fallback:', syncErr);
       }
+
+      // Client-side Firestore fallback jika server action gagal
+      if (!userProfileSet) {
+        try {
+          const db = getClientFirestore();
+          const userDocRef = doc(db, 'users', cred.user.uid);
+          const defaultDoc = buildDefaultUserDoc(cred.user.uid, cred.user.email || email, cred.user.displayName);
+          await setDoc(
+            userDocRef,
+            {
+              ...defaultDoc,
+              createdAt: serverTimestamp(),
+              updatedAt: serverTimestamp(),
+            },
+            { merge: true }
+          );
+          setUser(enrichUserProfile(defaultDoc));
+        } catch (clientFallbackErr: unknown) {
+          console.error('Client setDoc fallback gagal:', clientFallbackErr);
+          const memDoc = buildDefaultUserDoc(cred.user.uid, cred.user.email || email, cred.user.displayName);
+          setUser(enrichUserProfile(memDoc));
+        }
+      }
+
+      // 2. Kirim email verifikasi dalam blok terlindung (JANGAN biarkan kegagalan email menggagalkan pendaftaran)
+      try {
+        await sendEmailVerification(cred.user);
+        setEmailVerificationSent(true);
+      } catch (emailErr: unknown) {
+        console.warn('Kirim email verifikasi gagal (domain belum terverifikasi di Firebase Auth):', emailErr);
+      }
+
       return true;
     } catch (err: unknown) {
       const code = (err as { code?: string })?.code || '';
@@ -214,20 +310,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const provider = new GoogleAuthProvider();
       const cred = await signInWithPopup(firebaseAuth, provider);
 
-      const res = await syncUserAction({
-        uid: cred.user.uid,
-        email: cred.user.email || '',
-        displayName: cred.user.displayName,
-      });
-
-      if (res.success && res.user) {
-        setUser(enrichUserProfile(res.user));
-      }
+      await loadProfile(cred.user.uid, cred.user.email || '', cred.user.displayName);
       return true;
     } catch (err: unknown) {
       console.error('Google Sign-in Error:', err);
       const code = (err as { code?: string })?.code;
-      if (code !== 'auth/popup-closed-by-user') {
+      if (code === 'auth/unauthorized-domain') {
+        setError('Domain ini belum didaftarkan di Firebase Console. Silakan tambahkan domain ini ke Firebase Authentication -> Settings -> Authorized Domains.');
+      } else if (code === 'auth/popup-blocked') {
+        setError('Jendela popup diblokir oleh browser. Harap izinkan popup untuk masuk dengan Google.');
+      } else if (code !== 'auth/popup-closed-by-user') {
         setError('Gagal masuk dengan Google. Silakan coba lagi.');
       }
       return false;
