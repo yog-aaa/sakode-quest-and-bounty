@@ -10,6 +10,7 @@ import type { TaskDocument, FirestoreDate } from '@/types/database';
 import { TASK_STATUS, TASK_DEADLINE_TYPES, TASK_MODES } from '@/lib/constants';
 import { createTaskSchema, type CreateTaskInput } from '@/lib/validations/task';
 import { assertAdminPrivilege } from './user.service';
+import { toDateSafe } from '@/lib/utils';
 
 /**
  * Membuat task baru (DRAFT atau langsung OPEN) dengan snapshot Terms & Conditions resmi.
@@ -158,11 +159,17 @@ export async function getAvailableTasks(filters?: {
     query = query.where('assignmentType', '==', filters.assignmentType);
   }
 
-  const snap = await query.orderBy('createdAt', 'desc').get();
-  return snap.docs.map((d) => ({
+  const snap = await query.get();
+  const tasks = snap.docs.map((d) => ({
     ...(d.data() as TaskDocument),
     id: d.id,
   }));
+
+  return tasks.sort((a, b) => {
+    const timeA = toDateSafe(a.createdAt)?.getTime() || 0;
+    const timeB = toDateSafe(b.createdAt)?.getTime() || 0;
+    return timeB - timeA;
+  });
 }
 
 /**
@@ -180,11 +187,17 @@ export async function getAllTasksForAdmin(
     query = query.where('status', '==', statusFilter);
   }
 
-  const snap = await query.orderBy('createdAt', 'desc').get();
-  return snap.docs.map((d) => ({
+  const snap = await query.get();
+  const tasks = snap.docs.map((d) => ({
     ...(d.data() as TaskDocument),
     id: d.id,
   }));
+
+  return tasks.sort((a, b) => {
+    const timeA = toDateSafe(a.createdAt)?.getTime() || 0;
+    const timeB = toDateSafe(b.createdAt)?.getTime() || 0;
+    return timeB - timeA;
+  });
 }
 
 /**

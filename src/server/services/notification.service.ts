@@ -13,6 +13,7 @@ import { NOTIFICATION_CATEGORIES, type NotificationCategory } from '@/lib/consta
 import type { NotificationDocument, UserDocument, FirestoreDate } from '@/types/database';
 import { sendFCMWebPush } from './fcm.service';
 import { sendEmailSafe } from './email/email.adapter';
+import { toDateSafe } from '@/lib/utils';
 
 export interface CreateNotificationParams {
   title: string;
@@ -76,14 +77,20 @@ export async function getUserNotifications(
   const snap = await db
     .collection('notifications')
     .where('userId', '==', userId)
-    .orderBy('createdAt', 'desc')
-    .limit(limitCount)
     .get();
 
-  return snap.docs.map((doc) => ({
+  const items = snap.docs.map((doc) => ({
     ...(doc.data() as NotificationDocument),
     id: doc.id,
   }));
+
+  return items
+    .sort((a, b) => {
+      const timeA = toDateSafe(a.createdAt)?.getTime() || 0;
+      const timeB = toDateSafe(b.createdAt)?.getTime() || 0;
+      return timeB - timeA;
+    })
+    .slice(0, limitCount);
 }
 
 /**

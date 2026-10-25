@@ -28,6 +28,7 @@ import {
   type ReviewSubmissionInput,
 } from '@/lib/validations/submission';
 import { assertAdminPrivilege } from './user.service';
+import { toDateSafe } from '@/lib/utils';
 import { createRewardLedgerInsideTransaction } from './claim.service';
 import { dispatchNotification } from './notification.service';
 import { revisionRequestedEmail } from './email/templates';
@@ -524,13 +525,14 @@ export async function getSubmissionsForTask(
   const snap = await db
     .collection('submissions')
     .where('taskId', '==', taskId)
-    .orderBy('version', 'desc')
     .get();
 
-  return snap.docs.map((doc) => ({
+  const items = snap.docs.map((doc) => ({
     id: doc.id,
     ...(doc.data() as Omit<SubmissionDocument, 'id'>),
   }));
+
+  return items.sort((a, b) => (b.version || 0) - (a.version || 0));
 }
 
 /**
@@ -543,13 +545,18 @@ export async function getPendingSubmissionsQueue(): Promise<SubmissionDocument[]
   const snap = await db
     .collection('submissions')
     .where('status', 'in', [SUBMISSION_STATUS.SUBMITTED, SUBMISSION_STATUS.IN_REVIEW])
-    .orderBy('createdAt', 'asc')
     .get();
 
-  return snap.docs.map((doc) => ({
+  const items = snap.docs.map((doc) => ({
     id: doc.id,
     ...(doc.data() as Omit<SubmissionDocument, 'id'>),
   }));
+
+  return items.sort((a, b) => {
+    const timeA = toDateSafe(a.createdAt)?.getTime() || 0;
+    const timeB = toDateSafe(b.createdAt)?.getTime() || 0;
+    return timeA - timeB; // FIFO
+  });
 }
 
 /**

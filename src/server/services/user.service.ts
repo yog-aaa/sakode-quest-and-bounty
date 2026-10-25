@@ -21,7 +21,7 @@ import {
   decryptBankAccount,
   type BankAccountDetails,
 } from '@/lib/crypto';
-import { formatMaskedPaymentAccount } from '@/lib/utils';
+import { formatMaskedPaymentAccount, toDateSafe } from '@/lib/utils';
 import { setCustomUserClaims } from './auth.service';
 import { dispatchNotification } from './notification.service';
 import { accountApprovedEmail } from './email/templates';
@@ -132,13 +132,18 @@ export async function getPendingUsers(adminUid: string): Promise<UserDocument[]>
   const snapshot = await db
     .collection('users')
     .where('approvalStatus', '==', USER_APPROVAL_STATUS.PENDING)
-    .orderBy('createdAt', 'desc')
     .get();
 
-  return snapshot.docs.map((doc) => ({
+  const users = snapshot.docs.map((doc) => ({
     ...(doc.data() as UserDocument),
     id: doc.id,
   }));
+
+  return users.sort((a, b) => {
+    const timeA = toDateSafe(a.createdAt)?.getTime() || 0;
+    const timeB = toDateSafe(b.createdAt)?.getTime() || 0;
+    return timeB - timeA;
+  });
 }
 
 /**
@@ -157,11 +162,17 @@ export async function getUsersList(
     query = query.where('approvalStatus', '==', statusFilter);
   }
 
-  const snapshot = await query.orderBy('createdAt', 'desc').get();
-  return snapshot.docs.map((doc) => ({
+  const snapshot = await query.get();
+  const users = snapshot.docs.map((doc) => ({
     ...(doc.data() as UserDocument),
     id: doc.id,
   }));
+
+  return users.sort((a, b) => {
+    const timeA = toDateSafe(a.createdAt)?.getTime() || 0;
+    const timeB = toDateSafe(b.createdAt)?.getTime() || 0;
+    return timeB - timeA;
+  });
 }
 
 /**

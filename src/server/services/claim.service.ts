@@ -23,7 +23,7 @@ import {
   type ClaimStatus,
 } from '@/lib/constants';
 import { decryptBankAccount } from '@/lib/crypto';
-import { formatCurrencyIDR, formatMaskedPaymentAccount } from '@/lib/utils';
+import { formatCurrencyIDR, formatMaskedPaymentAccount, toDateSafe } from '@/lib/utils';
 import { dispatchNotification } from './notification.service';
 import { claimPaidEmail, teamConsensusEmail } from './email/templates';
 import {
@@ -116,13 +116,18 @@ export async function getUserRewardLedgers(userId: string): Promise<RewardLedger
   const snap = await db
     .collection('rewardLedgers')
     .where('ownerUserId', '==', userId)
-    .orderBy('createdAt', 'desc')
     .get();
 
-  return snap.docs.map((d) => ({
+  const items = snap.docs.map((d) => ({
     ...(d.data() as RewardLedgerDocument),
     id: d.id,
   }));
+
+  return items.sort((a, b) => {
+    const timeA = toDateSafe(a.createdAt)?.getTime() || 0;
+    const timeB = toDateSafe(b.createdAt)?.getTime() || 0;
+    return timeB - timeA;
+  });
 }
 
 /**
@@ -133,13 +138,18 @@ export async function getUserClaims(userId: string): Promise<ClaimDocument[]> {
   const snap = await db
     .collection('claims')
     .where('userId', '==', userId)
-    .orderBy('createdAt', 'desc')
     .get();
 
-  return snap.docs.map((d) => ({
+  const items = snap.docs.map((d) => ({
     ...(d.data() as ClaimDocument),
     id: d.id,
   }));
+
+  return items.sort((a, b) => {
+    const timeA = toDateSafe(a.createdAt)?.getTime() || 0;
+    const timeB = toDateSafe(b.createdAt)?.getTime() || 0;
+    return timeB - timeA;
+  });
 }
 
 /**
@@ -152,16 +162,22 @@ export async function getAllClaimsForAdmin(
   await assertAdminPrivilege(adminUid);
   const db = getAdminFirestore();
 
-  let query = db.collection('claims').orderBy('createdAt', 'desc');
+  let query: FirebaseFirestore.Query = db.collection('claims');
   if (filterStatus) {
     query = query.where('status', '==', filterStatus);
   }
 
   const snap = await query.get();
-  return snap.docs.map((d) => ({
+  const items = snap.docs.map((d) => ({
     ...(d.data() as ClaimDocument),
     id: d.id,
   }));
+
+  return items.sort((a, b) => {
+    const timeA = toDateSafe(a.createdAt)?.getTime() || 0;
+    const timeB = toDateSafe(b.createdAt)?.getTime() || 0;
+    return timeB - timeA;
+  });
 }
 
 /**

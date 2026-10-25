@@ -37,6 +37,7 @@ import {
   type AdminOverrideRosterInput,
 } from '@/lib/validations/team';
 import { assertAdminPrivilege } from './user.service';
+import { toDateSafe } from '@/lib/utils';
 
 /**
  * Helper: Menghasilkan kode undangan unik 6 karakter (alphanumeric uppercase)
@@ -174,13 +175,18 @@ export async function getTeamMembers(teamId: string): Promise<TeamMembershipDocu
   const snap = await db
     .collection('teamMemberships')
     .where('teamId', '==', teamId)
-    .orderBy('createdAt', 'asc')
     .get();
 
-  return snap.docs.map((d) => ({
+  const members = snap.docs.map((d) => ({
     ...(d.data() as TeamMembershipDocument),
     id: d.id,
   }));
+
+  return members.sort((a, b) => {
+    const timeA = toDateSafe(a.createdAt)?.getTime() || 0;
+    const timeB = toDateSafe(b.createdAt)?.getTime() || 0;
+    return timeA - timeB; // Ascending
+  });
 }
 
 /**

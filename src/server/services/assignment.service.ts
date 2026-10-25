@@ -36,6 +36,7 @@ import {
 import type { ApplyTaskInput } from '@/lib/validations/task';
 import { assertAdminPrivilege } from './user.service';
 import { generateInviteCode } from './team.service';
+import { toDateSafe } from '@/lib/utils';
 
 /**
  * Transaksi Atomik Instant Take (Mencegah perebutan slot bersamaan & batas 1 active task)
@@ -574,13 +575,18 @@ export async function getApplicationsForTask(taskId: string): Promise<Applicatio
   const snap = await db
     .collection('applications')
     .where('taskId', '==', taskId)
-    .orderBy('createdAt', 'desc')
     .get();
 
-  return snap.docs.map((d) => ({
+  const apps = snap.docs.map((d) => ({
     ...(d.data() as ApplicationDocument),
     id: d.id,
   }));
+
+  return apps.sort((a, b) => {
+    const timeA = toDateSafe(a.createdAt)?.getTime() || 0;
+    const timeB = toDateSafe(b.createdAt)?.getTime() || 0;
+    return timeB - timeA;
+  });
 }
 
 /**
@@ -591,11 +597,16 @@ export async function getUserApplications(userId: string): Promise<ApplicationDo
   const snap = await db
     .collection('applications')
     .where('userId', '==', userId)
-    .orderBy('createdAt', 'desc')
     .get();
 
-  return snap.docs.map((d) => ({
+  const apps = snap.docs.map((d) => ({
     ...(d.data() as ApplicationDocument),
     id: d.id,
   }));
+
+  return apps.sort((a, b) => {
+    const timeA = toDateSafe(a.createdAt)?.getTime() || 0;
+    const timeB = toDateSafe(b.createdAt)?.getTime() || 0;
+    return timeB - timeA;
+  });
 }
