@@ -54,7 +54,10 @@ export default function AdminClaimsPage() {
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
   const loadClaims = useCallback(async () => {
-    if (!user) return;
+    if (!user || (!user.isAdmin && !user.isSuperAdmin)) {
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     setErrorMsg(null);
     try {

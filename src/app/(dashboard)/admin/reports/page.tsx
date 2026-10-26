@@ -33,7 +33,10 @@ export default function AdminReportsPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const loadReports = useCallback(async () => {
-    if (!user) return;
+    if (!user || (!user.isAdmin && !user.isSuperAdmin)) {
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     setErrorMsg(null);
     try {

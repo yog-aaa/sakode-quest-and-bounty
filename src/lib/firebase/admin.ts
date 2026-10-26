@@ -23,33 +23,60 @@ export function getAdminApp(): App {
     return adminApp;
   }
 
-  const projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  let privateKey = process.env.FIREBASE_PRIVATE_KEY;
+  let projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+  if (projectId) {
+    projectId = projectId.trim().replace(/^["']|["']$/g, '');
+  }
 
+  let clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  if (clientEmail) {
+    clientEmail = clientEmail.trim().replace(/^["']|["']$/g, '');
+  }
+
+  let privateKey = process.env.FIREBASE_PRIVATE_KEY;
   if (privateKey) {
-    // Normalisasi newline escapes yang sering terjadi di environment variables
+    privateKey = privateKey.trim();
+    while (
+      (privateKey.startsWith('"') && privateKey.endsWith('"')) ||
+      (privateKey.startsWith("'") && privateKey.endsWith("'"))
+    ) {
+      privateKey = privateKey.slice(1, -1).trim();
+    }
+    // Normalisasi newline escapes yang sering terjadi di environment variables Vercel
     privateKey = privateKey.replace(/\\n/g, '\n');
   }
 
   if (projectId && clientEmail && privateKey) {
-    adminApp = initializeApp({
-      credential: cert({
-        projectId,
-        clientEmail,
-        privateKey,
-      }),
-      storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-    });
-  } else {
-    // Fallback untuk development lokal / emulator / build time
+    try {
+      adminApp = initializeApp({
+        credential: cert({
+          projectId,
+          clientEmail,
+          privateKey,
+        }),
+        storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+      });
+      return adminApp;
+    } catch (certErr: unknown) {
+      console.warn('Gagal inisialisasi Firebase Admin dengan cert(), fallback ke projectId default:', certErr);
+    }
+  }
+
+  // Fallback untuk development lokal / emulator / build time
+  try {
     adminApp = initializeApp({
       projectId: projectId || 'sakode-task-reward',
       storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
     });
+  } catch (fallbackErr: unknown) {
+    console.warn('Fallback initializeApp warning:', fallbackErr);
+    const apps = getApps();
+    if (apps.length > 0) {
+      adminApp = apps[0]!;
+    }
   }
 
-  return adminApp;
+  return adminApp!;
 }
 
 export function getAdminFirestore(): Firestore {

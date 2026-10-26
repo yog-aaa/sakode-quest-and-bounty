@@ -73,7 +73,11 @@ export default function AdminMembersPage() {
 
   useEffect(() => {
     let ignore = false;
-    const adminUid = currentAdmin?.id || 'admin-sakode-01';
+    if (!currentAdmin || (!currentAdmin.isAdmin && !currentAdmin.isSuperAdmin)) {
+      setIsLoading(false);
+      return;
+    }
+    const adminUid = currentAdmin.id;
 
     getUsersListAction(adminUid, filterStatus).then((res) => {
       if (ignore) return;

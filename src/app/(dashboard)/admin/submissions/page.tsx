@@ -42,6 +42,10 @@ export default function AdminSubmissionsQueuePage() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const loadSubmissions = useCallback(async () => {
+    if (!user || (!user.isAdmin && !user.isSuperAdmin)) {
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     setErrorMsg(null);
     try {

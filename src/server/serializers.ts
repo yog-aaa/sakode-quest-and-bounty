@@ -45,13 +45,38 @@ export function serializeUserDoc(user: UserDocument): UserDocument {
 export function serializeTaskDoc(task: TaskDocument): TaskDocument {
   return {
     ...task,
+    id: String(task.id || ''),
+    title: String(task.title || ''),
+    description: String(task.description || ''),
+    scope: String(task.scope || ''),
+    deliverableGuidelines: String(task.deliverableGuidelines || ''),
+    acceptanceCriteria: Array.isArray(task.acceptanceCriteria) ? task.acceptanceCriteria : [],
+    mode: task.mode || 'SOLO',
+    assignmentType: task.assignmentType || 'INSTANT_TAKE',
+    requiredSkills: Array.isArray(task.requiredSkills) ? task.requiredSkills : [],
+    totalReward: typeof task.totalReward === 'number' ? task.totalReward : 0,
+    deadlineType: task.deadlineType || 'DURATION',
     fixedDeadlineAt: serializeNullableDate(task.fixedDeadlineAt),
+    durationMinutes: task.durationMinutes || null,
     deadlineAt: serializeNullableDate(task.deadlineAt),
+    status: task.status || 'OPEN',
+    termsSnapshot: task.termsSnapshot
+      ? {
+          ...task.termsSnapshot,
+          version: task.termsSnapshot.version || 1,
+          content: task.termsSnapshot.content || '',
+          capturedAt: serializeDate(task.termsSnapshot.capturedAt),
+        }
+      : {
+          version: 1,
+          content: 'Syarat & Ketentuan Pengerjaan Task SAKODE v1',
+          capturedAt: serializeDate(task.createdAt),
+        },
+    assignedUserId: task.assignedUserId || null,
+    assignedTeamId: task.assignedTeamId || null,
+    reviewLockedByAdminId: task.reviewLockedByAdminId || null,
     reviewLockedUntil: serializeNullableDate(task.reviewLockedUntil),
-    termsSnapshot: {
-      ...task.termsSnapshot,
-      capturedAt: serializeDate(task.termsSnapshot?.capturedAt),
-    },
+    createdByAdminId: task.createdByAdminId || 'admin',
     createdAt: serializeDate(task.createdAt),
     updatedAt: serializeDate(task.updatedAt),
   };
