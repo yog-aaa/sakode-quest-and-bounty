@@ -5,162 +5,310 @@ import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { MobileNav } from '@/components/layout/MobileNav';
 import { Button } from '@/components/ui/Button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
-import { StatusPill } from '@/components/ui/StatusPill';
-import { formatCurrencyIDR, formatDateWIB, maskAccountNumber } from '@/lib/utils';
-import { TASK_STATUS, CLAIM_STATUS } from '@/lib/constants';
+import { formatCurrencyIDR } from '@/lib/utils';
+import { TASK_STATUS } from '@/lib/constants';
 import {
-  Users,
-  Flame,
-  Clock,
-  Sparkles,
-  ShieldAlert,
-  ArrowRight,
-  Layers,
-  Coins,
-  Check,
   Compass,
+  ArrowRight,
+  Terminal,
+  BookOpen,
+  Megaphone,
+  Users,
+  User,
+  Clock,
+  ShieldCheck,
+  CheckCircle2,
+  Award,
+  ChevronRight,
+  Wallet,
+  Target,
+  FileCheck2,
 } from 'lucide-react';
 
-export default function HomePage() {
-  const [selectedTab, setSelectedTab] = useState<'tokens' | 'components' | 'scenarios'>('tokens');
-  const [buttonLoading, setButtonLoading] = useState(false);
+// =============================================================================
+// Mock Data: Tasks Multi-Disiplin SAKODE Work
+// =============================================================================
+type TaskCategory = 'all' | 'tech' | 'edu' | 'marketing';
 
-  // Demo data waktu WIB (Deterministic untuk static prerendering)
-  const demoDeadline = '2026-10-24T17:00:00.000Z';
-  const demoSubmissionDate = '2026-10-22T09:00:00.000Z';
+interface FeaturedTask {
+  id: string;
+  title: string;
+  category: 'tech' | 'edu' | 'marketing';
+  categoryLabel: string;
+  difficulty: 'Beginner • 🟢' | 'Intermediate • 🔵' | 'Advanced • 🟣' | 'Team Project • 👥';
+  difficultyVariant: 'beginner' | 'intermediate' | 'advanced' | 'team';
+  mode: 'SOLO' | 'TEAM';
+  teamSlots?: string;
+  reward: number;
+  deadlineNotice: string;
+  skills: string[];
+  description: string;
+  status: typeof TASK_STATUS.OPEN | typeof TASK_STATUS.RECRUITING;
+}
+
+const FEATURED_TASKS: FeaturedTask[] = [
+  {
+    id: 'task-tech-01',
+    title: 'Implementasi Webhook Notifikasi & Real-time Sync Firestore',
+    category: 'tech',
+    categoryLabel: 'Teknologi & IT',
+    difficulty: 'Advanced • 🟣',
+    difficultyVariant: 'advanced',
+    mode: 'SOLO',
+    reward: 2400000,
+    deadlineNotice: 'Sisa 5 Hari • WIB',
+    skills: ['Next.js 16', 'TypeScript', 'Firestore', 'Webhooks'],
+    description:
+      'Membangun worker integrasi Cloud Function untuk sinkronisasi webhook status pembayaran dan dispatch notifikasi instan.',
+    status: TASK_STATUS.OPEN,
+  },
+  {
+    id: 'task-tech-02',
+    title: 'Revamp Design System & Dark Canvas Dashboard SAKODE',
+    category: 'tech',
+    categoryLabel: 'Teknologi & IT',
+    difficulty: 'Team Project • 👥',
+    difficultyVariant: 'team',
+    mode: 'TEAM',
+    teamSlots: '2 dari 3 Kontributor',
+    reward: 4500000,
+    deadlineNotice: 'Sisa 8 Hari • WIB',
+    skills: ['Tailwind CSS v4', 'React 19', 'Figma', 'Ergonomics'],
+    description:
+      'Implementasi token desain bertekstur modern, standarisasi komponen aksesibel, dan optimasi micro-interaction responsif.',
+    status: TASK_STATUS.RECRUITING,
+  },
+  {
+    id: 'task-tech-03',
+    title: 'Refactoring REST API Authentication & Role Guard Middleware',
+    category: 'tech',
+    categoryLabel: 'Teknologi & IT',
+    difficulty: 'Intermediate • 🔵',
+    difficultyVariant: 'intermediate',
+    mode: 'SOLO',
+    reward: 1250000,
+    deadlineNotice: 'Sisa 3 Hari • WIB',
+    skills: ['Firebase Admin', 'JWT', 'Security Headers', 'Zod'],
+    description:
+      'Perketat verifikasi claim token Firebase Auth, penanganan multi-role (Admin/Member/SuperAdmin), dan isolasi endpoint audit.',
+    status: TASK_STATUS.OPEN,
+  },
+  {
+    id: 'task-edu-01',
+    title: 'Penyusunan Silabus & Lab Praktikum Bootcamp Fullstack Web 2026',
+    category: 'edu',
+    categoryLabel: 'Modul & Edukasi',
+    difficulty: 'Advanced • 🟣',
+    difficultyVariant: 'advanced',
+    mode: 'TEAM',
+    teamSlots: '1 dari 2 Instruktur',
+    reward: 3800000,
+    deadlineNotice: 'Sisa 7 Hari • WIB',
+    skills: ['Curriculum Design', 'React & Node.js', 'Labs', 'Markdown'],
+    description:
+      'Merumuskan 12 modul pembelajaran berbasis proyek industri, panduan mentor, dan repository template praktikum mahasiswa.',
+    status: TASK_STATUS.RECRUITING,
+  },
+  {
+    id: 'task-edu-02',
+    title: 'Pembuatan Bank Soal Interaktif Algoritma & Struktur Data (50 Soal)',
+    category: 'edu',
+    categoryLabel: 'Modul & Edukasi',
+    difficulty: 'Intermediate • 🔵',
+    difficultyVariant: 'intermediate',
+    mode: 'SOLO',
+    reward: 1000000,
+    deadlineNotice: 'Sisa 4 Hari • WIB',
+    skills: ['Data Structures', 'Python/TS', 'Pedagogy', 'Quiz Schema'],
+    description:
+      'Menulis 50 soal pilihan ganda & studi kasus analitis lengkap dengan pembahasan mendalam dan tes kasus kode otomatis.',
+    status: TASK_STATUS.OPEN,
+  },
+  {
+    id: 'task-edu-03',
+    title: 'Review & Standarisasi Cheat Sheet Git & CI/CD Pipelines',
+    category: 'edu',
+    categoryLabel: 'Modul & Edukasi',
+    difficulty: 'Beginner • 🟢',
+    difficultyVariant: 'beginner',
+    mode: 'SOLO',
+    reward: 500000,
+    deadlineNotice: 'Sisa 2 Hari • WIB',
+    skills: ['Git', 'GitHub Actions', 'Documentation', 'Technical Writing'],
+    description:
+      'Memperbarui dokumentasi alur branching Git, aturan pull request tim, dan cheatsheet perintah terminal untuk peserta akademi.',
+    status: TASK_STATUS.OPEN,
+  },
+  {
+    id: 'task-mkt-01',
+    title: 'Kampanye Komunitas & Manajemen Webinar Tech Talk Bulanan',
+    category: 'marketing',
+    categoryLabel: 'Marketing & Komunitas',
+    difficulty: 'Team Project • 👥',
+    difficultyVariant: 'team',
+    mode: 'TEAM',
+    teamSlots: '2 dari 2 Event Leads',
+    reward: 2800000,
+    deadlineNotice: 'Sisa 6 Hari • WIB',
+    skills: ['Event Management', 'Community Outreach', 'Livestream Ops'],
+    description:
+      'Koordinasi teknis webinar nasional, manajemen registrasi 500+ peserta, dan pengadaan sertifikat digital otomatis.',
+    status: TASK_STATUS.RECRUITING,
+  },
+  {
+    id: 'task-mkt-02',
+    title: 'Desain Seri Infografis Edukatif & Carousel Instagram Batch 12',
+    category: 'marketing',
+    categoryLabel: 'Marketing & Komunitas',
+    difficulty: 'Intermediate • 🔵',
+    difficultyVariant: 'intermediate',
+    mode: 'SOLO',
+    reward: 850000,
+    deadlineNotice: 'Sisa 3 Hari • WIB',
+    skills: ['Figma', 'Visual Hierarchy', 'Brand Guidelines', 'Social Media'],
+    description:
+      'Merancang 5 set carousel edukasi arsitektur cloud dan tips karier developer sesuai visual guide resmi SAKODE.',
+    status: TASK_STATUS.OPEN,
+  },
+  {
+    id: 'task-mkt-03',
+    title: 'Copywriting Newsletter Mingguan & Landing Page Promosi Beasiswa',
+    category: 'marketing',
+    categoryLabel: 'Marketing & Komunitas',
+    difficulty: 'Beginner • 🟢',
+    difficultyVariant: 'beginner',
+    mode: 'SOLO',
+    reward: 650000,
+    deadlineNotice: 'Sisa 2 Hari • WIB',
+    skills: ['Copywriting', 'SEO', 'Email Marketing', 'Storytelling'],
+    description:
+      'Menulis naskah email pengumuman beasiswa talenta digital dan salinan promosi terkonversi tinggi untuk web pendaftaran.',
+    status: TASK_STATUS.OPEN,
+  },
+];
+
+export default function HomePage() {
+  const [selectedCategory, setSelectedCategory] = useState<TaskCategory>('all');
+
+  const filteredTasks = FEATURED_TASKS.filter((task) => {
+    if (selectedCategory === 'all') return true;
+    return task.category === selectedCategory;
+  });
 
   return (
-    <div className="min-h-screen flex flex-col bg-sakode-bg text-sakode-text pb-20 md:pb-12">
+    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 selection:bg-sakode-cyan/30 transition-colors">
       {/* Top Navbar */}
       <Navbar />
 
       {/* Hero Section */}
       <main className="flex-1">
-        <section className="relative overflow-hidden border-b border-sakode-border bg-gradient-to-b from-white to-sakode-bg pt-10 pb-12 sm:pt-16 sm:pb-20">
+        <section className="relative overflow-hidden border-b border-slate-200 dark:border-slate-800 bg-gradient-to-b from-sky-50/40 via-slate-50 to-slate-50 dark:from-[#0e1424] dark:via-[#0B0F19] dark:to-[#0B0F19] py-16 sm:py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8 lg:gap-12">
-              <div className="max-w-2xl space-y-5">
-                {/* Official Brand Badge */}
-                <div className="flex flex-wrap items-center gap-3">
-                  <div className="inline-flex items-center gap-2.5 rounded-full border border-sakode-border bg-white px-3.5 py-1.5 shadow-xs">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/sakode-logo-sticker-blue.png"
-                      alt="Logo Resmi SAKODE"
-                      className="h-6 sm:h-7 w-auto object-contain"
-                    />
-                    <div className="h-4 w-px bg-sakode-border"></div>
-                    <span className="text-xs font-black tracking-tight text-sakode-text flex items-center gap-1.5">
-                      SAKODE WORK
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-sakode-cyan/25 text-[#076991] font-extrabold uppercase">
-                        Official Platform
-                      </span>
-                    </span>
-                  </div>
-
-                  <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800">
-                    <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
-                    <span>Sprint 2: Task Management Aktif</span>
-                  </div>
-                </div>
-
-                <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-sakode-text leading-[1.15]">
-                  SAKODE Task &amp; Reward Platform
-                </h1>
-
-                <p className="text-base sm:text-lg text-sakode-text-muted leading-relaxed">
-                  Platform pengerjaan task IT profesional, kolaborasi tim transparan, dan pencairan bounty instan.
-                  Dibangun dengan ketegasan arsitektur Firestore atomik, zona waktu WIB, dan identitas visual resmi SAKODE Academy.
-                </p>
-
-                {/* Quick Metric Bar */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-                  <div className="rounded-lg border border-sakode-border bg-sakode-card p-3 shadow-sm">
-                    <div className="text-[11px] font-semibold text-sakode-text-muted uppercase tracking-wider">
-                      Bounty Tersalurkan
-                    </div>
-                    <div className="mt-1 text-lg sm:text-xl font-extrabold text-sakode-text">
-                      {formatCurrencyIDR(24500000)}
-                    </div>
-                  </div>
-
-                  <div className="rounded-lg border border-sakode-border bg-sakode-card p-3 shadow-sm">
-                    <div className="text-[11px] font-semibold text-sakode-text-muted uppercase tracking-wider">
-                      Task Selesai
-                    </div>
-                    <div className="mt-1 text-lg sm:text-xl font-extrabold text-sakode-text flex items-center gap-1.5">
-                      128 <span className="text-xs font-semibold text-emerald-600">100% WIB</span>
-                    </div>
-                  </div>
-
-                  <div className="rounded-lg border border-sakode-border bg-sakode-card p-3 shadow-sm">
-                    <div className="text-[11px] font-semibold text-sakode-text-muted uppercase tracking-wider">
-                      Member Terdaftar
-                    </div>
-                    <div className="mt-1 text-lg sm:text-xl font-extrabold text-sakode-text">
-                      480+
-                    </div>
-                  </div>
-
-                  <div className="rounded-lg border border-sakode-border bg-sakode-card p-3 shadow-sm">
-                    <div className="text-[11px] font-semibold text-sakode-text-muted uppercase tracking-wider">
-                      Aturan Invariant
-                    </div>
-                    <div className="mt-1 text-lg sm:text-xl font-extrabold text-sakode-text flex items-center gap-1">
-                      <Check className="h-4 w-4 text-emerald-600" />
-                      <span>8 Strict Rules</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* CTA Buttons */}
-                <div className="flex flex-wrap items-center gap-3 pt-2">
-                  <Link href="/member/tasks">
-                    <Button
-                      variant="primary"
-                      size="lg"
-                      leftIcon={<Compass className="h-4 w-4" />}
-                      rightIcon={<ArrowRight className="h-4 w-4" />}
-                    >
-                      Eksplor Papan Task
-                    </Button>
-                  </Link>
-
-                  <Link href="/login">
-                    <Button
-                      variant="outline"
-                      size="lg"
-                    >
-                      Masuk Akun
-                    </Button>
-                  </Link>
-
-                  <Link href="/admin/tasks">
-                    <Button
-                      variant="team"
-                      size="lg"
-                      leftIcon={<Layers className="h-4 w-4" />}
-                    >
-                      Manajemen Task Admin
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-
-              {/* Hero Graphic / Mascot Showcase */}
-              <div className="hidden lg:flex flex-col items-center justify-center shrink-0">
-                <div className="relative p-6 rounded-3xl bg-gradient-to-br from-sakode-cyan/15 via-white to-sky-50 border border-sakode-cyan/30 shadow-lg shadow-sky-100/50 flex flex-col items-center text-center max-w-sm">
+            <div className="text-center max-w-4xl mx-auto space-y-6">
+              {/* Official Brandmark & Subtitle Lockup */}
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <div className="inline-flex items-center gap-2.5 rounded-full border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/80 px-4 py-1.5 shadow-xs backdrop-blur-sm">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="/sakode-logo-official.png"
-                    alt="SAKODE Work Official Mascot"
-                    className="h-40 w-auto object-contain drop-shadow-md transition-transform hover:scale-105 duration-300"
+                    src="/sakode-brandmark.svg"
+                    alt="SAKODE Brandmark"
+                    className="h-5 w-5 object-contain"
                   />
-                  <div className="mt-4 pt-3 border-t border-sakode-border/70 w-full">
-                    <div className="text-sm font-black text-sakode-text">SAKODE Work Academy</div>
-                    <div className="text-[11px] text-sakode-text-muted mt-0.5">Komunitas Developer &amp; Bounty Hunter IT</div>
+                  <div className="h-3.5 w-px bg-slate-200 dark:bg-slate-700"></div>
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    SAKODE Academy
+                  </span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-sakode-cyan/20 text-[#076991] dark:text-sakode-cyan font-extrabold tracking-wide">
+                    INTERNAL WORKSPACE
+                  </span>
+                </div>
+
+                <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                  Masa Depan Digital, Dimulai Dari Sini
+                </span>
+              </div>
+
+              {/* Headline & Subheadline */}
+              <div className="space-y-4">
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 dark:text-white leading-[1.12]">
+                  Kerjakan Task, Bangun SAKODE, Raih Reward Anda.
+                </h1>
+                <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto font-normal">
+                  Platform kolaborasi internal untuk proyek teknologi, modul edukasi, dan marketing dengan reward transparan bagi kontributor, instruktur, dan talenta SAKODE Academy.
+                </p>
+              </div>
+
+              {/* Rampingkan CTA: 2 Tombol Saja */}
+              <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+                <a href="#task-explorer">
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    className="h-12 px-7 font-black bg-sakode-cyan text-slate-950 hover:bg-[#5dbfe9] rounded-xl shadow-xs text-sm"
+                    rightIcon={<ArrowRight className="h-4 w-4" />}
+                  >
+                    Lihat Task Aktif ↓
+                  </Button>
+                </a>
+
+                <Link href="/login">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="h-12 px-7 font-bold border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/60 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-xl text-sm shadow-xs"
+                  >
+                    Masuk ke Dashboard
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Proof Metric Strip (Clean White Cards) */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-10 max-w-5xl mx-auto">
+                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs text-left">
+                  <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    Bounty Tersalurkan
+                  </div>
+                  <div className="mt-1 text-lg sm:text-xl font-black text-slate-900 dark:text-white">
+                    {formatCurrencyIDR(24500000)}
+                  </div>
+                  <div className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5 font-semibold">
+                    100% Tercairkan
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs text-left">
+                  <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    Task Selesai
+                  </div>
+                  <div className="mt-1 text-lg sm:text-xl font-black text-slate-900 dark:text-white">
+                    128 Task
+                  </div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 font-semibold">
+                    Standar Mutu QA
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs text-left">
+                  <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    Kontributor Aktif
+                  </div>
+                  <div className="mt-1 text-lg sm:text-xl font-black text-slate-900 dark:text-white">
+                    480+ Talenta
+                  </div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 font-semibold">
+                    Instruktur &amp; Alumni
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs text-left">
+                  <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    Waktu Verifikasi
+                  </div>
+                  <div className="mt-1 text-lg sm:text-xl font-black text-slate-900 dark:text-white">
+                    Zona WIB
+                  </div>
+                  <div className="text-[10px] text-[#076991] dark:text-sakode-cyan mt-0.5 font-semibold">
+                    Jadwal Presisi
                   </div>
                 </div>
               </div>
@@ -168,677 +316,588 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Interactive Tabs Header */}
-        <section className="border-b border-sakode-border bg-sakode-card sticky top-16 z-30 shadow-xs">
+        {/* 3 Pillars Ecosystem Highlight Section */}
+        <section id="pillars" className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0B0F19] py-16 scroll-mt-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex space-x-1 sm:space-x-4 overflow-x-auto py-2">
-              <button
-                onClick={() => setSelectedTab('tokens')}
-                className={`px-4 py-2 text-sm font-bold rounded-lg transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
-                  selectedTab === 'tokens'
-                    ? 'bg-sakode-cyan text-sakode-text shadow-sm'
-                    : 'text-sakode-text-muted hover:text-sakode-text hover:bg-sakode-bg'
-                }`}
-              >
-                <Sparkles className="h-4 w-4" />
-                1. Token Warna & Sistem Tipografi
-              </button>
+            <div className="max-w-2xl space-y-2 mb-10">
+              <span className="text-xs font-bold text-[#076991] dark:text-sakode-cyan uppercase tracking-wider">
+                Ekosistem Multi-Disiplin
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                3 Pilar Kontribusi Utama SAKODE
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                Setiap proyek dikurasi dengan kriteria penilaian yang objektif, pembagian peran transparan, dan kompensasi reward integer yang pasti.
+              </p>
+            </div>
 
-              <button
-                onClick={() => setSelectedTab('components')}
-                className={`px-4 py-2 text-sm font-bold rounded-lg transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
-                  selectedTab === 'components'
-                    ? 'bg-sakode-cyan text-sakode-text shadow-sm'
-                    : 'text-sakode-text-muted hover:text-sakode-text hover:bg-sakode-bg'
-                }`}
-              >
-                <Layers className="h-4 w-4" />
-                2. Komponen Primitif & Status Pill
-              </button>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Pilar 1: IT */}
+              <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-6 space-y-4 hover:border-sky-500/40 hover:shadow-md transition-all">
+                <div className="h-12 w-12 rounded-lg bg-sky-50 dark:bg-sky-500/10 border border-sky-200 dark:border-sky-500/20 flex items-center justify-center text-sky-600 dark:text-sky-400">
+                  <Terminal className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">Teknologi &amp; IT</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">
+                    Pengembangan aplikasi produksi, arsitektur backend, otomasi CI/CD DevOps, integrasi database, dan audit keamanan.
+                  </p>
+                </div>
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-1.5">
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Next.js</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Node/FastAPI</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Firebase</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">DevOps</span>
+                </div>
+              </div>
 
-              <button
-                onClick={() => setSelectedTab('scenarios')}
-                className={`px-4 py-2 text-sm font-bold rounded-lg transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
-                  selectedTab === 'scenarios'
-                    ? 'bg-sakode-cyan text-sakode-text shadow-sm'
-                    : 'text-sakode-text-muted hover:text-sakode-text hover:bg-sakode-bg'
-                }`}
-              >
-                <Coins className="h-4 w-4" />
-                3. Kartu Task, Klaim & Invariant
-              </button>
+              {/* Pilar 2: Education */}
+              <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-6 space-y-4 hover:border-emerald-500/40 hover:shadow-md transition-all">
+                <div className="h-12 w-12 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                  <BookOpen className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">Modul &amp; Edukasi</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">
+                    Penyusunan kurikulum bootcamp, penulisan modul lab praktikum mahasiswa, perancangan bank kuis, dan review materi mentor.
+                  </p>
+                </div>
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-1.5">
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Silabus Kurikulum</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Bank Soal</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Lab Praktikum</span>
+                </div>
+              </div>
+
+              {/* Pilar 3: Marketing */}
+              <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-6 space-y-4 hover:border-amber-500/40 hover:shadow-md transition-all">
+                <div className="h-12 w-12 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                  <Megaphone className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">Marketing &amp; Komunitas</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">
+                    Produksi infografis visual, penulisan naskah newsletter berkala, publikasi promosi batch pendaftaran, dan operasional tech event.
+                  </p>
+                </div>
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-1.5">
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Visual Carousel</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Copywriting</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Tech Event</span>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* TAB 1: DESIGN TOKENS & TYPOGRAPHY */}
-        {selectedTab === 'tokens' && (
-          <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 space-y-10">
-            <div>
-              <h2 className="text-2xl font-black text-sakode-text">Palet Warna Resmi SAKODE</h2>
-              <p className="text-sm text-sakode-text-muted mt-1">
-                Sesuai dokumen <code className="text-xs bg-slate-100 px-1 py-0.5 rounded">DESIGN.md</code> dan konfigurasi Tailwind CSS v4.
-              </p>
+        {/* Task Explorer Section */}
+        <section id="task-explorer" className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/60 py-16 scroll-mt-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-8">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+              <div className="space-y-1.5">
+                <span className="text-xs font-bold text-[#076991] dark:text-sakode-cyan uppercase tracking-wider">
+                  Eksplorasi Proyek Aktif
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                  Multi-Disciplinary Task Explorer
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-xl">
+                  Pilih task internal sesuai bidang keahlian Anda. Reward dicairkan secara penuh setelah hasil diverifikasi oleh Tim Reviewer.
+                </p>
+              </div>
+
+              <Link href="/member/tasks">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold"
+                  rightIcon={<ChevronRight className="h-3.5 w-3.5" />}
+                >
+                  Buka Katalog Task Penuh
+                </Button>
+              </Link>
             </div>
 
-            {/* Color Swatch Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Cyan */}
-              <Card>
-                <div className="h-24 w-full rounded-t-lg bg-sakode-cyan p-3 flex items-end justify-between font-bold text-sakode-text">
-                  <span className="text-xs uppercase tracking-wider">Identitas Primer</span>
-                  <span className="text-xs font-mono">#71CFFE</span>
-                </div>
-                <CardContent className="pt-4 space-y-1">
-                  <div className="font-bold text-sm text-sakode-text">sakode-cyan</div>
-                  <div className="text-xs text-sakode-text-muted">
-                    CTA utama, status Open, link aktif, progress bar quest utama.
-                  </div>
-                </CardContent>
-              </Card>
+            {/* Interactive Filter Tabs (4 Kategori) */}
+            <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-4">
+              <button
+                type="button"
+                onClick={() => setSelectedCategory('all')}
+                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                  selectedCategory === 'all'
+                    ? 'bg-sakode-cyan text-slate-950 shadow-xs font-black'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
+                }`}
+              >
+                <span>Semua Task</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded ${
+                  selectedCategory === 'all' ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                }`}>
+                  {FEATURED_TASKS.length}
+                </span>
+              </button>
 
-              {/* Purple */}
-              <Card>
-                <div className="h-24 w-full rounded-t-lg bg-sakode-purple p-3 flex items-end justify-between font-bold text-white">
-                  <span className="text-xs uppercase tracking-wider">Aksen Tim</span>
-                  <span className="text-xs font-mono">#BC71FE</span>
-                </div>
-                <CardContent className="pt-4 space-y-1">
-                  <div className="font-bold text-sm text-sakode-text">sakode-purple</div>
-                  <div className="text-xs text-sakode-text-muted">
-                    Aksen kolaborasi, status Recruiting, badge party tim, konsensus reward.
-                  </div>
-                </CardContent>
-              </Card>
+              <button
+                type="button"
+                onClick={() => setSelectedCategory('tech')}
+                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                  selectedCategory === 'tech'
+                    ? 'bg-sakode-cyan text-slate-950 shadow-xs font-black'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
+                }`}
+              >
+                <Terminal className="h-3.5 w-3.5" />
+                <span>Teknologi &amp; IT</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded ${
+                  selectedCategory === 'tech' ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                }`}>
+                  {FEATURED_TASKS.filter((t) => t.category === 'tech').length}
+                </span>
+              </button>
 
-              {/* Orange */}
-              <Card>
-                <div className="h-24 w-full rounded-t-lg bg-sakode-orange p-3 flex items-end justify-between font-bold text-white">
-                  <span className="text-xs uppercase tracking-wider">Aksen Kritis</span>
-                  <span className="text-xs font-mono">#F9723B</span>
-                </div>
-                <CardContent className="pt-4 space-y-1">
-                  <div className="font-bold text-sm text-sakode-text">sakode-orange</div>
-                  <div className="text-xs text-sakode-text-muted">
-                    Peringatan deadline &lt; 24 jam, status Revisi, pesan penalti, aksi bahaya.
-                  </div>
-                </CardContent>
-              </Card>
+              <button
+                type="button"
+                onClick={() => setSelectedCategory('edu')}
+                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                  selectedCategory === 'edu'
+                    ? 'bg-sakode-cyan text-slate-950 shadow-xs font-black'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
+                }`}
+              >
+                <BookOpen className="h-3.5 w-3.5" />
+                <span>Modul &amp; Edukasi</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded ${
+                  selectedCategory === 'edu' ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                }`}>
+                  {FEATURED_TASKS.filter((t) => t.category === 'edu').length}
+                </span>
+              </button>
 
-              {/* Text */}
-              <Card>
-                <div className="h-24 w-full rounded-t-lg bg-sakode-text p-3 flex items-end justify-between font-bold text-white">
-                  <span className="text-xs uppercase tracking-wider">Teks Utama</span>
-                  <span className="text-xs font-mono">#172033</span>
-                </div>
-                <CardContent className="pt-4 space-y-1">
-                  <div className="font-bold text-sm text-sakode-text">sakode-text</div>
-                  <div className="text-xs text-sakode-text-muted">
-                    Teks judul, label formulir utama, dan konten teks tingkat kontras tinggi.
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Text Muted */}
-              <Card>
-                <div className="h-24 w-full rounded-t-lg bg-sakode-text-muted p-3 flex items-end justify-between font-bold text-white">
-                  <span className="text-xs uppercase tracking-wider">Teks Sekunder</span>
-                  <span className="text-xs font-mono">#64748B</span>
-                </div>
-                <CardContent className="pt-4 space-y-1">
-                  <div className="font-bold text-sm text-sakode-text">sakode-text-muted</div>
-                  <div className="text-xs text-sakode-text-muted">
-                    Metadata tanggal WIB, teks bantuan (helper text), caption pendukung.
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Border */}
-              <Card>
-                <div className="h-24 w-full rounded-t-lg bg-sakode-border p-3 flex items-end justify-between font-bold text-sakode-text">
-                  <span className="text-xs uppercase tracking-wider">Border Halus</span>
-                  <span className="text-xs font-mono">#DBE8F0</span>
-                </div>
-                <CardContent className="pt-4 space-y-1">
-                  <div className="font-bold text-sm text-sakode-text">sakode-border</div>
-                  <div className="text-xs text-sakode-text-muted">
-                    Garis tepi card, tabel, divider section, dan outline button.
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Background */}
-              <Card>
-                <div className="h-24 w-full rounded-t-lg bg-sakode-bg p-3 flex items-end justify-between font-bold text-sakode-text border-b border-sakode-border">
-                  <span className="text-xs uppercase tracking-wider">Kanvas Canvas</span>
-                  <span className="text-xs font-mono">#F7FBFE</span>
-                </div>
-                <CardContent className="pt-4 space-y-1">
-                  <div className="font-bold text-sm text-sakode-text">sakode-bg</div>
-                  <div className="text-xs text-sakode-text-muted">
-                    Latar belakang default seluruh halaman web (light theme).
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Card */}
-              <Card>
-                <div className="h-24 w-full rounded-t-lg bg-sakode-card p-3 flex items-end justify-between font-bold text-sakode-text border-b border-sakode-border">
-                  <span className="text-xs uppercase tracking-wider">Permukaan Card</span>
-                  <span className="text-xs font-mono">#FFFFFF</span>
-                </div>
-                <CardContent className="pt-4 space-y-1">
-                  <div className="font-bold text-sm text-sakode-text">sakode-card</div>
-                  <div className="text-xs text-sakode-text-muted">
-                    Permukaan kartu, panel modal, dropdown, dan sheet popover.
-                  </div>
-                </CardContent>
-              </Card>
+              <button
+                type="button"
+                onClick={() => setSelectedCategory('marketing')}
+                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                  selectedCategory === 'marketing'
+                    ? 'bg-sakode-cyan text-slate-950 shadow-xs font-black'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
+                }`}
+              >
+                <Megaphone className="h-3.5 w-3.5" />
+                <span>Marketing &amp; Komunitas</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded ${
+                  selectedCategory === 'marketing' ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                }`}>
+                  {FEATURED_TASKS.filter((t) => t.category === 'marketing').length}
+                </span>
+              </button>
             </div>
 
-            {/* Typography Hierarchy */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Spesifikasi Tipografi: Google Font Nunito</CardTitle>
-                <CardDescription>
-                  Font modern berkarakter ramah namun tegas untuk ekosistem pembelajaran dan reward.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="p-4 rounded-lg bg-sakode-bg border border-sakode-border space-y-3">
-                  <div className="flex flex-col sm:flex-row sm:items-baseline justify-between border-b border-sakode-border/60 pb-2">
-                    <span className="text-2xl sm:text-3xl font-extrabold text-sakode-text">
-                      ExtraBold (800) - Judul Hero & Statistik Utama
-                    </span>
-                    <span className="text-xs font-mono text-sakode-text-muted">font-extrabold</span>
-                  </div>
+            {/* Task Card Grid (Generous Whitespace gap-6) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredTasks.map((task) => {
+                const isSolo = task.mode === 'SOLO';
 
-                  <div className="flex flex-col sm:flex-row sm:items-baseline justify-between border-b border-sakode-border/60 pb-2">
-                    <span className="text-xl sm:text-2xl font-bold text-sakode-text">
-                      Bold (700) - Nilai Bounty Reward {formatCurrencyIDR(750000)} & Heading H2
-                    </span>
-                    <span className="text-xs font-mono text-sakode-text-muted">font-bold</span>
-                  </div>
+                return (
+                  <div
+                    key={task.id}
+                    className="flex flex-col justify-between rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 space-y-4 hover:border-slate-300 dark:hover:border-slate-700 transition-all hover:shadow-md"
+                  >
+                    <div className="space-y-3.5">
+                      {/* Top Badges & Difficulty Indicator */}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300">
+                            {task.categoryLabel}
+                          </span>
 
-                  <div className="flex flex-col sm:flex-row sm:items-baseline justify-between border-b border-sakode-border/60 pb-2">
-                    <span className="text-base sm:text-lg font-semibold text-sakode-text">
-                      SemiBold (600) - Label Form, Nama Member, Subjudul Task
-                    </span>
-                    <span className="text-xs font-mono text-sakode-text-muted">font-semibold</span>
-                  </div>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700/70 bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 flex items-center gap-1">
+                            {isSolo ? (
+                              <>
+                                <User className="h-3 w-3 text-sky-600 dark:text-sky-400" />
+                                <span>Solo</span>
+                              </>
+                            ) : (
+                              <>
+                                <Users className="h-3 w-3 text-purple-600 dark:text-purple-400" />
+                                <span>Team</span>
+                              </>
+                            )}
+                          </span>
+                        </div>
 
-                  <div className="flex flex-col sm:flex-row sm:items-baseline justify-between">
-                    <span className="text-sm font-normal text-sakode-text leading-relaxed">
-                      Regular (400) - Teks paragraf, deskripsi deliverable, kriteria penerimaan, dan catatan hasil evaluasi admin.
-                    </span>
-                    <span className="text-xs font-mono text-sakode-text-muted">font-normal</span>
+                        {/* Difficulty indicator baku */}
+                        <div className="text-[11px] font-bold tracking-tight text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                          {task.difficulty}
+                        </div>
+                      </div>
+
+                      {/* Reward Pill */}
+                      <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80 p-3 flex items-baseline justify-between">
+                        <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                          Reward Bersih:
+                        </span>
+                        <div className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
+                          {formatCurrencyIDR(task.reward)}
+                        </div>
+                      </div>
+
+                      {/* Title & Description */}
+                      <div>
+                        <h3 className="font-bold text-base text-slate-900 dark:text-white hover:text-sakode-cyan transition-colors line-clamp-2">
+                          {task.title}
+                        </h3>
+                        <p className="mt-1.5 text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                          {task.description}
+                        </p>
+                      </div>
+
+                      {/* Skills Tags */}
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        {task.skills.map((skill) => (
+                          <span
+                            key={skill}
+                            className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/50"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Footer / Action */}
+                    <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-[11px] font-medium">
+                        <Clock className="h-3.5 w-3.5 text-slate-400" />
+                        <span>{task.deadlineNotice}</span>
+                      </div>
+
+                      <Link href={`/member/tasks`}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 text-xs font-bold border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-white shadow-xs"
+                        >
+                          Lihat Detail
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* Productivity & Gamification Showcase Section */}
+        <section id="workflow" className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0B0F19] py-16 scroll-mt-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-14">
+            {/* Part 1: Contributor 4-Step Workflow */}
+            <div className="space-y-8">
+              <div className="text-center max-w-2xl mx-auto space-y-2">
+                <span className="text-xs font-bold text-[#076991] dark:text-sakode-cyan uppercase tracking-wider">
+                  Alur Kerja Produktivitas
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                  4 Langkah Kontribusi Terstruktur SAKODE Work
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                  Transparansi di setiap tahap pengerjaan menjamin keamanan deliverable dan kepastian pencairan reward bagi setiap kontributor.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* Step 1 */}
+                <div className="relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 space-y-3 shadow-xs">
+                  <div className="text-xs font-black text-[#076991] dark:text-sakode-cyan">01</div>
+                  <div className="rounded-lg bg-sky-50 dark:bg-sky-500/10 p-2.5 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-500/20 w-fit">
+                    <Compass className="h-5 w-5" />
+                  </div>
+                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">Eksplorasi &amp; Seleksi</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                    Telusuri task internal yang sesuai dengan spesialisasi keahlian di bidang IT, modul kurikulum, atau materi promosi.
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
-          </section>
-        )}
 
-        {/* TAB 2: UI PRIMITIVES & STATUS PILLS */}
-        {selectedTab === 'components' && (
-          <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 space-y-10">
-            <div>
-              <h2 className="text-2xl font-black text-sakode-text">Komponen UI Primitif</h2>
-              <p className="text-sm text-sakode-text-muted mt-1">
-                Tombol, Card, dan Badge yang mematuhi standar aksesibilitas WCAG AA (touch target min 44px).
-              </p>
+                {/* Step 2 */}
+                <div className="relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 space-y-3 shadow-xs">
+                  <div className="text-xs font-black text-purple-600 dark:text-sakode-purple">02</div>
+                  <div className="rounded-lg bg-purple-50 dark:bg-purple-500/10 p-2.5 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-500/20 w-fit">
+                    <Target className="h-5 w-5" />
+                  </div>
+                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">Pengerjaan Terstruktur</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                    Selesaikan deliverable secara mandiri atau koordinasikan tim party dengan konsensus pembagian honor di muka.
+                  </p>
+                </div>
+
+                {/* Step 3 */}
+                <div className="relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 space-y-3 shadow-xs">
+                  <div className="text-xs font-black text-emerald-600 dark:text-emerald-400">03</div>
+                  <div className="rounded-lg bg-emerald-50 dark:bg-emerald-500/10 p-2.5 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 w-fit">
+                    <FileCheck2 className="h-5 w-5" />
+                  </div>
+                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">Review &amp; Verifikasi Mutu</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                    Hasil kerja diperiksa secara obyektif oleh Reviewer &amp; QA Academy dengan catatan evaluasi yang konstruktif.
+                  </p>
+                </div>
+
+                {/* Step 4 */}
+                <div className="relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 space-y-3 shadow-xs">
+                  <div className="text-xs font-black text-amber-600 dark:text-amber-400">04</div>
+                  <div className="rounded-lg bg-amber-50 dark:bg-amber-500/10 p-2.5 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20 w-fit">
+                    <Wallet className="h-5 w-5" />
+                  </div>
+                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">Pencairan Reward Instan</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                    Reward integer Rupiah tercatat langsung di buku besar saldo dan ditransfer ke rekening bank resmi tanpa potongan.
+                  </p>
+                </div>
+              </div>
             </div>
 
-            {/* Button Showcase */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Varian Tombol (Button Variants)</CardTitle>
-                <CardDescription>
-                  Semua tombol memiliki tinggi 44px (touch target standar mobile) dan transisi fokus ring yang jelas.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Variant List */}
-                <div className="flex flex-wrap items-center gap-3">
-                  <Button variant="primary">Primary (Cyan)</Button>
-                  <Button variant="team">Team (Purple)</Button>
-                  <Button variant="danger">Danger (Orange)</Button>
-                  <Button variant="outline">Outline</Button>
-                  <Button variant="secondary">Secondary</Button>
-                  <Button variant="ghost">Ghost</Button>
+            {/* Part 2: Gamified Progression & Achievements */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-6 border-t border-slate-200 dark:border-slate-800/80">
+              {/* Contributor Level Ladder */}
+              <div className="lg:col-span-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 sm:p-7 space-y-5 shadow-xs">
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                  <div>
+                    <h3 className="font-bold text-lg text-slate-900 dark:text-white">Jenjang Level Kontributor</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Kenaikan level berbasis track record penyelesaian task nyata.</p>
+                  </div>
+                  <Award className="h-5 w-5 text-sky-600 dark:text-sakode-cyan" />
                 </div>
 
-                {/* Sizes and States */}
-                <div className="pt-4 border-t border-sakode-border flex flex-wrap items-center gap-3">
-                  <Button size="sm" variant="primary">Ukuran Small</Button>
-                  <Button size="default" variant="primary">Ukuran Default (44px)</Button>
-                  <Button size="lg" variant="primary">Ukuran Large (48px)</Button>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-3">
+                    <div className="text-xs font-black px-2.5 py-1 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0">
+                      LVL 1
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                        <span>Onboarded Contributor</span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal">• Pemula Terverifikasi</span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                        Tahap awal setelah persetujuan profil; memiliki akses ke task kategori Beginner.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3.5 rounded-xl border border-sky-200 dark:border-sky-500/20 bg-sky-50/60 dark:bg-slate-950/50 p-3">
+                    <div className="text-xs font-black px-2.5 py-1 rounded-md bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-400 border border-sky-300 dark:border-sky-500/20 shrink-0">
+                      LVL 2
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                        <span>Active Contributor</span>
+                        <span className="text-[10px] text-sky-600 dark:text-sky-400 font-normal">• 3+ Task Sukses</span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                        Menyelesaikan task mandiri dengan penilaian A; membuka kuota task tingkat Intermediate.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3.5 rounded-xl border border-purple-200 dark:border-purple-500/20 bg-purple-50/60 dark:bg-slate-950/50 p-3">
+                    <div className="text-xs font-black px-2.5 py-1 rounded-md bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-400 border border-purple-300 dark:border-purple-500/20 shrink-0">
+                      LVL 3
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                        <span>Senior Specialist</span>
+                        <span className="text-[10px] text-purple-600 dark:text-purple-400 font-normal">• Arsitektur &amp; Kurikulum</span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                        Dipercaya menangani task kompleks Advanced dan berkontribusi sebagai co-reviewer teknis.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3.5 rounded-xl border border-amber-200 dark:border-amber-500/20 bg-amber-50/60 dark:bg-slate-950/50 p-3">
+                    <div className="text-xs font-black px-2.5 py-1 rounded-md bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-500/20 shrink-0">
+                      LVL 4
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                        <span>Lead Fellow</span>
+                        <span className="text-[10px] text-amber-600 dark:text-amber-400 font-normal">• Pemimpin Inisiatif Tim</span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                        Memimpin pembentukan Team Project multi-disiplin dan merumuskan inisiatif baru SAKODE Academy.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Badges of Excellence Showcase */}
+              <div className="lg:col-span-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 sm:p-7 space-y-5 shadow-xs">
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                  <div>
+                    <h3 className="font-bold text-lg text-slate-900 dark:text-white">Lencana Kehormatan (Badges)</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Pengakuan resmi atas konsistensi dan kualitas deliverable.</p>
+                  </div>
+                  <ShieldCheck className="h-5 w-5 text-purple-600 dark:text-sakode-purple" />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-3.5 space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <div className="h-7 w-7 rounded-lg bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-500/20 flex items-center justify-center">
+                        <Terminal className="h-3.5 w-3.5" />
+                      </div>
+                      <span className="text-xs font-bold text-slate-900 dark:text-white">Arsitek Solusi</span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug">
+                      Berhasil menyelesaikan modul arsitektur skala produksi berstandar zero defect.
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-3.5 space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <div className="h-7 w-7 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 flex items-center justify-center">
+                        <BookOpen className="h-3.5 w-3.5" />
+                      </div>
+                      <span className="text-xs font-bold text-slate-900 dark:text-white">Penyusun Kurikulum</span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug">
+                      Menyusun 5+ silabus dan materi hands-on yang diadopsi aktif di bootcamp.
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-3.5 space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <div className="h-7 w-7 rounded-lg bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20 flex items-center justify-center">
+                        <Megaphone className="h-3.5 w-3.5" />
+                      </div>
+                      <span className="text-xs font-bold text-slate-900 dark:text-white">Katalis Komunitas</span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug">
+                      Menginisiasi kampanye event dengan konversi pendaftaran peserta di atas rata-rata.
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-3.5 space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <div className="h-7 w-7 rounded-lg bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-500/20 flex items-center justify-center">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                      </div>
+                      <span className="text-xs font-bold text-slate-900 dark:text-white">Presisi Tinggi (Zero Revision)</span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug">
+                      5 task berturut-turut disetujui reviewer pada penyerahan pertama tanpa catatan revisi.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Institutional Callout Banner */}
+        <section className="bg-gradient-to-r from-sky-50 via-white to-sky-50 dark:from-slate-900 dark:via-[#0e1424] dark:to-slate-900 border-b border-slate-200 dark:border-slate-800 py-12">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="space-y-2 text-center md:text-left">
+                <div className="flex items-center justify-center md:justify-start gap-2">
+                  <span className="text-xs font-bold text-[#076991] dark:text-sakode-cyan uppercase tracking-wider">
+                    Bukan Freelance Publik
+                  </span>
+                  <span className="text-[10px] px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-medium">
+                    Internal Collaboration Workspace
+                  </span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                  Siap Berkontribusi Nyata untuk Ekosistem SAKODE?
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-2xl">
+                  Daftar akun kontributor Anda atau masuk ke dashboard untuk melihat task yang terbuka hari ini.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 shrink-0">
+                <Link href="/register">
                   <Button
                     variant="primary"
-                    isLoading={buttonLoading}
-                    onClick={() => {
-                      setButtonLoading(true);
-                      setTimeout(() => setButtonLoading(false), 2000);
-                    }}
+                    size="lg"
+                    className="h-11 px-6 font-bold bg-sakode-cyan text-slate-950 hover:bg-[#5dbfe9] text-xs rounded-lg"
                   >
-                    {buttonLoading ? 'Menyimpan...' : 'Klik Demo Loading'}
+                    Daftar Kontributor
                   </Button>
-                  <Button variant="primary" disabled>
-                    Disabled State
+                </Link>
+                <Link href="/login">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="h-11 px-6 font-bold border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-700 text-xs rounded-lg shadow-xs"
+                  >
+                    Masuk Akun
                   </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Complete Status Indicator Grid (WCAG AA) */}
-            <Card>
-              <CardHeader>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div>
-                    <CardTitle>Sistem Status & Indikator Visual (StatusPill)</CardTitle>
-                    <CardDescription>
-                      Aturan Aksesibilitas WCAG AA: Status TIDAK BOLEH hanya mengandalkan warna. Setiap status memiliki ikon visual dan teks Bahasa Indonesia resmi.
-                    </CardDescription>
-                  </div>
-                  <Badge variant="cyan" leftIcon={<Sparkles className="h-3 w-3" />}>
-                    13 Status Task
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                  {Object.keys(TASK_STATUS).map((statusKey) => (
-                    <div
-                      key={statusKey}
-                      className="p-3 rounded-lg border border-sakode-border bg-sakode-bg/60 flex items-center justify-between"
-                    >
-                      <StatusPill status={statusKey} />
-                      <span className="text-[10px] font-mono text-sakode-text-muted">
-                        {statusKey}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Claim Statuses */}
-                <div className="mt-6 pt-6 border-t border-sakode-border">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-sakode-text-muted mb-3">
-                    Status Alur Finansial & Klaim Reward
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-                    {Object.keys(CLAIM_STATUS).map((claimKey) => (
-                      <div
-                        key={claimKey}
-                        className="p-3 rounded-lg border border-sakode-border bg-sakode-bg/60 flex items-center justify-between"
-                      >
-                        <StatusPill status={claimKey} />
-                        <span className="text-[10px] font-mono text-sakode-text-muted">
-                          {claimKey}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </section>
-        )}
-
-        {/* TAB 3: REALISTIC CARDS & INVARIANTS */}
-        {selectedTab === 'scenarios' && (
-          <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 space-y-10">
-            <div>
-              <h2 className="text-2xl font-black text-sakode-text">Demo Komposisi Antarmuka Nyata</h2>
-              <p className="text-sm text-sakode-text-muted mt-1">
-                Implementasi kartu task, modul aktif member, dan widget klaim reward sesuai skenario operasional.
-              </p>
+                </Link>
+              </div>
             </div>
-
-            {/* Task Card Demo */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Card 1: Solo Instant Take */}
-              <Card hoverable className="flex flex-col justify-between">
-                <div>
-                  <CardHeader className="space-y-3">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="cyan">Solo Task</Badge>
-                        <Badge variant="outline">Instant Take</Badge>
-                      </div>
-                      <StatusPill status="OPEN" />
-                    </div>
-
-                    <CardTitle className="text-xl">
-                      Integrasi Otentikasi Firebase Auth & Google Login
-                    </CardTitle>
-
-                    <CardDescription>
-                      Mengimplementasikan flow login Google, email verification, dan integrasi session cookies Next.js App Router.
-                    </CardDescription>
-                  </CardHeader>
-
-                  <CardContent className="space-y-3">
-                    {/* Bounty & Deadline Highlight */}
-                    <div className="p-3 rounded-lg bg-sakode-bg border border-sakode-border flex items-center justify-between">
-                      <div>
-                        <span className="text-[11px] text-sakode-text-muted uppercase font-semibold">
-                          Bounty Reward
-                        </span>
-                        <div className="text-xl font-extrabold text-sakode-text">
-                          {formatCurrencyIDR(450000)}
-                        </div>
-                      </div>
-
-                      <div className="text-right">
-                        <span className="text-[11px] text-sakode-text-muted uppercase font-semibold">
-                          Batas Waktu (WIB)
-                        </span>
-                        <div className="text-xs font-bold text-sakode-text flex items-center gap-1 justify-end">
-                          <Clock className="h-3.5 w-3.5 text-sakode-cyan" />
-                          <span>{formatDateWIB(demoDeadline)}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Skill Tags */}
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-xs font-medium">
-                        Next.js
-                      </span>
-                      <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-xs font-medium">
-                        Firebase Auth
-                      </span>
-                      <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-xs font-medium">
-                        TypeScript
-                      </span>
-                    </div>
-                  </CardContent>
-                </div>
-
-                <CardFooter className="flex items-center justify-between pt-4">
-                  <span className="text-xs text-sakode-text-muted">
-                    Batas: 1 Active Task
-                  </span>
-                  <Button variant="primary" size="default">
-                    Ambil Task Sekarang
-                  </Button>
-                </CardFooter>
-              </Card>
-
-              {/* Card 2: Team Task Application */}
-              <Card hoverable className="flex flex-col justify-between">
-                <div>
-                  <CardHeader className="space-y-3">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="purple" leftIcon={<Users className="h-3 w-3" />}>
-                          Team Task (3 Orang)
-                        </Badge>
-                        <Badge variant="outline">Application</Badge>
-                      </div>
-                      <StatusPill status="RECRUITING" />
-                    </div>
-
-                    <CardTitle className="text-xl">
-                      Pengembangan Modul Financial Ledger & Batch Claim
-                    </CardTitle>
-
-                    <CardDescription>
-                      Membangun alur konsensus tim 100%, pembagian reward otomatis, dan upload bukti transfer lead.
-                    </CardDescription>
-                  </CardHeader>
-
-                  <CardContent className="space-y-3">
-                    {/* Bounty & Deadline Highlight */}
-                    <div className="p-3 rounded-lg bg-sakode-bg border border-sakode-border flex items-center justify-between">
-                      <div>
-                        <span className="text-[11px] text-sakode-text-muted uppercase font-semibold">
-                          Total Bounty Tim
-                        </span>
-                        <div className="text-xl font-extrabold text-sakode-text">
-                          {formatCurrencyIDR(1800000)}
-                        </div>
-                      </div>
-
-                      <div className="text-right">
-                        <span className="text-[11px] text-sakode-text-muted uppercase font-semibold">
-                          Prinsip Bagi Hasil
-                        </span>
-                        <div className="text-xs font-bold text-sakode-purple">
-                          Konsensus 100%
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Skill Tags */}
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      <span className="px-2 py-0.5 rounded bg-purple-50 text-purple-700 text-xs font-medium">
-                        Tailwind CSS
-                      </span>
-                      <span className="px-2 py-0.5 rounded bg-purple-50 text-purple-700 text-xs font-medium">
-                        Cloud Firestore
-                      </span>
-                      <span className="px-2 py-0.5 rounded bg-purple-50 text-purple-700 text-xs font-medium">
-                        Atomic Tx
-                      </span>
-                    </div>
-                  </CardContent>
-                </div>
-
-                <CardFooter className="flex items-center justify-between pt-4">
-                  <span className="text-xs text-sakode-text-muted">
-                    Kuota 1/3 Anggota
-                  </span>
-                  <Button variant="team" size="default">
-                    Daftar Sebagai Anggota
-                  </Button>
-                </CardFooter>
-              </Card>
-            </div>
-
-            {/* Active Task & Claim Widget Demo */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Member Active Task Hero (2 cols) */}
-              <Card className="lg:col-span-2 border-2 border-sakode-cyan/50 bg-gradient-to-br from-white via-white to-sky-50/40">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <Badge variant="cyan" leftIcon={<Flame className="h-3.5 w-3.5 text-orange-500" />}>
-                      Task Aktif Anda
-                    </Badge>
-                    <StatusPill status="ACTIVE" />
-                  </div>
-                  <CardTitle className="text-2xl mt-2">
-                    Pembuatan Sistem Desain & Primitif SAKODE
-                  </CardTitle>
-                  <CardDescription>
-                    Tugas ini harus diselesaikan sebelum deadline untuk menghindari penalti penurunan reputasi akun.
-                  </CardDescription>
-                </CardHeader>
-
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="p-3 rounded-lg bg-white border border-sakode-border shadow-xs">
-                      <div className="text-[11px] text-sakode-text-muted uppercase font-bold">
-                        Bounty Diterima
-                      </div>
-                      <div className="text-lg font-black text-sakode-text mt-0.5">
-                        {formatCurrencyIDR(600000)}
-                      </div>
-                    </div>
-
-                    <div className="p-3 rounded-lg bg-white border border-sakode-border shadow-xs">
-                      <div className="text-[11px] text-sakode-text-muted uppercase font-bold">
-                        Sisa Waktu
-                      </div>
-                      <div className="text-lg font-black text-emerald-600 mt-0.5">
-                        28 Jam 40 Menit
-                      </div>
-                    </div>
-
-                    <div className="p-3 rounded-lg bg-white border border-sakode-border shadow-xs">
-                      <div className="text-[11px] text-sakode-text-muted uppercase font-bold">
-                        Zona Waktu Server
-                      </div>
-                      <div className="text-sm font-bold text-sakode-text mt-1">
-                        Asia/Jakarta (WIB)
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-3 rounded-lg bg-white border border-sakode-border text-xs space-y-1.5">
-                    <div className="font-bold text-sakode-text">Kriteria Penerimaan Kunci:</div>
-                    <ul className="list-disc list-inside text-sakode-text-muted space-y-1">
-                      <li>Mengikuti palet resmi 8 token warna SAKODE (#71CFFE, dll).</li>
-                      <li>Semua nominal uang integer rupiah (contoh: 600000).</li>
-                      <li>Responsif penuh pada perangkat mobile dan desktop.</li>
-                    </ul>
-                  </div>
-                </CardContent>
-
-                <CardFooter className="flex flex-wrap items-center justify-between gap-3 pt-4">
-                  <span className="text-xs text-sakode-text-muted">
-                    Dimulai: {formatDateWIB(demoSubmissionDate)}
-                  </span>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
-                      Lihat Ruang Kerja
-                    </Button>
-                    <Button variant="primary" size="default">
-                      Kirim Hasil Pekerjaan
-                    </Button>
-                  </div>
-                </CardFooter>
-              </Card>
-
-              {/* Claim Reward Widget (1 col) */}
-              <Card className="flex flex-col justify-between">
-                <div>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <Coins className="h-5 w-5 text-sakode-cyan" />
-                        <span>Klaim Reward</span>
-                      </CardTitle>
-                      <Badge variant="success">Siap Cair</Badge>
-                    </div>
-                    <CardDescription>
-                      Saldo bounty yang telah disetujui admin dan siap ditransfer.
-                    </CardDescription>
-                  </CardHeader>
-
-                  <CardContent className="space-y-4">
-                    <div className="p-4 rounded-lg bg-sakode-bg border border-sakode-border text-center">
-                      <span className="text-xs text-sakode-text-muted font-semibold uppercase">
-                        Total Saldo Siap Klaim
-                      </span>
-                      <div className="text-2xl font-black text-sakode-text mt-1">
-                        {formatCurrencyIDR(1250000)}
-                      </div>
-                      <span className="text-[11px] text-sakode-text-muted mt-1 block">
-                        3 item reward disetujui
-                      </span>
-                    </div>
-
-                    <div className="space-y-2 text-xs">
-                      <div className="flex items-center justify-between py-1 border-b border-sakode-border/60">
-                        <span className="text-sakode-text-muted">Rekening Tujuan:</span>
-                        <span className="font-bold text-sakode-text">
-                          BCA {maskAccountNumber('1234567890')}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between py-1 border-b border-sakode-border/60">
-                        <span className="text-sakode-text-muted">Atas Nama:</span>
-                        <span className="font-bold text-sakode-text">YOGA PRADANA</span>
-                      </div>
-                      <div className="flex items-center justify-between py-1">
-                        <span className="text-sakode-text-muted">Biaya Transfer:</span>
-                        <span className="font-bold text-emerald-600">Gratis (Ditanggung)</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </div>
-
-                <CardFooter className="pt-4">
-                  <Button variant="primary" className="w-full font-bold">
-                    Cairkan Semua (Claim All)
-                  </Button>
-                </CardFooter>
-              </Card>
-            </div>
-
-            {/* 8 Strict Invariants Banner */}
-            <Card className="border-sakode-cyan/40 bg-gradient-to-r from-sky-50/50 via-white to-purple-50/30">
-              <CardHeader>
-                <div className="flex items-center gap-2 text-sakode-text">
-                  <ShieldAlert className="h-5 w-5 text-sakode-cyan" />
-                  <CardTitle className="text-lg">
-                    8 Strict Invariants SAKODE Platform (Pedoman Mutlak AGENTS.md)
-                  </CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-                  <div className="p-3 rounded-lg bg-white border border-sakode-border">
-                    <span className="font-bold text-sakode-text block mb-1">1. Integer Rupiah</span>
-                    Semua nominal uang disimpan sebagai integer tanpa koma/desimal (contoh: 250000).
-                  </div>
-
-                  <div className="p-3 rounded-lg bg-white border border-sakode-border">
-                    <span className="font-bold text-sakode-text block mb-1">2. UTC Firestore &gt; WIB</span>
-                    Disimpan dalam UTC Timestamp dan diformat mutlak ke Asia/Jakarta (WIB) di UI.
-                  </div>
-
-                  <div className="p-3 rounded-lg bg-white border border-sakode-border">
-                    <span className="font-bold text-sakode-text block mb-1">3. Zero Cron Rule</span>
-                    Pengecekan batas waktu deadline diverifikasi server timestamp saat transaksi diproses.
-                  </div>
-
-                  <div className="p-3 rounded-lg bg-white border border-sakode-border">
-                    <span className="font-bold text-sakode-text block mb-1">4. 1 Task & 3 Application</span>
-                    Maksimal 1 task aktif dan maksimal 3 permohonan pending per member.
-                  </div>
-
-                  <div className="p-3 rounded-lg bg-white border border-sakode-border">
-                    <span className="font-bold text-sakode-text block mb-1">5. Transaksi Atomik</span>
-                    Mutasi assignment, klaim, dan review wajib memakai runTransaction Firestore.
-                  </div>
-
-                  <div className="p-3 rounded-lg bg-white border border-sakode-border">
-                    <span className="font-bold text-sakode-text block mb-1">6. Perlindungan Rekening</span>
-                    Dienkripsi AES-256 saat disimpan dan di-mask (BCA •••• 1234) di tampilan umum.
-                  </div>
-
-                  <div className="p-3 rounded-lg bg-white border border-sakode-border">
-                    <span className="font-bold text-sakode-text block mb-1">7. Append-Only Audit</span>
-                    Koleksi auditEvents mutlak append-only, dilarang edit maupun delete.
-                  </div>
-
-                  <div className="p-3 rounded-lg bg-white border border-sakode-border">
-                    <span className="font-bold text-sakode-text block mb-1">8. Bahasa Indonesia</span>
-                    Seluruh teks tombol, badge status, modal, dan pesan error menggunakan Bahasa Indonesia baku.
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </section>
-        )}
+          </div>
+        </section>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-sakode-border bg-sakode-card py-8 mt-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-sakode-text-muted">
-          <div className="flex items-center gap-2">
-            <span className="font-extrabold text-sakode-text text-sm">SAKODE Academy</span>
-            <span>—</span>
-            <span>Task & Reward Platform Foundation</span>
+      <footer className="w-full border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-[#070A10] py-12 text-slate-600 dark:text-slate-400 text-xs transition-colors">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/sakode-work-logo.svg"
+                  alt="SAKODE Work"
+                  className="h-8 w-auto object-contain"
+                />
+              </div>
+              <p className="text-xs font-semibold text-[#076991] dark:text-sakode-cyan">
+                Masa Depan Digital, Dimulai Dari Sini
+              </p>
+              <p className="text-[11px] text-slate-500 max-w-md">
+                Platform manajemen tugas dan kolaborasi internal ekosistem SAKODE Academy.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-6 text-xs text-slate-600 dark:text-slate-400">
+              <Link href="/member/tasks" className="hover:text-slate-900 dark:hover:text-white transition-colors">
+                Katalog Task
+              </Link>
+              <Link href="/login" className="hover:text-slate-900 dark:hover:text-white transition-colors">
+                Dashboard Kontributor
+              </Link>
+              <a
+                href="https://sakode.com"
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-slate-900 dark:hover:text-white transition-colors"
+              >
+                SAKODE Academy ↗
+              </a>
+              <span className="text-slate-300 dark:text-slate-600">|</span>
+              <span className="text-slate-500 dark:text-slate-400 font-mono text-[11px]">
+                Waktu Server: WIB (UTC+7)
+              </span>
+            </div>
           </div>
-          <div>
-            Sprint 0 Selesai • Next.js App Router • Tailwind CSS v4 • TypeScript
+
+          <div className="pt-6 border-t border-slate-100 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
+            <div>&copy; 2026 SAKODE Academy. Seluruh Hak Cipta Dilindungi.</div>
+            <div className="flex items-center gap-4">
+              <span>Privacy Policy</span>
+              <span>•</span>
+              <span>Terms of Contribution</span>
+              <span>•</span>
+              <span>Code of Conduct</span>
+            </div>
           </div>
         </div>
       </footer>
 
-      {/* Mobile Navigation Bar (Bottom) */}
+      {/* Mobile Bottom Navigation Bar */}
       <MobileNav />
     </div>
   );
