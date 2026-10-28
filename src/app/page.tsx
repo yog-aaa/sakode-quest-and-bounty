@@ -10,6 +10,7 @@ import { TASK_STATUS } from '@/lib/constants';
 import {
   Compass,
   ArrowRight,
+  ArrowDown,
   Terminal,
   BookOpen,
   Megaphone,
@@ -439,10 +440,10 @@ export default function HomePage() {
                     size="lg"
                     className="h-12 px-7 font-black bg-sakode-cyan text-slate-950 hover:bg-[#5dbfe9] rounded-xl shadow-xs text-sm active:scale-[0.98] transition-all duration-200 ease-out group"
                     rightIcon={
-                      <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+                      <ArrowDown className="h-4 w-4 transition-transform duration-200 group-hover:translate-y-0.5" />
                     }
                   >
-                    Lihat Task Aktif ↓
+                    Lihat Task Aktif
                   </Button>
                 </a>
 
