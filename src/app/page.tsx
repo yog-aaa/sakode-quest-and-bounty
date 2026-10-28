@@ -24,6 +24,9 @@ import {
   Target,
   FileCheck2,
   Coins,
+  Layers,
+  FileText,
+  Zap,
 } from 'lucide-react';
 
 // =============================================================================
@@ -188,9 +191,140 @@ const FEATURED_TASKS: FeaturedTask[] = [
   },
 ];
 
+// =============================================================================
+// Suite Lencana Kehormatan SAKODE (10 Badges Multi-Disiplin & Milestone)
+// =============================================================================
+type BadgeRole = 'all' | 'tech' | 'edu' | 'marketing' | 'milestone';
+
+interface BadgeItem {
+  id: string;
+  file: string;
+  title: string;
+  role: 'Teknologi & IT' | 'Modul & Edukasi' | 'Marketing & Komunitas' | 'Milestone SAKODE';
+  roleKey: 'tech' | 'edu' | 'marketing' | 'milestone';
+  tier: 'Common • 🟢' | 'Rare • 🔵' | 'Epic • 🟣' | 'Legendary • 🟡';
+  tierKey: 'common' | 'rare' | 'epic' | 'legendary';
+  desc: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+const EXPANDED_BADGES: BadgeItem[] = [
+  {
+    id: 'code-artisan',
+    file: '/badges/badge-code-artisan.svg',
+    title: 'Arsitek Solusi',
+    role: 'Teknologi & IT',
+    roleKey: 'tech',
+    tier: 'Epic • 🟣',
+    tierKey: 'epic',
+    desc: 'Penyelesaian arsitektur kode zero-defect berskala produksi.',
+    icon: Terminal,
+  },
+  {
+    id: 'system-architect',
+    file: '/badges/badge-system-architect.svg',
+    title: 'Sistem Integrator',
+    role: 'Teknologi & IT',
+    roleKey: 'tech',
+    tier: 'Epic • 🟣',
+    tierKey: 'epic',
+    desc: 'Penguasaan pipeline CI/CD, cloud functions, dan database.',
+    icon: Layers,
+  },
+  {
+    id: 'bug-hunter',
+    file: '/badges/badge-bug-hunter.svg',
+    title: 'Bug Hunter',
+    role: 'Teknologi & IT',
+    roleKey: 'tech',
+    tier: 'Rare • 🔵',
+    tierKey: 'rare',
+    desc: 'Audit keamanan dan penemuan celah kritis sebelum rilis.',
+    icon: ShieldCheck,
+  },
+  {
+    id: 'curriculum-pioneer',
+    file: '/badges/badge-curriculum-pioneer.svg',
+    title: 'Penyusun Kurikulum',
+    role: 'Modul & Edukasi',
+    roleKey: 'edu',
+    tier: 'Rare • 🔵',
+    tierKey: 'rare',
+    desc: 'Penyusunan modul praktikum dan silabus bootcamp.',
+    icon: BookOpen,
+  },
+  {
+    id: 'knowledge-mentor',
+    file: '/badges/badge-knowledge-mentor.svg',
+    title: 'Mentor Teladan',
+    role: 'Modul & Edukasi',
+    roleKey: 'edu',
+    tier: 'Epic • 🟣',
+    tierKey: 'epic',
+    desc: 'Pembuatan bank soal kuis mendalam dan bimbingan talent.',
+    icon: Award,
+  },
+  {
+    id: 'community-champion',
+    file: '/badges/badge-community-champion.svg',
+    title: 'Katalis Komunitas',
+    role: 'Marketing & Komunitas',
+    roleKey: 'marketing',
+    tier: 'Rare • 🔵',
+    tierKey: 'rare',
+    desc: 'Manajemen tech event nasional dengan 500+ partisipan.',
+    icon: Megaphone,
+  },
+  {
+    id: 'creative-storyteller',
+    file: '/badges/badge-creative-storyteller.svg',
+    title: 'Storyteller Kreatif',
+    role: 'Marketing & Komunitas',
+    roleKey: 'marketing',
+    tier: 'Rare • 🔵',
+    tierKey: 'rare',
+    desc: 'Produksi carousel edukasi dan copywriting konversi tinggi.',
+    icon: FileText,
+  },
+  {
+    id: 'first-mission',
+    file: '/badges/badge-first-blood.svg',
+    title: 'Misi Pertama',
+    role: 'Milestone SAKODE',
+    roleKey: 'milestone',
+    tier: 'Common • 🟢',
+    tierKey: 'common',
+    desc: 'Penyelesaian dan penerimaan tugas pertama ke ekosistem.',
+    icon: Zap,
+  },
+  {
+    id: 'rapid-delivery',
+    file: '/badges/badge-speed-demon.svg',
+    title: 'Pengiriman Kilat',
+    role: 'Milestone SAKODE',
+    roleKey: 'milestone',
+    tier: 'Legendary • 🟡',
+    tierKey: 'legendary',
+    desc: 'Penyelesaian tugas di bawah 24 jam dengan kelulusan QA 100%.',
+    icon: Clock,
+  },
+  {
+    id: 'precision-craft',
+    file: '/badges/badge-golden-ledger.svg',
+    title: 'Presisi Tanpa Revisi',
+    role: 'Milestone SAKODE',
+    roleKey: 'milestone',
+    tier: 'Legendary • 🟡',
+    tierKey: 'legendary',
+    desc: 'Konsistensi 5 deliverable beruntun tanpa revisi admin.',
+    icon: CheckCircle2,
+  },
+];
+
 export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState<TaskCategory>('all');
   const [isExpanded, setIsExpanded] = useState(false);
+  const [selectedBadgeCategory, setSelectedBadgeCategory] = useState<BadgeRole>('all');
 
   const handleCategoryChange = (cat: TaskCategory) => {
     setSelectedCategory(cat);
@@ -200,6 +334,11 @@ export default function HomePage() {
   const filteredTasks = FEATURED_TASKS.filter((task) => {
     if (selectedCategory === 'all') return true;
     return task.category === selectedCategory;
+  });
+
+  const filteredBadges = EXPANDED_BADGES.filter((b) => {
+    if (selectedBadgeCategory === 'all') return true;
+    return b.roleKey === selectedBadgeCategory;
   });
 
   const INITIAL_VISIBLE_COUNT = 3;
@@ -219,6 +358,36 @@ export default function HomePage() {
     }
   };
 
+  const getTierStyle = (tierKey: 'common' | 'rare' | 'epic' | 'legendary') => {
+    switch (tierKey) {
+      case 'legendary':
+        return {
+          cardHover: 'hover:shadow-amber-500/15 hover:border-amber-400 dark:hover:border-amber-500/60',
+          tag: 'bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800',
+          squircleBg: 'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-400',
+        };
+      case 'epic':
+        return {
+          cardHover: 'hover:shadow-purple-500/15 hover:border-purple-400 dark:hover:border-purple-500/60',
+          tag: 'bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800',
+          squircleBg: 'bg-purple-50 dark:bg-purple-500/10 border-purple-200 dark:border-purple-500/20 text-purple-600 dark:text-purple-400',
+        };
+      case 'rare':
+        return {
+          cardHover: 'hover:shadow-sky-500/15 hover:border-sky-400 dark:hover:border-sky-500/60',
+          tag: 'bg-sky-100 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800',
+          squircleBg: 'bg-sky-50 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/20 text-sky-600 dark:text-sky-400',
+        };
+      case 'common':
+      default:
+        return {
+          cardHover: 'hover:shadow-emerald-500/15 hover:border-emerald-400 dark:hover:border-emerald-500/60',
+          tag: 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800',
+          squircleBg: 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400',
+        };
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 selection:bg-sakode-cyan/30 transition-colors">
       {/* Top Navbar */}
@@ -231,7 +400,7 @@ export default function HomePage() {
             <div className="text-center max-w-4xl mx-auto space-y-6">
               {/* Official Brandmark & Subtitle Lockup */}
               <div className="flex flex-wrap items-center justify-center gap-3">
-                <div className="inline-flex items-center gap-2.5 rounded-full border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/80 px-4 py-1.5 shadow-xs backdrop-blur-sm">
+                <div className="inline-flex items-center gap-2.5 rounded-full border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/80 px-4 py-1.5 shadow-xs backdrop-blur-sm animate-micro-pulse">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="/sakode-brandmark.svg"
@@ -823,82 +992,124 @@ export default function HomePage() {
 
               {/* Badges of Excellence Showcase dengan Nested Icons & Clean Status */}
               <div className="lg:col-span-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 sm:p-7 space-y-5 shadow-xs">
-                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
                   <div>
-                    <h3 className="font-bold text-lg text-slate-900 dark:text-white">Lencana Kehormatan (Badges)</h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Pengakuan resmi atas konsistensi dan kualitas deliverable.</p>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-lg text-slate-900 dark:text-white">Lencana Kehormatan (Badges)</h3>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                        10 Tersedia
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      Pengakuan resmi atas konsistensi dan kualitas deliverable multi-divisi.
+                    </p>
                   </div>
-                  <ShieldCheck className="h-5 w-5 text-purple-600 dark:text-sakode-purple" />
+                  <div className="rounded-xl p-2 bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-sakode-purple shrink-0 self-start sm:self-auto">
+                    <ShieldCheck className="h-5 w-5 animate-micro-pulse" />
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <div className="group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-3.5 space-y-2 hover:-translate-y-1 hover:shadow-xs transition-all duration-200 ease-out cursor-pointer active:scale-[0.98]">
-                    <div className="flex items-center justify-between">
-                      <div className="rounded-2xl p-2.5 border shrink-0 bg-sky-50 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/20 text-sky-600 dark:text-sky-400 transition-transform duration-200 group-hover:scale-105">
-                        <Terminal className="h-4 w-4" />
-                      </div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
-                        Mastery
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-xs font-bold text-slate-900 dark:text-white">Arsitek Solusi</span>
-                      <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug mt-1">
-                        Berhasil menyelesaikan modul arsitektur skala produksi berstandar zero defect.
-                      </p>
-                    </div>
-                  </div>
+                {/* Filter Tabs */}
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                  {(
+                    [
+                      { key: 'all', label: 'Semua', count: EXPANDED_BADGES.length },
+                      { key: 'tech', label: 'Teknologi', count: EXPANDED_BADGES.filter((b) => b.roleKey === 'tech').length },
+                      { key: 'edu', label: 'Edukasi', count: EXPANDED_BADGES.filter((b) => b.roleKey === 'edu').length },
+                      { key: 'marketing', label: 'Komunitas', count: EXPANDED_BADGES.filter((b) => b.roleKey === 'marketing').length },
+                      { key: 'milestone', label: 'Milestone', count: EXPANDED_BADGES.filter((b) => b.roleKey === 'milestone').length },
+                    ] as const
+                  ).map((tab) => {
+                    const isActive = selectedBadgeCategory === tab.key;
+                    return (
+                      <button
+                        key={tab.key}
+                        type="button"
+                        onClick={() => setSelectedBadgeCategory(tab.key)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 shrink-0 cursor-pointer flex items-center gap-1.5 ${
+                          isActive
+                            ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 shadow-xs'
+                            : 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                        }`}
+                      >
+                        <span>{tab.label}</span>
+                        <span
+                          className={`text-[10px] px-1.5 py-0.2 rounded-full ${
+                            isActive
+                              ? 'bg-white/20 dark:bg-slate-900/20 text-white dark:text-slate-900'
+                              : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
+                          }`}
+                        >
+                          {tab.count}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
 
-                  <div className="group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-3.5 space-y-2 hover:-translate-y-1 hover:shadow-xs transition-all duration-200 ease-out cursor-pointer active:scale-[0.98]">
-                    <div className="flex items-center justify-between">
-                      <div className="rounded-2xl p-2.5 border shrink-0 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 transition-transform duration-200 group-hover:scale-105">
-                        <BookOpen className="h-4 w-4" />
-                      </div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                        Curriculum
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-xs font-bold text-slate-900 dark:text-white">Penyusun Kurikulum</span>
-                      <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug mt-1">
-                        Menyusun 5+ silabus dan materi hands-on yang diadopsi aktif di bootcamp.
-                      </p>
-                    </div>
-                  </div>
+                {/* Badges Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 max-h-[500px] overflow-y-auto pr-1">
+                  {filteredBadges.map((badge, idx) => {
+                    const tierStyle = getTierStyle(badge.tierKey);
+                    const IconComponent = badge.icon;
+                    const delayClass =
+                      idx % 4 === 1
+                        ? 'delay-50'
+                        : idx % 4 === 2
+                        ? 'delay-100'
+                        : idx % 4 === 3
+                        ? 'delay-150'
+                        : '';
 
-                  <div className="group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-3.5 space-y-2 hover:-translate-y-1 hover:shadow-xs transition-all duration-200 ease-out cursor-pointer active:scale-[0.98]">
-                    <div className="flex items-center justify-between">
-                      <div className="rounded-2xl p-2.5 border shrink-0 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-400 transition-transform duration-200 group-hover:scale-105">
-                        <Megaphone className="h-4 w-4" />
-                      </div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                        Impact
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-xs font-bold text-slate-900 dark:text-white">Katalis Komunitas</span>
-                      <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug mt-1">
-                        Menginisiasi kampanye event dengan konversi pendaftaran peserta di atas rata-rata.
-                      </p>
-                    </div>
-                  </div>
+                    return (
+                      <div
+                        key={badge.id}
+                        className={`group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/50 p-3.5 space-y-2.5 transition-all duration-200 ease-out cursor-pointer active:scale-[0.98] animate-fade-in-up ${delayClass} ${tierStyle.cardHover}`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div
+                            className={`relative rounded-2xl p-2 border shrink-0 transition-transform duration-200 group-hover:scale-105 flex items-center justify-center h-11 w-11 ${tierStyle.squircleBg}`}
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={badge.file}
+                              alt={badge.title}
+                              className="h-7 w-7 object-contain transition-opacity duration-200"
+                              onError={(e) => {
+                                (e.currentTarget as HTMLElement).style.display = 'none';
+                                const fallback = e.currentTarget.parentElement?.querySelector(
+                                  '.badge-fallback-icon'
+                                ) as HTMLElement | null;
+                                if (fallback) fallback.style.display = 'block';
+                              }}
+                            />
+                            <div className="badge-fallback-icon hidden">
+                              <IconComponent className="h-5 w-5" />
+                            </div>
+                          </div>
+                          <span
+                            className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 ${tierStyle.tag}`}
+                          >
+                            {badge.tier}
+                          </span>
+                        </div>
 
-                  <div className="group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-3.5 space-y-2 hover:-translate-y-1 hover:shadow-xs transition-all duration-200 ease-out cursor-pointer active:scale-[0.98]">
-                    <div className="flex items-center justify-between">
-                      <div className="rounded-2xl p-2.5 border shrink-0 bg-purple-50 dark:bg-purple-500/10 border-purple-200 dark:border-purple-500/20 text-purple-600 dark:text-purple-400 transition-transform duration-200 group-hover:scale-105">
-                        <CheckCircle2 className="h-4 w-4" />
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between gap-1">
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
+                              {badge.title}
+                            </h4>
+                          </div>
+                          <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500">
+                            {badge.role}
+                          </p>
+                          <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug line-clamp-2">
+                            {badge.desc}
+                          </p>
+                        </div>
                       </div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
-                        Precision
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-xs font-bold text-slate-900 dark:text-white">Presisi Tinggi (Zero Revision)</span>
-                      <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug mt-1">
-                        5 task berturut-turut disetujui reviewer pada penyerahan pertama tanpa catatan revisi.
-                      </p>
-                    </div>
-                  </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -908,7 +1119,7 @@ export default function HomePage() {
         {/* Institutional Callout Banner (Refined Curved Container & Dual CTA) */}
         <section className="py-16 px-4 sm:px-6 lg:px-8 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0B0F19]">
           <div className="mx-auto max-w-5xl">
-            <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-gradient-to-br from-white via-sky-50/20 to-purple-50/20 dark:from-slate-900 dark:via-slate-900/90 dark:to-slate-900 p-8 sm:p-12 text-center space-y-6 shadow-sm">
+            <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-gradient-to-br from-white via-sky-50/20 to-purple-50/20 dark:from-slate-900 dark:via-slate-900/90 dark:to-slate-900 p-8 sm:p-12 text-center space-y-6 shadow-sm animate-ambient-sheen">
               <div className="space-y-3 max-w-2xl mx-auto">
                 <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-800/80 px-3.5 py-1 text-xs font-bold text-[#076991] dark:text-sakode-cyan shadow-2xs">
                   <span className="uppercase tracking-wider">Bukan Freelance Publik</span>

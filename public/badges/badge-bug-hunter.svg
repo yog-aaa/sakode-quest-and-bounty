@@ -1,0 +1,77 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background Radial Gradient -->
+    <radialGradient id="bg-bug-hunter" cx="50%" cy="38%" r="65%">
+      <stop offset="0%" stop-color="#1A2536" />
+      <stop offset="65%" stop-color="#0E1624" />
+      <stop offset="100%" stop-color="#070C14" />
+    </radialGradient>
+
+    <!-- Outer Rim Linear Gradient -->
+    <linearGradient id="rim-bug-hunter" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00A3E0" />
+      <stop offset="50%" stop-color="#71CFFE" />
+      <stop offset="100%" stop-color="#71CFFE" stop-opacity="0.7" />
+    </linearGradient>
+
+    <!-- Subtle Drop Shadow -->
+    <filter id="shadow-bug-hunter" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
+  </defs>
+
+  <!-- LAYER 1: BASE MEDALLION (SQUIRCLE WITH DOUBLE BORDER) -->
+  <g filter="url(#shadow-bug-hunter)">
+    <!-- Outer Medallion Body -->
+    <rect x="10" y="8" width="108" height="108" rx="28" fill="url(#bg-bug-hunter)" stroke="url(#rim-bug-hunter)" stroke-width="2.5" />
+    <!-- Inner Accent Border -->
+    <rect x="15" y="13" width="98" height="98" rx="23" fill="none" stroke="white" stroke-opacity="0.1" stroke-width="1.2" />
+  </g>
+
+  <!-- Ambient Radar Arc -->
+  <path d="M 32 30 A 48 48 0 0 1 96 30" stroke="#71CFFE" stroke-opacity="0.18" stroke-width="1.5" stroke-dasharray="3 3" />
+
+  <!-- LAYER 2: ICONOGRAPHY (DISCIPLINE SPECIFIC) -->
+  <g id="icon-bug-hunter">
+    <g transform="translate(64, 58)">
+      <!-- Radar Crosshairs Circle -->
+      <circle cx="0" cy="0" r="26" fill="none" stroke="#71CFFE" stroke-width="1.5" stroke-opacity="0.3" stroke-dasharray="4 3" />
+      <line x1="-30" y1="0" x2="-20" y2="0" stroke="#71CFFE" stroke-width="2" stroke-linecap="round" />
+      <line x1="20" y1="0" x2="30" y2="0" stroke="#71CFFE" stroke-width="2" stroke-linecap="round" />
+      <line x1="0" y1="-30" x2="0" y2="-20" stroke="#71CFFE" stroke-width="2" stroke-linecap="round" />
+      <line x1="0" y1="20" x2="0" y2="30" stroke="#71CFFE" stroke-width="2" stroke-linecap="round" />
+
+      <!-- Cute Tech Bug / Beetle -->
+      <!-- Antennae -->
+      <path d="M -4 -8 C -7 -14 -12 -16 -15 -14" stroke="#71CFFE" stroke-width="1.8" stroke-linecap="round" fill="none" />
+      <circle cx="-15" cy="-14" r="1.5" fill="#EDAC1C" />
+      <path d="M 4 -8 C 7 -14 12 -16 15 -14" stroke="#71CFFE" stroke-width="1.8" stroke-linecap="round" fill="none" />
+      <circle cx="15" cy="-14" r="1.5" fill="#EDAC1C" />
+
+      <!-- Bug Legs (6 legs) -->
+      <path d="M -10 -4 L -18 -7 M -12 2 L -20 2 M -10 8 L -18 13" stroke="#71CFFE" stroke-width="1.8" stroke-linecap="round" />
+      <path d="M 10 -4 L 18 -7 M 12 2 L 20 2 M 10 8 L 18 13" stroke="#71CFFE" stroke-width="1.8" stroke-linecap="round" />
+
+      <!-- Bug Head -->
+      <circle cx="0" cy="-6" r="6" fill="#0284C7" />
+      <!-- Bug Eyes -->
+      <circle cx="-2.5" cy="-7" r="1.2" fill="#BAE6FD" />
+      <circle cx="2.5" cy="-7" r="1.2" fill="#BAE6FD" />
+
+      <!-- Bug Shell Body -->
+      <path d="M -9 -1 C -9 12 9 12 9 -1 Z" fill="#71CFFE" />
+      <line x1="0" y1="0" x2="0" y2="10" stroke="#0F172A" stroke-width="1.5" />
+      <!-- Security Check Shield on Back -->
+      <path d="M -4 3 L 0 1 L 4 3 L 4 6 C 4 8 0 10 0 10 C 0 10 -4 8 -4 6 Z" fill="#EDAC1C" />
+    </g>
+  </g>
+
+  <!-- LAYER 3: SAKODE SIGNATURE GOLD SMILE ARC -->
+  <g id="smile-bug-hunter">
+    <!-- Signature Smile Arc at bottom -->
+    <path d="M 48 102 C 54 107.5 74 107.5 80 102" stroke="#EDAC1C" stroke-width="2.8" stroke-linecap="round" />
+    <!-- Small Smile Dots -->
+    <circle cx="48" cy="102" r="1.2" fill="#EDAC1C" />
+    <circle cx="80" cy="102" r="1.2" fill="#EDAC1C" />
+  </g>
+</svg>

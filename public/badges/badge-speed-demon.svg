@@ -1,0 +1,66 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background Radial Gradient -->
+    <radialGradient id="bg-speed-demon" cx="50%" cy="38%" r="65%">
+      <stop offset="0%" stop-color="#1A2536" />
+      <stop offset="65%" stop-color="#0E1624" />
+      <stop offset="100%" stop-color="#070C14" />
+    </radialGradient>
+
+    <!-- Outer Rim Linear Gradient -->
+    <linearGradient id="rim-speed-demon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF08A" />
+      <stop offset="50%" stop-color="#EDAC1C" />
+      <stop offset="100%" stop-color="#EDAC1C" stop-opacity="0.7" />
+    </linearGradient>
+
+    <!-- Subtle Drop Shadow -->
+    <filter id="shadow-speed-demon" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
+  </defs>
+
+  <!-- LAYER 1: BASE MEDALLION (SQUIRCLE WITH DOUBLE BORDER) -->
+  <g filter="url(#shadow-speed-demon)">
+    <!-- Outer Medallion Body -->
+    <rect x="10" y="8" width="108" height="108" rx="28" fill="url(#bg-speed-demon)" stroke="url(#rim-speed-demon)" stroke-width="2.5" />
+    <!-- Inner Accent Border -->
+    <rect x="15" y="13" width="98" height="98" rx="23" fill="none" stroke="white" stroke-opacity="0.1" stroke-width="1.2" />
+  </g>
+
+  <!-- Ambient Radar Arc -->
+  <path d="M 32 30 A 48 48 0 0 1 96 30" stroke="#EDAC1C" stroke-opacity="0.18" stroke-width="1.5" stroke-dasharray="3 3" />
+
+  <!-- LAYER 2: ICONOGRAPHY (DISCIPLINE SPECIFIC) -->
+  <g id="icon-speed-demon">
+    <g transform="translate(64, 57)">
+      <!-- Stopwatch Rim & Button -->
+      <rect x="-3" y="-28" width="6" height="5" rx="1.5" fill="#EDAC1C" />
+      <circle cx="0" cy="0" r="24" fill="none" stroke="#EDAC1C" stroke-width="2.5" stroke-dasharray="8 3" />
+      <circle cx="0" cy="0" r="19" fill="#1E293B" fill-opacity="0.6" stroke="white" stroke-opacity="0.1" stroke-width="1" />
+
+      <!-- Dial Hour Markers -->
+      <circle cx="0" cy="-14" r="1.5" fill="#FEF08A" />
+      <circle cx="14" cy="0" r="1.5" fill="#FEF08A" />
+      <circle cx="0" cy="14" r="1.5" fill="#FEF08A" />
+      <circle cx="-14" cy="0" r="1.5" fill="#FEF08A" />
+
+      <!-- Dynamic Lightning Bolt (Slicing through center) -->
+      <polygon points="3,-20 -10,0 -1,0 -6,18 12,-4 3,-4" fill="#EDAC1C" stroke="#FEF08A" stroke-width="1.2" />
+
+      <!-- Speed Wind Trails -->
+      <line x1="-28" y1="-8" x2="-20" y2="-8" stroke="#71CFFE" stroke-width="1.5" stroke-linecap="round" />
+      <line x1="-30" y1="2" x2="-22" y2="2" stroke="#71CFFE" stroke-width="2" stroke-linecap="round" />
+      <line x1="-26" y1="12" x2="-18" y2="12" stroke="#71CFFE" stroke-width="1.5" stroke-linecap="round" />
+    </g>
+  </g>
+
+  <!-- LAYER 3: SAKODE SIGNATURE GOLD SMILE ARC -->
+  <g id="smile-speed-demon">
+    <!-- Signature Smile Arc at bottom -->
+    <path d="M 48 102 C 54 107.5 74 107.5 80 102" stroke="#EDAC1C" stroke-width="2.8" stroke-linecap="round" />
+    <!-- Small Smile Dots -->
+    <circle cx="48" cy="102" r="1.2" fill="#EDAC1C" />
+    <circle cx="80" cy="102" r="1.2" fill="#EDAC1C" />
+  </g>
+</svg>
