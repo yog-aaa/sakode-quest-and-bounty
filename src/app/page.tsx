@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { MobileNav } from '@/components/layout/MobileNav';
 import { Button } from '@/components/ui/Button';
-import { formatCurrencyIDR } from '@/lib/utils';
+import { cn, formatCurrencyIDR } from '@/lib/utils';
 import { TASK_STATUS } from '@/lib/constants';
 import {
   Compass,
@@ -23,6 +23,7 @@ import {
   Wallet,
   Target,
   FileCheck2,
+  Coins,
 } from 'lucide-react';
 
 // =============================================================================
@@ -189,11 +190,34 @@ const FEATURED_TASKS: FeaturedTask[] = [
 
 export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState<TaskCategory>('all');
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const handleCategoryChange = (cat: TaskCategory) => {
+    setSelectedCategory(cat);
+    setIsExpanded(false);
+  };
 
   const filteredTasks = FEATURED_TASKS.filter((task) => {
     if (selectedCategory === 'all') return true;
     return task.category === selectedCategory;
   });
+
+  const INITIAL_VISIBLE_COUNT = 3;
+  const visibleTasks = isExpanded ? filteredTasks : filteredTasks.slice(0, INITIAL_VISIBLE_COUNT);
+  const remainingCount = Math.max(0, filteredTasks.length - INITIAL_VISIBLE_COUNT);
+
+  const getCategoryTopBorder = (category: 'tech' | 'edu' | 'marketing') => {
+    switch (category) {
+      case 'tech':
+        return 'border-t-4 border-t-sakode-cyan';
+      case 'edu':
+        return 'border-t-4 border-t-sakode-purple';
+      case 'marketing':
+        return 'border-t-4 border-t-sakode-orange';
+      default:
+        return 'border-t-4 border-t-sakode-cyan';
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 selection:bg-sakode-cyan/30 transition-colors">
@@ -422,7 +446,7 @@ export default function HomePage() {
             <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-4">
               <button
                 type="button"
-                onClick={() => setSelectedCategory('all')}
+                onClick={() => handleCategoryChange('all')}
                 className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
                   selectedCategory === 'all'
                     ? 'bg-sakode-cyan text-slate-950 shadow-xs font-black'
@@ -439,7 +463,7 @@ export default function HomePage() {
 
               <button
                 type="button"
-                onClick={() => setSelectedCategory('tech')}
+                onClick={() => handleCategoryChange('tech')}
                 className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
                   selectedCategory === 'tech'
                     ? 'bg-sakode-cyan text-slate-950 shadow-xs font-black'
@@ -457,7 +481,7 @@ export default function HomePage() {
 
               <button
                 type="button"
-                onClick={() => setSelectedCategory('edu')}
+                onClick={() => handleCategoryChange('edu')}
                 className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
                   selectedCategory === 'edu'
                     ? 'bg-sakode-cyan text-slate-950 shadow-xs font-black'
@@ -475,7 +499,7 @@ export default function HomePage() {
 
               <button
                 type="button"
-                onClick={() => setSelectedCategory('marketing')}
+                onClick={() => handleCategoryChange('marketing')}
                 className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
                   selectedCategory === 'marketing'
                     ? 'bg-sakode-cyan text-slate-950 shadow-xs font-black'
@@ -492,15 +516,19 @@ export default function HomePage() {
               </button>
             </div>
 
-            {/* Task Card Grid (Generous Whitespace gap-6) */}
+            {/* Task Card Grid (Generous Whitespace gap-6 & Playful Aesthetics) */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredTasks.map((task) => {
+              {visibleTasks.map((task) => {
                 const isSolo = task.mode === 'SOLO';
 
                 return (
                   <div
                     key={task.id}
-                    className="flex flex-col justify-between rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 space-y-4 hover:border-slate-300 dark:hover:border-slate-700 transition-all hover:shadow-md"
+                    className={cn(
+                      'group transition-all duration-200 ease-out hover:-translate-y-1.5 hover:shadow-lg hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer',
+                      'flex flex-col justify-between rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 space-y-4',
+                      getCategoryTopBorder(task.category)
+                    )}
                   >
                     <div className="space-y-3.5">
                       {/* Top Badges & Difficulty Indicator */}
@@ -531,12 +559,13 @@ export default function HomePage() {
                         </div>
                       </div>
 
-                      {/* Reward Pill */}
-                      <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80 p-3 flex items-baseline justify-between">
-                        <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                          Reward Bersih:
-                        </span>
-                        <div className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
+                      {/* Streamlined Integrated Reward Pill with Coins icon */}
+                      <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/60">
+                        <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                          <Coins className="h-4 w-4 text-amber-500 shrink-0" />
+                          <span>Reward Bersih:</span>
+                        </div>
+                        <div className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
                           {formatCurrencyIDR(task.reward)}
                         </div>
                       </div>
@@ -576,6 +605,9 @@ export default function HomePage() {
                           variant="outline"
                           size="sm"
                           className="h-8 text-xs font-bold border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-white shadow-xs"
+                          rightIcon={
+                            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+                          }
                         >
                           Lihat Detail
                         </Button>
@@ -585,6 +617,23 @@ export default function HomePage() {
                 );
               })}
             </div>
+
+            {/* Expand / Collapse Decongestion Toggle */}
+            {filteredTasks.length > INITIAL_VISIBLE_COUNT && (
+              <div className="flex justify-center pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="default"
+                  onClick={() => setIsExpanded((prev) => !prev)}
+                  className="px-6 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold transition-all shadow-xs cursor-pointer"
+                >
+                  {isExpanded
+                    ? 'Tampilkan Lebih Sedikit ↑'
+                    : `Tampilkan Lebih Banyak Task (${remainingCount}) ↓`}
+                </Button>
+              </div>
+            )}
           </div>
         </section>
 
