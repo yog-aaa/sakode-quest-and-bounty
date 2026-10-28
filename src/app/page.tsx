@@ -262,14 +262,16 @@ export default function HomePage() {
                 </p>
               </div>
 
-              {/* Rampingkan CTA: 2 Tombol Saja */}
+              {/* Rampingkan CTA: 2 Tombol Saja dengan Tactile Feedback */}
               <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
                 <a href="#task-explorer">
                   <Button
                     variant="primary"
                     size="lg"
-                    className="h-12 px-7 font-black bg-sakode-cyan text-slate-950 hover:bg-[#5dbfe9] rounded-xl shadow-xs text-sm"
-                    rightIcon={<ArrowRight className="h-4 w-4" />}
+                    className="h-12 px-7 font-black bg-sakode-cyan text-slate-950 hover:bg-[#5dbfe9] rounded-xl shadow-xs text-sm active:scale-[0.98] transition-all duration-200 ease-out group"
+                    rightIcon={
+                      <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+                    }
                   >
                     Lihat Task Aktif ↓
                   </Button>
@@ -279,16 +281,16 @@ export default function HomePage() {
                   <Button
                     variant="outline"
                     size="lg"
-                    className="h-12 px-7 font-bold border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/60 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-xl text-sm shadow-xs"
+                    className="h-12 px-7 font-bold border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/60 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-xl text-sm shadow-xs active:scale-[0.98] transition-all duration-200 ease-out"
                   >
                     Masuk ke Dashboard
                   </Button>
                 </Link>
               </div>
 
-              {/* Proof Metric Strip (Clean White Cards) */}
+              {/* Proof Metric Strip (Clean White Cards dengan Tactile Hover) */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-10 max-w-5xl mx-auto">
-                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs text-left">
+                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs text-left hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out cursor-default">
                   <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     Bounty Tersalurkan
                   </div>
@@ -300,7 +302,7 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs text-left">
+                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs text-left hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out cursor-default">
                   <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     Task Selesai
                   </div>
@@ -312,7 +314,7 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs text-left">
+                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs text-left hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out cursor-default">
                   <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     Kontributor Aktif
                   </div>
@@ -324,7 +326,7 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs text-left">
+                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs text-left hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out cursor-default">
                   <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     Waktu Verifikasi
                   </div>
@@ -357,57 +359,63 @@ export default function HomePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Pilar 1: IT */}
-              <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-6 space-y-4 hover:border-sky-500/40 hover:shadow-md transition-all">
-                <div className="h-12 w-12 rounded-lg bg-sky-50 dark:bg-sky-500/10 border border-sky-200 dark:border-sky-500/20 flex items-center justify-center text-sky-600 dark:text-sky-400">
+              <div className="group rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-6 space-y-4 hover:border-sky-500/40 hover:shadow-lg hover:shadow-sky-500/10 hover:-translate-y-1.5 transition-all duration-200 ease-out cursor-pointer">
+                <div className="rounded-2xl p-2.5 border shrink-0 bg-sky-50 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/20 text-sky-600 dark:text-sky-400 w-fit transition-transform duration-200 group-hover:scale-105">
                   <Terminal className="h-6 w-6" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">Teknologi &amp; IT</h3>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
+                    Teknologi &amp; IT
+                  </h3>
                   <p className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">
                     Pengembangan aplikasi produksi, arsitektur backend, otomasi CI/CD DevOps, integrasi database, dan audit keamanan.
                   </p>
                 </div>
                 <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-1.5">
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Next.js</span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Node/FastAPI</span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Firebase</span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">DevOps</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 cursor-default">Next.js</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 cursor-default">Node/FastAPI</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 cursor-default">Firebase</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 cursor-default">DevOps</span>
                 </div>
               </div>
 
               {/* Pilar 2: Education */}
-              <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-6 space-y-4 hover:border-emerald-500/40 hover:shadow-md transition-all">
-                <div className="h-12 w-12 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+              <div className="group rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-6 space-y-4 hover:border-purple-500/40 hover:shadow-lg hover:shadow-purple-500/10 hover:-translate-y-1.5 transition-all duration-200 ease-out cursor-pointer">
+                <div className="rounded-2xl p-2.5 border shrink-0 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 w-fit transition-transform duration-200 group-hover:scale-105">
                   <BookOpen className="h-6 w-6" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">Modul &amp; Edukasi</h3>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                    Modul &amp; Edukasi
+                  </h3>
                   <p className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">
                     Penyusunan kurikulum bootcamp, penulisan modul lab praktikum mahasiswa, perancangan bank kuis, dan review materi mentor.
                   </p>
                 </div>
                 <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-1.5">
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Silabus Kurikulum</span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Bank Soal</span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Lab Praktikum</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 cursor-default">Silabus Kurikulum</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 cursor-default">Bank Soal</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 cursor-default">Lab Praktikum</span>
                 </div>
               </div>
 
               {/* Pilar 3: Marketing */}
-              <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-6 space-y-4 hover:border-amber-500/40 hover:shadow-md transition-all">
-                <div className="h-12 w-12 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400">
+              <div className="group rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-6 space-y-4 hover:border-orange-500/40 hover:shadow-lg hover:shadow-orange-500/10 hover:-translate-y-1.5 transition-all duration-200 ease-out cursor-pointer">
+                <div className="rounded-2xl p-2.5 border shrink-0 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-400 w-fit transition-transform duration-200 group-hover:scale-105">
                   <Megaphone className="h-6 w-6" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">Marketing &amp; Komunitas</h3>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
+                    Marketing &amp; Komunitas
+                  </h3>
                   <p className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">
                     Produksi infografis visual, penulisan naskah newsletter berkala, publikasi promosi batch pendaftaran, dan operasional tech event.
                   </p>
                 </div>
                 <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-1.5">
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Visual Carousel</span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Copywriting</span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Tech Event</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 cursor-default">Visual Carousel</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 cursor-default">Copywriting</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 cursor-default">Tech Event</span>
                 </div>
               </div>
             </div>
@@ -640,7 +648,7 @@ export default function HomePage() {
         {/* Productivity & Gamification Showcase Section */}
         <section id="workflow" className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0B0F19] py-16 scroll-mt-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-14">
-            {/* Part 1: Contributor 4-Step Workflow */}
+            {/* Part 1: Contributor 4-Step Workflow dengan Connected Steps & Tactile Feedback */}
             <div className="space-y-8">
               <div className="text-center max-w-2xl mx-auto space-y-2">
                 <span className="text-xs font-bold text-[#076991] dark:text-sakode-cyan uppercase tracking-wider">
@@ -654,60 +662,73 @@ export default function HomePage() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* Step 1 */}
-                <div className="relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 space-y-3 shadow-xs">
-                  <div className="text-xs font-black text-[#076991] dark:text-sakode-cyan">01</div>
-                  <div className="rounded-lg bg-sky-50 dark:bg-sky-500/10 p-2.5 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-500/20 w-fit">
-                    <Compass className="h-5 w-5" />
-                  </div>
-                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">Eksplorasi &amp; Seleksi</h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                    Telusuri task internal yang sesuai dengan spesialisasi keahlian di bidang IT, modul kurikulum, atau materi promosi.
-                  </p>
-                </div>
+              <div className="relative">
+                {/* Dashed line connectors between steps on lg screens */}
+                <div className="hidden lg:block absolute top-[52px] left-[10%] right-[10%] h-0.5 border-t-2 border-dashed border-slate-300 dark:border-slate-700 pointer-events-none z-0" />
 
-                {/* Step 2 */}
-                <div className="relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 space-y-3 shadow-xs">
-                  <div className="text-xs font-black text-purple-600 dark:text-sakode-purple">02</div>
-                  <div className="rounded-lg bg-purple-50 dark:bg-purple-500/10 p-2.5 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-500/20 w-fit">
-                    <Target className="h-5 w-5" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+                  {/* Step 1 */}
+                  <div className="group relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-5 space-y-3 shadow-xs hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out active:scale-[0.98]">
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs font-black text-[#076991] dark:text-sakode-cyan">01</div>
+                      <div className="rounded-2xl p-2.5 border shrink-0 bg-sky-50 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/20 text-sky-600 dark:text-sky-400 transition-transform duration-200 group-hover:scale-105">
+                        <Compass className="h-5 w-5" />
+                      </div>
+                    </div>
+                    <h3 className="font-bold text-sm text-slate-900 dark:text-white">Eksplorasi &amp; Seleksi</h3>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                      Telusuri task internal yang sesuai dengan spesialisasi keahlian di bidang IT, modul kurikulum, atau materi promosi.
+                    </p>
                   </div>
-                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">Pengerjaan Terstruktur</h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                    Selesaikan deliverable secara mandiri atau koordinasikan tim party dengan konsensus pembagian honor di muka.
-                  </p>
-                </div>
 
-                {/* Step 3 */}
-                <div className="relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 space-y-3 shadow-xs">
-                  <div className="text-xs font-black text-emerald-600 dark:text-emerald-400">03</div>
-                  <div className="rounded-lg bg-emerald-50 dark:bg-emerald-500/10 p-2.5 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 w-fit">
-                    <FileCheck2 className="h-5 w-5" />
+                  {/* Step 2 */}
+                  <div className="group relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-5 space-y-3 shadow-xs hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out active:scale-[0.98]">
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs font-black text-purple-600 dark:text-sakode-purple">02</div>
+                      <div className="rounded-2xl p-2.5 border shrink-0 bg-purple-50 dark:bg-purple-500/10 border-purple-200 dark:border-purple-500/20 text-purple-600 dark:text-purple-400 transition-transform duration-200 group-hover:scale-105">
+                        <Target className="h-5 w-5" />
+                      </div>
+                    </div>
+                    <h3 className="font-bold text-sm text-slate-900 dark:text-white">Pengerjaan Terstruktur</h3>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                      Selesaikan deliverable secara mandiri atau koordinasikan tim party dengan konsensus pembagian honor di muka.
+                    </p>
                   </div>
-                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">Review &amp; Verifikasi Mutu</h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                    Hasil kerja diperiksa secara obyektif oleh Reviewer &amp; QA Academy dengan catatan evaluasi yang konstruktif.
-                  </p>
-                </div>
 
-                {/* Step 4 */}
-                <div className="relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 space-y-3 shadow-xs">
-                  <div className="text-xs font-black text-amber-600 dark:text-amber-400">04</div>
-                  <div className="rounded-lg bg-amber-50 dark:bg-amber-500/10 p-2.5 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20 w-fit">
-                    <Wallet className="h-5 w-5" />
+                  {/* Step 3 */}
+                  <div className="group relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-5 space-y-3 shadow-xs hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out active:scale-[0.98]">
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs font-black text-emerald-600 dark:text-emerald-400">03</div>
+                      <div className="rounded-2xl p-2.5 border shrink-0 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 transition-transform duration-200 group-hover:scale-105">
+                        <FileCheck2 className="h-5 w-5" />
+                      </div>
+                    </div>
+                    <h3 className="font-bold text-sm text-slate-900 dark:text-white">Review &amp; Verifikasi Mutu</h3>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                      Hasil kerja diperiksa secara obyektif oleh Reviewer &amp; QA Academy dengan catatan evaluasi yang konstruktif.
+                    </p>
                   </div>
-                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">Pencairan Reward Instan</h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                    Reward integer Rupiah tercatat langsung di buku besar saldo dan ditransfer ke rekening bank resmi tanpa potongan.
-                  </p>
+
+                  {/* Step 4 */}
+                  <div className="group relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-5 space-y-3 shadow-xs hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out active:scale-[0.98]">
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs font-black text-amber-600 dark:text-amber-400">04</div>
+                      <div className="rounded-2xl p-2.5 border shrink-0 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-400 transition-transform duration-200 group-hover:scale-105">
+                        <Wallet className="h-5 w-5" />
+                      </div>
+                    </div>
+                    <h3 className="font-bold text-sm text-slate-900 dark:text-white">Pencairan Reward Instan</h3>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                      Reward integer Rupiah tercatat langsung di buku besar saldo dan ditransfer ke rekening bank resmi tanpa potongan.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Part 2: Gamified Progression & Achievements */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-6 border-t border-slate-200 dark:border-slate-800/80">
-              {/* Contributor Level Ladder */}
+              {/* Contributor Level Ladder dengan Refined Progression */}
               <div className="lg:col-span-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 sm:p-7 space-y-5 shadow-xs">
                 <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                   <div>
@@ -718,69 +739,89 @@ export default function HomePage() {
                 </div>
 
                 <div className="space-y-3">
-                  <div className="flex items-start gap-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-3">
-                    <div className="text-xs font-black px-2.5 py-1 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0">
-                      LVL 1
-                    </div>
-                    <div>
-                      <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                        <span>Onboarded Contributor</span>
-                        <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal">• Pemula Terverifikasi</span>
+                  <div className="flex items-start justify-between gap-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-3.5 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 ease-out">
+                    <div className="flex items-start gap-3">
+                      <div className="text-xs font-black px-2.5 py-1 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0">
+                        LVL 1
                       </div>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                        Tahap awal setelah persetujuan profil; memiliki akses ke task kategori Beginner.
-                      </p>
+                      <div>
+                        <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                          <span>Onboarded Contributor</span>
+                          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal">• Pemula Terverifikasi</span>
+                        </div>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                          Tahap awal setelah persetujuan profil; memiliki akses ke task kategori Beginner.
+                        </p>
+                      </div>
                     </div>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-400 shrink-0">
+                      Entry
+                    </span>
                   </div>
 
-                  <div className="flex items-start gap-3.5 rounded-xl border border-sky-200 dark:border-sky-500/20 bg-sky-50/60 dark:bg-slate-950/50 p-3">
-                    <div className="text-xs font-black px-2.5 py-1 rounded-md bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-400 border border-sky-300 dark:border-sky-500/20 shrink-0">
-                      LVL 2
-                    </div>
-                    <div>
-                      <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                        <span>Active Contributor</span>
-                        <span className="text-[10px] text-sky-600 dark:text-sky-400 font-normal">• 3+ Task Sukses</span>
+                  <div className="flex items-start justify-between gap-3.5 rounded-xl border border-sky-200 dark:border-sky-500/20 bg-sky-50/60 dark:bg-slate-950/50 p-3.5 hover:border-sky-300 dark:hover:border-sky-500/40 hover:shadow-xs transition-all duration-200 ease-out">
+                    <div className="flex items-start gap-3">
+                      <div className="text-xs font-black px-2.5 py-1 rounded-md bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-400 border border-sky-300 dark:border-sky-500/20 shrink-0">
+                        LVL 2
                       </div>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                        Menyelesaikan task mandiri dengan penilaian A; membuka kuota task tingkat Intermediate.
-                      </p>
+                      <div>
+                        <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                          <span>Active Contributor</span>
+                          <span className="text-[10px] text-sky-600 dark:text-sky-400 font-normal">• 3+ Task Sukses</span>
+                        </div>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                          Menyelesaikan task mandiri dengan penilaian A; membuka kuota task tingkat Intermediate.
+                        </p>
+                      </div>
                     </div>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900/60 text-sky-700 dark:text-sky-300 shrink-0">
+                      3+ Task
+                    </span>
                   </div>
 
-                  <div className="flex items-start gap-3.5 rounded-xl border border-purple-200 dark:border-purple-500/20 bg-purple-50/60 dark:bg-slate-950/50 p-3">
-                    <div className="text-xs font-black px-2.5 py-1 rounded-md bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-400 border border-purple-300 dark:border-purple-500/20 shrink-0">
-                      LVL 3
-                    </div>
-                    <div>
-                      <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                        <span>Senior Specialist</span>
-                        <span className="text-[10px] text-purple-600 dark:text-purple-400 font-normal">• Arsitektur &amp; Kurikulum</span>
+                  <div className="flex items-start justify-between gap-3.5 rounded-xl border border-purple-200 dark:border-purple-500/20 bg-purple-50/60 dark:bg-slate-950/50 p-3.5 hover:border-purple-300 dark:hover:border-purple-500/40 hover:shadow-xs transition-all duration-200 ease-out">
+                    <div className="flex items-start gap-3">
+                      <div className="text-xs font-black px-2.5 py-1 rounded-md bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-400 border border-purple-300 dark:border-purple-500/20 shrink-0">
+                        LVL 3
                       </div>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                        Dipercaya menangani task kompleks Advanced dan berkontribusi sebagai co-reviewer teknis.
-                      </p>
+                      <div>
+                        <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                          <span>Senior Specialist</span>
+                          <span className="text-[10px] text-purple-600 dark:text-purple-400 font-normal">• Arsitektur &amp; Kurikulum</span>
+                        </div>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                          Dipercaya menangani task kompleks Advanced dan berkontribusi sebagai co-reviewer teknis.
+                        </p>
+                      </div>
                     </div>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 shrink-0">
+                      Advanced
+                    </span>
                   </div>
 
-                  <div className="flex items-start gap-3.5 rounded-xl border border-amber-200 dark:border-amber-500/20 bg-amber-50/60 dark:bg-slate-950/50 p-3">
-                    <div className="text-xs font-black px-2.5 py-1 rounded-md bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-500/20 shrink-0">
-                      LVL 4
-                    </div>
-                    <div>
-                      <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                        <span>Lead Fellow</span>
-                        <span className="text-[10px] text-amber-600 dark:text-amber-400 font-normal">• Pemimpin Inisiatif Tim</span>
+                  <div className="flex items-start justify-between gap-3.5 rounded-xl border border-amber-200 dark:border-amber-500/20 bg-amber-50/60 dark:bg-slate-950/50 p-3.5 hover:border-amber-300 dark:hover:border-amber-500/40 hover:shadow-xs transition-all duration-200 ease-out">
+                    <div className="flex items-start gap-3">
+                      <div className="text-xs font-black px-2.5 py-1 rounded-md bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-500/20 shrink-0">
+                        LVL 4
                       </div>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                        Memimpin pembentukan Team Project multi-disiplin dan merumuskan inisiatif baru SAKODE Academy.
-                      </p>
+                      <div>
+                        <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                          <span>Lead Fellow</span>
+                          <span className="text-[10px] text-amber-600 dark:text-amber-400 font-normal">• Pemimpin Inisiatif Tim</span>
+                        </div>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                          Memimpin pembentukan Team Project multi-disiplin dan merumuskan inisiatif baru SAKODE Academy.
+                        </p>
+                      </div>
                     </div>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 shrink-0">
+                      Fellow
+                    </span>
                   </div>
                 </div>
               </div>
 
-              {/* Badges of Excellence Showcase */}
+              {/* Badges of Excellence Showcase dengan Nested Icons & Clean Status */}
               <div className="lg:col-span-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 sm:p-7 space-y-5 shadow-xs">
                 <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                   <div>
@@ -791,52 +832,72 @@ export default function HomePage() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-3.5 space-y-1.5">
-                    <div className="flex items-center gap-2">
-                      <div className="h-7 w-7 rounded-lg bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-500/20 flex items-center justify-center">
-                        <Terminal className="h-3.5 w-3.5" />
+                  <div className="group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-3.5 space-y-2 hover:-translate-y-1 hover:shadow-xs transition-all duration-200 ease-out cursor-pointer active:scale-[0.98]">
+                    <div className="flex items-center justify-between">
+                      <div className="rounded-2xl p-2.5 border shrink-0 bg-sky-50 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/20 text-sky-600 dark:text-sky-400 transition-transform duration-200 group-hover:scale-105">
+                        <Terminal className="h-4 w-4" />
                       </div>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
+                        Mastery
+                      </span>
+                    </div>
+                    <div>
                       <span className="text-xs font-bold text-slate-900 dark:text-white">Arsitek Solusi</span>
+                      <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug mt-1">
+                        Berhasil menyelesaikan modul arsitektur skala produksi berstandar zero defect.
+                      </p>
                     </div>
-                    <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug">
-                      Berhasil menyelesaikan modul arsitektur skala produksi berstandar zero defect.
-                    </p>
                   </div>
 
-                  <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-3.5 space-y-1.5">
-                    <div className="flex items-center gap-2">
-                      <div className="h-7 w-7 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 flex items-center justify-center">
-                        <BookOpen className="h-3.5 w-3.5" />
+                  <div className="group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-3.5 space-y-2 hover:-translate-y-1 hover:shadow-xs transition-all duration-200 ease-out cursor-pointer active:scale-[0.98]">
+                    <div className="flex items-center justify-between">
+                      <div className="rounded-2xl p-2.5 border shrink-0 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 transition-transform duration-200 group-hover:scale-105">
+                        <BookOpen className="h-4 w-4" />
                       </div>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                        Curriculum
+                      </span>
+                    </div>
+                    <div>
                       <span className="text-xs font-bold text-slate-900 dark:text-white">Penyusun Kurikulum</span>
+                      <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug mt-1">
+                        Menyusun 5+ silabus dan materi hands-on yang diadopsi aktif di bootcamp.
+                      </p>
                     </div>
-                    <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug">
-                      Menyusun 5+ silabus dan materi hands-on yang diadopsi aktif di bootcamp.
-                    </p>
                   </div>
 
-                  <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-3.5 space-y-1.5">
-                    <div className="flex items-center gap-2">
-                      <div className="h-7 w-7 rounded-lg bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20 flex items-center justify-center">
-                        <Megaphone className="h-3.5 w-3.5" />
+                  <div className="group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-3.5 space-y-2 hover:-translate-y-1 hover:shadow-xs transition-all duration-200 ease-out cursor-pointer active:scale-[0.98]">
+                    <div className="flex items-center justify-between">
+                      <div className="rounded-2xl p-2.5 border shrink-0 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-400 transition-transform duration-200 group-hover:scale-105">
+                        <Megaphone className="h-4 w-4" />
                       </div>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                        Impact
+                      </span>
+                    </div>
+                    <div>
                       <span className="text-xs font-bold text-slate-900 dark:text-white">Katalis Komunitas</span>
+                      <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug mt-1">
+                        Menginisiasi kampanye event dengan konversi pendaftaran peserta di atas rata-rata.
+                      </p>
                     </div>
-                    <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug">
-                      Menginisiasi kampanye event dengan konversi pendaftaran peserta di atas rata-rata.
-                    </p>
                   </div>
 
-                  <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-3.5 space-y-1.5">
-                    <div className="flex items-center gap-2">
-                      <div className="h-7 w-7 rounded-lg bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-500/20 flex items-center justify-center">
-                        <CheckCircle2 className="h-3.5 w-3.5" />
+                  <div className="group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-3.5 space-y-2 hover:-translate-y-1 hover:shadow-xs transition-all duration-200 ease-out cursor-pointer active:scale-[0.98]">
+                    <div className="flex items-center justify-between">
+                      <div className="rounded-2xl p-2.5 border shrink-0 bg-purple-50 dark:bg-purple-500/10 border-purple-200 dark:border-purple-500/20 text-purple-600 dark:text-purple-400 transition-transform duration-200 group-hover:scale-105">
+                        <CheckCircle2 className="h-4 w-4" />
                       </div>
-                      <span className="text-xs font-bold text-slate-900 dark:text-white">Presisi Tinggi (Zero Revision)</span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                        Precision
+                      </span>
                     </div>
-                    <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug">
-                      5 task berturut-turut disetujui reviewer pada penyerahan pertama tanpa catatan revisi.
-                    </p>
+                    <div>
+                      <span className="text-xs font-bold text-slate-900 dark:text-white">Presisi Tinggi (Zero Revision)</span>
+                      <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug mt-1">
+                        5 task berturut-turut disetujui reviewer pada penyerahan pertama tanpa catatan revisi.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -844,33 +905,33 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Institutional Callout Banner */}
-        <section className="bg-gradient-to-r from-sky-50 via-white to-sky-50 dark:from-slate-900 dark:via-[#0e1424] dark:to-slate-900 border-b border-slate-200 dark:border-slate-800 py-12">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="space-y-2 text-center md:text-left">
-                <div className="flex items-center justify-center md:justify-start gap-2">
-                  <span className="text-xs font-bold text-[#076991] dark:text-sakode-cyan uppercase tracking-wider">
-                    Bukan Freelance Publik
-                  </span>
-                  <span className="text-[10px] px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-medium">
-                    Internal Collaboration Workspace
-                  </span>
+        {/* Institutional Callout Banner (Refined Curved Container & Dual CTA) */}
+        <section className="py-16 px-4 sm:px-6 lg:px-8 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0B0F19]">
+          <div className="mx-auto max-w-5xl">
+            <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-gradient-to-br from-white via-sky-50/20 to-purple-50/20 dark:from-slate-900 dark:via-slate-900/90 dark:to-slate-900 p-8 sm:p-12 text-center space-y-6 shadow-sm">
+              <div className="space-y-3 max-w-2xl mx-auto">
+                <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-800/80 px-3.5 py-1 text-xs font-bold text-[#076991] dark:text-sakode-cyan shadow-2xs">
+                  <span className="uppercase tracking-wider">Bukan Freelance Publik</span>
+                  <span className="text-slate-300 dark:text-slate-600">•</span>
+                  <span className="text-slate-600 dark:text-slate-400 font-medium">Internal Workspace</span>
                 </div>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
                   Siap Berkontribusi Nyata untuk Ekosistem SAKODE?
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-2xl">
-                  Daftar akun kontributor Anda atau masuk ke dashboard untuk melihat task yang terbuka hari ini.
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Daftar akun kontributor Anda atau masuk ke dashboard untuk melihat task yang terbuka hari ini. Seluruh deliverable diverifikasi dengan standar mutu resmi SAKODE Academy.
                 </p>
               </div>
 
-              <div className="flex items-center gap-3 shrink-0">
+              <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
                 <Link href="/register">
                   <Button
                     variant="primary"
                     size="lg"
-                    className="h-11 px-6 font-bold bg-sakode-cyan text-slate-950 hover:bg-[#5dbfe9] text-xs rounded-lg"
+                    className="h-12 px-7 font-black bg-sakode-cyan text-slate-950 hover:bg-[#5dbfe9] rounded-xl shadow-xs text-xs active:scale-[0.98] transition-all duration-200 ease-out group"
+                    rightIcon={
+                      <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+                    }
                   >
                     Daftar Kontributor
                   </Button>
@@ -879,9 +940,9 @@ export default function HomePage() {
                   <Button
                     variant="outline"
                     size="lg"
-                    className="h-11 px-6 font-bold border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-700 text-xs rounded-lg shadow-xs"
+                    className="h-12 px-7 font-bold border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-700 text-xs rounded-xl shadow-xs active:scale-[0.98] transition-all duration-200 ease-out"
                   >
-                    Masuk Akun
+                    Masuk ke Dashboard
                   </Button>
                 </Link>
               </div>
