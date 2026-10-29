@@ -21,6 +21,7 @@ import {
   CheckCircle2,
   Award,
   ChevronRight,
+  ChevronDown,
   Wallet,
   Target,
   FileCheck2,
@@ -28,12 +29,19 @@ import {
   Layers,
   FileText,
   Zap,
+  Search,
+  X,
+  Sparkles,
+  Lock,
+  HelpCircle,
+  Check,
 } from 'lucide-react';
 
 // =============================================================================
 // Mock Data: Tasks Multi-Disiplin SAKODE Work
 // =============================================================================
 type TaskCategory = 'all' | 'tech' | 'edu' | 'marketing';
+type TaskModeFilter = 'all' | 'SOLO' | 'TEAM';
 
 interface FeaturedTask {
   id: string;
@@ -206,6 +214,7 @@ interface BadgeItem {
   tier: 'Common • 🟢' | 'Rare • 🔵' | 'Epic • 🟣' | 'Legendary • 🟡';
   tierKey: 'common' | 'rare' | 'epic' | 'legendary';
   desc: string;
+  criteria: string;
   icon: React.ComponentType<{ className?: string }>;
 }
 
@@ -219,6 +228,7 @@ const EXPANDED_BADGES: BadgeItem[] = [
     tier: 'Epic • 🟣',
     tierKey: 'epic',
     desc: 'Penyelesaian arsitektur kode zero-defect berskala produksi.',
+    criteria: 'Selesaikan minimal 3 task arsitektur backend/frontend skala Advanced dengan akurasi 100%.',
     icon: Terminal,
   },
   {
@@ -230,6 +240,7 @@ const EXPANDED_BADGES: BadgeItem[] = [
     tier: 'Epic • 🟣',
     tierKey: 'epic',
     desc: 'Penguasaan pipeline CI/CD, cloud functions, dan database.',
+    criteria: 'Implementasi pipeline integrasi otomatis dan manajemen persistensi data tanpa downtime.',
     icon: Layers,
   },
   {
@@ -241,6 +252,7 @@ const EXPANDED_BADGES: BadgeItem[] = [
     tier: 'Rare • 🔵',
     tierKey: 'rare',
     desc: 'Audit keamanan dan penemuan celah kritis sebelum rilis.',
+    criteria: 'Temukan dan laporkan celah keamanan atau regresi kritis melalui alur QA resmi.',
     icon: ShieldCheck,
   },
   {
@@ -252,6 +264,7 @@ const EXPANDED_BADGES: BadgeItem[] = [
     tier: 'Rare • 🔵',
     tierKey: 'rare',
     desc: 'Penyusunan modul praktikum dan silabus bootcamp.',
+    criteria: 'Menulis silabus bootcamp atau 5 lab praktikum yang disetujui kurator SAKODE Academy.',
     icon: BookOpen,
   },
   {
@@ -263,6 +276,7 @@ const EXPANDED_BADGES: BadgeItem[] = [
     tier: 'Epic • 🟣',
     tierKey: 'epic',
     desc: 'Pembuatan bank soal kuis mendalam dan bimbingan talent.',
+    criteria: 'Membuat 50+ bank soal analitis dan membimbing tim peserta hingga lulus tugas akhir.',
     icon: Award,
   },
   {
@@ -274,6 +288,7 @@ const EXPANDED_BADGES: BadgeItem[] = [
     tier: 'Rare • 🔵',
     tierKey: 'rare',
     desc: 'Manajemen tech event nasional dengan 500+ partisipan.',
+    criteria: 'Mengkoordinasikan webinar atau event komunitas resmi dengan tingkat kepuasan peserta tinggi.',
     icon: Megaphone,
   },
   {
@@ -285,6 +300,7 @@ const EXPANDED_BADGES: BadgeItem[] = [
     tier: 'Rare • 🔵',
     tierKey: 'rare',
     desc: 'Produksi carousel edukasi dan copywriting konversi tinggi.',
+    criteria: 'Menerbitkan 5 infografis edukatif terverifikasi atau naskah promosi dengan engagement tinggi.',
     icon: FileText,
   },
   {
@@ -296,6 +312,7 @@ const EXPANDED_BADGES: BadgeItem[] = [
     tier: 'Common • 🟢',
     tierKey: 'common',
     desc: 'Penyelesaian dan penerimaan tugas pertama ke ekosistem.',
+    criteria: 'Diberikan otomatis saat task pertama Anda dinyatakan lulus review oleh tim admin.',
     icon: Zap,
   },
   {
@@ -307,6 +324,7 @@ const EXPANDED_BADGES: BadgeItem[] = [
     tier: 'Legendary • 🟡',
     tierKey: 'legendary',
     desc: 'Penyelesaian tugas di bawah 24 jam dengan kelulusan QA 100%.',
+    criteria: 'Kirimkan deliverable utuh dalam 24 jam sejak task diambil dan lolos tanpa revisi.',
     icon: Clock,
   },
   {
@@ -318,23 +336,75 @@ const EXPANDED_BADGES: BadgeItem[] = [
     tier: 'Legendary • 🟡',
     tierKey: 'legendary',
     desc: 'Konsistensi 5 deliverable beruntun tanpa revisi admin.',
+    criteria: 'Pertahankan catatan 5 task berurutan dengan status Langsung Disetujui (Approved).',
     icon: CheckCircle2,
+  },
+];
+
+// =============================================================================
+// FAQ Items Data
+// =============================================================================
+interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+const FAQ_ITEMS: FaqItem[] = [
+  {
+    question: 'Siapa saja yang berhak mengambil task di SAKODE Work?',
+    answer:
+      'Seluruh mahasiswa, talenta teknologi, instruktur, dan alumni yang telah terdaftar serta profil akunnya telah disetujui (Approved) oleh administrator SAKODE Academy. Akun berstatus pending hanya dapat melihat katalog.',
+  },
+  {
+    question: 'Bagaimana proses pencairan reward dan apakah ada potongan biaya?',
+    answer:
+      'Pencairan dilakukan 100% penuh dalam nominal Integer Rupiah tanpa potongan biaya administrasi. Setelah hasil kerja dinyatakan lulus review QA, reward masuk ke saldo dan ditransfer langsung ke rekening bank resmi (BCA, Mandiri, BRI, BNI) atau e-wallet (GoPay, OVO, DANA) yang terdaftar.',
+  },
+  {
+    question: 'Mengapa kontributor hanya diperbolehkan mengerjakan 1 Active Task dalam satu waktu?',
+    answer:
+      'Aturan Strict Invariant "1 Active Task" dirancang untuk melindungi kesehatan beban kerja kontributor, mencegah keterlambatan deliverable, dan menjamin distribusi kesempatan yang adil bagi seluruh anggota komunitas.',
+  },
+  {
+    question: 'Bagaimana mekanisme pembagian reward untuk task beregu (Team Project)?',
+    answer:
+      'Sebelum pengerjaan dimulai, anggota tim membentuk formasi party dan menetapkan persentase pembagian honor secara transparan. Sistem mewajibkan konsensus 100% dari seluruh anggota tim sebelum mutasi pencairan reward diproses.',
   },
 ];
 
 export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState<TaskCategory>('all');
+  const [selectedModeFilter, setSelectedModeFilter] = useState<TaskModeFilter>('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedBadgeCategory, setSelectedBadgeCategory] = useState<BadgeRole>('all');
+  const [previewBadge, setPreviewBadge] = useState<BadgeItem | null>(null);
+  const [activeFaqIndex, setActiveFaqIndex] = useState<number | null>(null);
 
   const handleCategoryChange = (cat: TaskCategory) => {
     setSelectedCategory(cat);
     setIsExpanded(false);
   };
 
+  const scrollToTaskExplorer = (cat?: TaskCategory) => {
+    if (cat) setSelectedCategory(cat);
+    const el = document.getElementById('task-explorer');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   const filteredTasks = FEATURED_TASKS.filter((task) => {
-    if (selectedCategory === 'all') return true;
-    return task.category === selectedCategory;
+    const matchesCategory = selectedCategory === 'all' || task.category === selectedCategory;
+    const matchesMode = selectedModeFilter === 'all' || task.mode === selectedModeFilter;
+    const matchesSearch =
+      searchQuery.trim() === '' ||
+      task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      task.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      task.skills.some((s) => s.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      task.categoryLabel.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchesCategory && matchesMode && matchesSearch;
   });
 
   const filteredBadges = EXPANDED_BADGES.filter((b) => {
@@ -363,27 +433,27 @@ export default function HomePage() {
     switch (tierKey) {
       case 'legendary':
         return {
-          cardHover: 'hover:shadow-amber-500/15 hover:border-amber-400 dark:hover:border-amber-500/60',
-          tag: 'bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800',
+          cardHover: 'hover:shadow-amber-500/20 hover:border-amber-400 dark:hover:border-amber-500/60',
+          tag: 'bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800',
           squircleBg: 'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-400',
         };
       case 'epic':
         return {
-          cardHover: 'hover:shadow-purple-500/15 hover:border-purple-400 dark:hover:border-purple-500/60',
-          tag: 'bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800',
+          cardHover: 'hover:shadow-purple-500/20 hover:border-purple-400 dark:hover:border-purple-500/60',
+          tag: 'bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-800',
           squircleBg: 'bg-purple-50 dark:bg-purple-500/10 border-purple-200 dark:border-purple-500/20 text-purple-600 dark:text-purple-400',
         };
       case 'rare':
         return {
-          cardHover: 'hover:shadow-sky-500/15 hover:border-sky-400 dark:hover:border-sky-500/60',
-          tag: 'bg-sky-100 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800',
+          cardHover: 'hover:shadow-sky-500/20 hover:border-sky-400 dark:hover:border-sky-500/60',
+          tag: 'bg-sky-100 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300 border border-sky-300 dark:border-sky-800',
           squircleBg: 'bg-sky-50 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/20 text-sky-600 dark:text-sky-400',
         };
       case 'common':
       default:
         return {
-          cardHover: 'hover:shadow-emerald-500/15 hover:border-emerald-400 dark:hover:border-emerald-500/60',
-          tag: 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800',
+          cardHover: 'hover:shadow-emerald-500/20 hover:border-emerald-400 dark:hover:border-emerald-500/60',
+          tag: 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800',
           squircleBg: 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400',
         };
     }
@@ -394,14 +464,85 @@ export default function HomePage() {
       {/* Top Navbar */}
       <Navbar />
 
-      {/* Hero Section */}
       <main className="flex-1">
+        {/* =================================================================== */}
+        {/* HERO SECTION DENGAN ORNAMEN LOGO & HURUF-HURUF MELAYANG ACIS */}
+        {/* =================================================================== */}
         <section className="relative overflow-hidden border-b border-slate-200 dark:border-slate-800 bg-gradient-to-b from-sky-50/40 via-slate-50 to-slate-50 dark:from-[#0e1424] dark:via-[#0B0F19] dark:to-[#0B0F19] py-16 sm:py-24">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {/* Ambient Radial Gradient Glow */}
+          <div className="absolute -top-36 left-1/2 -translate-x-1/2 w-[850px] h-[550px] bg-gradient-to-b from-sky-400/20 via-purple-400/10 to-transparent dark:from-sky-500/15 dark:via-purple-500/10 blur-3xl rounded-full pointer-events-none select-none z-0" />
+
+          {/* LAYER ORNAMEN BACKGROUND MELAYANG (Watermarks & Floating Letterforms) */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0">
+            {/* Ornamen 1: Logo Emblem SAKODE Work Besar di Sisi Kanan Atas */}
+            <div className="absolute top-8 -right-12 sm:right-6 lg:right-14 w-60 sm:w-80 lg:w-[420px] opacity-[0.06] dark:opacity-[0.08] rotate-[-12deg] animate-float-slow">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/sakode-work-emblem.svg"
+                alt=""
+                className="w-full h-auto filter grayscale contrast-125 dark:invert"
+              />
+            </div>
+
+            {/* Ornamen 2: Brandmark {k} Maskot di Sisi Kiri Bawah */}
+            <div className="absolute -bottom-10 -left-10 sm:left-4 lg:left-10 w-48 sm:w-64 lg:w-76 opacity-[0.06] dark:opacity-[0.07] rotate-[14deg] animate-float-reverse">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/sakode-brandmark.svg"
+                alt=""
+                className="w-full h-auto filter grayscale contrast-125 dark:invert"
+              />
+            </div>
+
+            {/* Ornamen Huruf Melayang 1: 'S' (Cyan) */}
+            <div className="absolute top-16 left-[6%] hidden md:flex items-center justify-center w-12 h-12 rounded-2xl bg-white/60 dark:bg-slate-900/50 border border-sky-300/40 dark:border-sky-500/30 shadow-xs backdrop-blur-xs text-[#076991] dark:text-sakode-cyan font-black text-2xl rotate-[-12deg] animate-float-slow">
+              S
+            </div>
+
+            {/* Ornamen Huruf Melayang 2: Kurung Kurawal Kiri '{' (Purple) */}
+            <div className="absolute top-28 right-[10%] hidden sm:flex items-center justify-center w-11 h-11 rounded-xl bg-purple-50/60 dark:bg-purple-950/40 border border-purple-300/40 dark:border-purple-500/30 shadow-xs backdrop-blur-xs text-purple-600 dark:text-sakode-purple font-mono font-bold text-xl rotate-[16deg] animate-float-reverse">
+              &#123;
+            </div>
+
+            {/* Ornamen Huruf Melayang 3: 'k' Maskot (Emerald) */}
+            <div className="absolute bottom-24 left-[12%] hidden lg:flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/40 border border-emerald-300/40 dark:border-emerald-500/30 shadow-xs backdrop-blur-xs text-emerald-600 dark:text-emerald-400 font-black text-lg rotate-[8deg] animate-drift-lateral">
+              k
+            </div>
+
+            {/* Ornamen Huruf Melayang 4: Kurung Kurawal Kanan '}' (Purple) */}
+            <div className="absolute bottom-28 right-[8%] hidden md:flex items-center justify-center w-11 h-11 rounded-xl bg-purple-50/60 dark:bg-purple-950/40 border border-purple-300/40 dark:border-purple-500/30 shadow-xs backdrop-blur-xs text-purple-600 dark:text-sakode-purple font-mono font-bold text-xl rotate-[-10deg] animate-float-slow">
+              &#125;
+            </div>
+
+            {/* Ornamen Tag Pengembang: '</>' Code Chip */}
+            <div className="absolute top-1/2 -left-2 hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/70 dark:bg-slate-900/70 border border-slate-200/80 dark:border-slate-800/80 shadow-xs backdrop-blur-xs text-slate-500 dark:text-slate-400 font-mono text-xs rotate-[-8deg] animate-float-reverse">
+              &lt;/&gt;
+              <span className="text-[10px] text-[#076991] dark:text-sakode-cyan font-sans font-bold">Dev</span>
+            </div>
+
+            {/* Ornamen Badge Mini: WORK Stamp */}
+            <div className="absolute top-24 left-[34%] hidden xl:flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-50/70 dark:bg-amber-950/40 border border-amber-300/50 dark:border-amber-500/30 text-amber-700 dark:text-amber-300 text-[10px] font-black uppercase tracking-wider rotate-[6deg] animate-drift-lateral shadow-2xs">
+              WORK
+            </div>
+
+            {/* Ornamen Huruf Melayang 5: 'O' (Orange) */}
+            <div className="absolute bottom-16 right-[30%] hidden xl:flex items-center justify-center w-9 h-9 rounded-lg bg-white/50 dark:bg-slate-900/50 border border-orange-300/40 dark:border-orange-500/30 text-orange-600 dark:text-sakode-orange font-black text-base rotate-[12deg] animate-float-slow">
+              O
+            </div>
+
+            {/* Ornamen Koin Integer IDR Mini */}
+            <div className="absolute top-40 left-[20%] hidden 2xl:flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-300/50 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-[10px] font-black rotate-[-6deg] animate-float-slow">
+              <Coins className="w-3 h-3 text-amber-500" />
+              <span>Integer IDR</span>
+            </div>
+          </div>
+
+          {/* HERO CONTENT UTAMA */}
+          <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-4xl mx-auto space-y-6">
               {/* Official Brandmark & Subtitle Lockup */}
               <div className="flex flex-wrap items-center justify-center gap-3">
-                <div className="inline-flex items-center gap-2.5 rounded-full border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/80 px-4 py-1.5 shadow-xs backdrop-blur-sm animate-micro-pulse">
+                <div className="inline-flex items-center gap-2.5 rounded-full border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/90 px-4 py-1.5 shadow-xs backdrop-blur-sm animate-micro-pulse">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="/sakode-brandmark.svg"
@@ -432,20 +573,19 @@ export default function HomePage() {
                 </p>
               </div>
 
-              {/* Rampingkan CTA: 2 Tombol Saja dengan Tactile Feedback */}
+              {/* CTA Buttons dengan Tactile Feedback */}
               <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
-                <a href="#task-explorer">
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    className="h-12 px-7 font-black bg-sakode-cyan text-slate-950 hover:bg-[#5dbfe9] rounded-xl shadow-xs text-sm active:scale-[0.98] transition-all duration-200 ease-out group"
-                    rightIcon={
-                      <ArrowDown className="h-4 w-4 transition-transform duration-200 group-hover:translate-y-0.5" />
-                    }
-                  >
-                    Lihat Task Aktif
-                  </Button>
-                </a>
+                <Button
+                  variant="primary"
+                  size="lg"
+                  onClick={() => scrollToTaskExplorer()}
+                  className="h-12 px-7 font-black bg-sakode-cyan text-slate-950 hover:bg-[#5dbfe9] rounded-xl shadow-xs text-sm active:scale-[0.98] transition-all duration-200 ease-out group cursor-pointer"
+                  rightIcon={
+                    <ArrowDown className="h-4 w-4 transition-transform duration-200 group-hover:translate-y-0.5" />
+                  }
+                >
+                  Lihat Task Aktif
+                </Button>
 
                 <Link href="/login">
                   <Button
@@ -458,53 +598,77 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              {/* Proof Metric Strip (Clean White Cards dengan Tactile Hover) */}
+              {/* Proof Metric Strip (Cards dengan Micro-Icon & Status Pill) */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-10 max-w-5xl mx-auto">
-                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs text-left hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out cursor-default">
-                  <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    Bounty Tersalurkan
+                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs text-left hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out cursor-default group">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                      Bounty Tersalurkan
+                    </span>
+                    <div className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400">
+                      <Coins className="h-4 w-4" />
+                    </div>
                   </div>
-                  <div className="mt-1 text-lg sm:text-xl font-black text-slate-900 dark:text-white">
+                  <div className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">
                     {formatCurrencyIDR(24500000)}
                   </div>
-                  <div className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5 font-semibold">
-                    100% Tercairkan
+                  <div className="flex items-center gap-1.5 text-[10px] text-emerald-600 dark:text-emerald-400 mt-1 font-semibold">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>100% Tercairkan Tanpa Potongan</span>
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs text-left hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out cursor-default">
-                  <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    Task Selesai
+                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs text-left hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out cursor-default group">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                      Task Selesai
+                    </span>
+                    <div className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
+                      <CheckCircle2 className="h-4 w-4" />
+                    </div>
                   </div>
-                  <div className="mt-1 text-lg sm:text-xl font-black text-slate-900 dark:text-white">
+                  <div className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">
                     128 Task
                   </div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 font-semibold">
-                    Standar Mutu QA
+                  <div className="flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400 mt-1 font-semibold">
+                    <span className="h-1.5 w-1.5 rounded-full bg-sky-500"></span>
+                    <span>Standar Mutu QA Terpenuhi</span>
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs text-left hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out cursor-default">
-                  <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    Kontributor Aktif
+                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs text-left hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out cursor-default group">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                      Kontributor Aktif
+                    </span>
+                    <div className="p-1.5 rounded-lg bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400">
+                      <Users className="h-4 w-4" />
+                    </div>
                   </div>
-                  <div className="mt-1 text-lg sm:text-xl font-black text-slate-900 dark:text-white">
+                  <div className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">
                     480+ Talenta
                   </div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 font-semibold">
-                    Instruktur &amp; Alumni
+                  <div className="flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400 mt-1 font-semibold">
+                    <span className="h-1.5 w-1.5 rounded-full bg-purple-500"></span>
+                    <span>Instruktur &amp; Alumni Terverifikasi</span>
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs text-left hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out cursor-default">
-                  <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    Waktu Verifikasi
+                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs text-left hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out cursor-default group">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                      Waktu Verifikasi
+                    </span>
+                    <div className="p-1.5 rounded-lg bg-sky-50 dark:bg-sky-950/60 text-[#076991] dark:text-sakode-cyan">
+                      <Clock className="h-4 w-4" />
+                    </div>
                   </div>
-                  <div className="mt-1 text-lg sm:text-xl font-black text-slate-900 dark:text-white">
-                    Zona WIB
+                  <div className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">
+                    Zona WIB (UTC+7)
                   </div>
-                  <div className="text-[10px] text-[#076991] dark:text-sakode-cyan mt-0.5 font-semibold">
-                    Jadwal Presisi
+                  <div className="flex items-center gap-1.5 text-[10px] text-[#076991] dark:text-sakode-cyan mt-1 font-semibold">
+                    <span className="h-1.5 w-1.5 rounded-full bg-sakode-cyan animate-pulse"></span>
+                    <span>Server-Side Deadline Guards</span>
                   </div>
                 </div>
               </div>
@@ -512,7 +676,9 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* 3 Pillars Ecosystem Highlight Section */}
+        {/* =================================================================== */}
+        {/* 3 PILARS SECTION (ELEVATED DENGAN DIRECT EXPLORE INTERACTION) */}
+        {/* =================================================================== */}
         <section id="pillars" className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0B0F19] py-16 scroll-mt-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="max-w-2xl space-y-2 mb-10">
@@ -523,76 +689,116 @@ export default function HomePage() {
                 3 Pilar Kontribusi Utama SAKODE
               </h2>
               <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                Setiap proyek dikurasi dengan kriteria penilaian yang objektif, pembagian peran transparan, dan kompensasi reward integer yang pasti.
+                Pilih bidang kontribusi yang paling sesuai dengan portofolio dan minat Anda. Klik pilar untuk langsung memfilter katalog proyek.
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Pilar 1: IT */}
-              <div className="group rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-6 space-y-4 hover:border-sky-500/40 hover:shadow-lg hover:shadow-sky-500/10 hover:-translate-y-1.5 transition-all duration-200 ease-out cursor-pointer">
-                <div className="rounded-2xl p-2.5 border shrink-0 bg-sky-50 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/20 text-sky-600 dark:text-sky-400 w-fit transition-transform duration-200 group-hover:scale-105">
-                  <Terminal className="h-6 w-6" />
+              <div
+                onClick={() => scrollToTaskExplorer('tech')}
+                className="group rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-6 space-y-4 hover:border-sky-400 dark:hover:border-sky-500/50 hover:shadow-xl hover:shadow-sky-500/10 hover:-translate-y-1.5 transition-all duration-200 ease-out cursor-pointer relative overflow-hidden"
+              >
+                <div className="absolute top-0 left-0 right-0 h-1 bg-sakode-cyan"></div>
+                <div className="flex items-center justify-between">
+                  <div className="rounded-2xl p-2.5 border shrink-0 bg-sky-50 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/20 text-sky-600 dark:text-sky-400 w-fit transition-transform duration-200 group-hover:scale-105">
+                    <Terminal className="h-6 w-6" />
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300">
+                    {FEATURED_TASKS.filter((t) => t.category === 'tech').length} Task Aktif
+                  </span>
                 </div>
+
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
-                    Teknologi &amp; IT
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors flex items-center justify-between">
+                    <span>Teknologi &amp; IT</span>
+                    <ChevronRight className="h-4 w-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                   </h3>
                   <p className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">
                     Pengembangan aplikasi produksi, arsitektur backend, otomasi CI/CD DevOps, integrasi database, dan audit keamanan.
                   </p>
                 </div>
+
                 <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-1.5">
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 cursor-default">Next.js</span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 cursor-default">Node/FastAPI</span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 cursor-default">Firebase</span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 cursor-default">DevOps</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Next.js 16</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">TypeScript</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Firestore</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Security</span>
                 </div>
               </div>
 
               {/* Pilar 2: Education */}
-              <div className="group rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-6 space-y-4 hover:border-purple-500/40 hover:shadow-lg hover:shadow-purple-500/10 hover:-translate-y-1.5 transition-all duration-200 ease-out cursor-pointer">
-                <div className="rounded-2xl p-2.5 border shrink-0 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 w-fit transition-transform duration-200 group-hover:scale-105">
-                  <BookOpen className="h-6 w-6" />
+              <div
+                onClick={() => scrollToTaskExplorer('edu')}
+                className="group rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-6 space-y-4 hover:border-purple-400 dark:hover:border-purple-500/50 hover:shadow-xl hover:shadow-purple-500/10 hover:-translate-y-1.5 transition-all duration-200 ease-out cursor-pointer relative overflow-hidden"
+              >
+                <div className="absolute top-0 left-0 right-0 h-1 bg-sakode-purple"></div>
+                <div className="flex items-center justify-between">
+                  <div className="rounded-2xl p-2.5 border shrink-0 bg-purple-50 dark:bg-purple-500/10 border-purple-200 dark:border-purple-500/20 text-purple-600 dark:text-purple-400 w-fit transition-transform duration-200 group-hover:scale-105">
+                    <BookOpen className="h-6 w-6" />
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300">
+                    {FEATURED_TASKS.filter((t) => t.category === 'edu').length} Task Aktif
+                  </span>
                 </div>
+
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
-                    Modul &amp; Edukasi
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors flex items-center justify-between">
+                    <span>Modul &amp; Edukasi</span>
+                    <ChevronRight className="h-4 w-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                   </h3>
                   <p className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">
                     Penyusunan kurikulum bootcamp, penulisan modul lab praktikum mahasiswa, perancangan bank kuis, dan review materi mentor.
                   </p>
                 </div>
+
                 <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-1.5">
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 cursor-default">Silabus Kurikulum</span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 cursor-default">Bank Soal</span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 cursor-default">Lab Praktikum</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Silabus</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Bank Soal</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Lab Praktikum</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Pedagogi</span>
                 </div>
               </div>
 
               {/* Pilar 3: Marketing */}
-              <div className="group rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-6 space-y-4 hover:border-orange-500/40 hover:shadow-lg hover:shadow-orange-500/10 hover:-translate-y-1.5 transition-all duration-200 ease-out cursor-pointer">
-                <div className="rounded-2xl p-2.5 border shrink-0 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-400 w-fit transition-transform duration-200 group-hover:scale-105">
-                  <Megaphone className="h-6 w-6" />
+              <div
+                onClick={() => scrollToTaskExplorer('marketing')}
+                className="group rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-6 space-y-4 hover:border-orange-400 dark:hover:border-orange-500/50 hover:shadow-xl hover:shadow-orange-500/10 hover:-translate-y-1.5 transition-all duration-200 ease-out cursor-pointer relative overflow-hidden"
+              >
+                <div className="absolute top-0 left-0 right-0 h-1 bg-sakode-orange"></div>
+                <div className="flex items-center justify-between">
+                  <div className="rounded-2xl p-2.5 border shrink-0 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-400 w-fit transition-transform duration-200 group-hover:scale-105">
+                    <Megaphone className="h-6 w-6" />
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300">
+                    {FEATURED_TASKS.filter((t) => t.category === 'marketing').length} Task Aktif
+                  </span>
                 </div>
+
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
-                    Marketing &amp; Komunitas
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors flex items-center justify-between">
+                    <span>Marketing &amp; Komunitas</span>
+                    <ChevronRight className="h-4 w-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                   </h3>
                   <p className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">
                     Produksi infografis visual, penulisan naskah newsletter berkala, publikasi promosi batch pendaftaran, dan operasional tech event.
                   </p>
                 </div>
+
                 <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-1.5">
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 cursor-default">Visual Carousel</span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 cursor-default">Copywriting</span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 cursor-default">Tech Event</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Visual Carousel</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Copywriting</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Tech Event</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Livestream</span>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Task Explorer Section */}
+        {/* =================================================================== */}
+        {/* TASK EXPLORER SECTION (DENGAN SEARCH BAR & FILTER MODE SOLO/TEAM) */}
+        {/* =================================================================== */}
         <section id="task-explorer" className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/60 py-16 scroll-mt-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-8">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -604,7 +810,7 @@ export default function HomePage() {
                   Multi-Disciplinary Task Explorer
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-xl">
-                  Pilih task internal sesuai bidang keahlian Anda. Reward dicairkan secara penuh setelah hasil diverifikasi oleh Tim Reviewer.
+                  Pilih task internal sesuai bidang keahlian Anda. Reward dicairkan secara penuh dalam integer Rupiah setelah hasil diverifikasi oleh Tim Reviewer.
                 </p>
               </div>
 
@@ -620,181 +826,243 @@ export default function HomePage() {
               </Link>
             </div>
 
-            {/* Interactive Filter Tabs (4 Kategori) */}
-            <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-4">
-              <button
-                type="button"
-                onClick={() => handleCategoryChange('all')}
-                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                  selectedCategory === 'all'
-                    ? 'bg-sakode-cyan text-slate-950 shadow-xs font-black'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
-                }`}
-              >
-                <span>Semua Task</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded ${
-                  selectedCategory === 'all' ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
-                }`}>
-                  {FEATURED_TASKS.length}
-                </span>
-              </button>
+            {/* Quick Search & Filters Bar */}
+            <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/60">
+              {/* Category Filter Tabs */}
+              <div className="flex flex-wrap items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => handleCategoryChange('all')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                    selectedCategory === 'all'
+                      ? 'bg-sakode-cyan text-slate-950 shadow-xs font-black'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800'
+                  }`}
+                >
+                  <span>Semua</span>
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded ${
+                    selectedCategory === 'all' ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                  }`}>
+                    {FEATURED_TASKS.length}
+                  </span>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => handleCategoryChange('tech')}
-                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                  selectedCategory === 'tech'
-                    ? 'bg-sakode-cyan text-slate-950 shadow-xs font-black'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
-                }`}
-              >
-                <Terminal className="h-3.5 w-3.5" />
-                <span>Teknologi &amp; IT</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded ${
-                  selectedCategory === 'tech' ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
-                }`}>
-                  {FEATURED_TASKS.filter((t) => t.category === 'tech').length}
-                </span>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => handleCategoryChange('tech')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                    selectedCategory === 'tech'
+                      ? 'bg-sakode-cyan text-slate-950 shadow-xs font-black'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800'
+                  }`}
+                >
+                  <Terminal className="h-3.5 w-3.5" />
+                  <span>Teknologi</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => handleCategoryChange('edu')}
-                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                  selectedCategory === 'edu'
-                    ? 'bg-sakode-cyan text-slate-950 shadow-xs font-black'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
-                }`}
-              >
-                <BookOpen className="h-3.5 w-3.5" />
-                <span>Modul &amp; Edukasi</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded ${
-                  selectedCategory === 'edu' ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
-                }`}>
-                  {FEATURED_TASKS.filter((t) => t.category === 'edu').length}
-                </span>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => handleCategoryChange('edu')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                    selectedCategory === 'edu'
+                      ? 'bg-sakode-cyan text-slate-950 shadow-xs font-black'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800'
+                  }`}
+                >
+                  <BookOpen className="h-3.5 w-3.5" />
+                  <span>Edukasi</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => handleCategoryChange('marketing')}
-                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                  selectedCategory === 'marketing'
-                    ? 'bg-sakode-cyan text-slate-950 shadow-xs font-black'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
-                }`}
-              >
-                <Megaphone className="h-3.5 w-3.5" />
-                <span>Marketing &amp; Komunitas</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded ${
-                  selectedCategory === 'marketing' ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
-                }`}>
-                  {FEATURED_TASKS.filter((t) => t.category === 'marketing').length}
-                </span>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => handleCategoryChange('marketing')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                    selectedCategory === 'marketing'
+                      ? 'bg-sakode-cyan text-slate-950 shadow-xs font-black'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800'
+                  }`}
+                >
+                  <Megaphone className="h-3.5 w-3.5" />
+                  <span>Marketing</span>
+                </button>
+              </div>
+
+              {/* Mode Filter & Search Input */}
+              <div className="flex flex-col sm:flex-row items-center gap-2">
+                {/* Mode Filter Pills */}
+                <div className="flex items-center gap-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-1 w-full sm:w-auto">
+                  {(
+                    [
+                      { key: 'all', label: 'Semua Mode' },
+                      { key: 'SOLO', label: 'Solo' },
+                      { key: 'TEAM', label: 'Team' },
+                    ] as const
+                  ).map((m) => (
+                    <button
+                      key={m.key}
+                      type="button"
+                      onClick={() => setSelectedModeFilter(m.key)}
+                      className={`px-2.5 py-1 text-[11px] font-bold rounded-md transition-all cursor-pointer ${
+                        selectedModeFilter === m.key
+                          ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-950'
+                          : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                      }`}
+                    >
+                      {m.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Search Input Box */}
+                <div className="relative w-full sm:w-60">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Cari task atau skill..."
+                    className="w-full pl-8 pr-7 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-hidden focus:ring-1 focus:ring-sakode-cyan"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
 
-            {/* Task Card Grid (Generous Whitespace gap-6 & Playful Aesthetics) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {visibleTasks.map((task) => {
-                const isSolo = task.mode === 'SOLO';
+            {/* Task Card Grid */}
+            {filteredTasks.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-800 p-12 text-center space-y-3">
+                <div className="inline-flex p-3 rounded-2xl bg-slate-100 dark:bg-slate-850 text-slate-400">
+                  <Search className="h-6 w-6" />
+                </div>
+                <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                  Tidak Ada Task yang Sesuai Filter
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+                  Coba sesuaikan kata kunci pencarian atau ubah filter mode/kategori di atas.
+                </p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setSelectedCategory('all');
+                    setSelectedModeFilter('all');
+                    setSearchQuery('');
+                  }}
+                  className="text-xs font-bold"
+                >
+                  Reset Seluruh Filter
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {visibleTasks.map((task) => {
+                  const isSolo = task.mode === 'SOLO';
 
-                return (
-                  <div
-                    key={task.id}
-                    className={cn(
-                      'group transition-all duration-200 ease-out hover:-translate-y-1.5 hover:shadow-lg hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer',
-                      'flex flex-col justify-between rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 space-y-4',
-                      getCategoryTopBorder(task.category)
-                    )}
-                  >
-                    <div className="space-y-3.5">
-                      {/* Top Badges & Difficulty Indicator */}
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex flex-wrap items-center gap-1.5">
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300">
-                            {task.categoryLabel}
-                          </span>
+                  return (
+                    <div
+                      key={task.id}
+                      className={cn(
+                        'group transition-all duration-200 ease-out hover:-translate-y-1.5 hover:shadow-lg hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer',
+                        'flex flex-col justify-between rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 space-y-4',
+                        getCategoryTopBorder(task.category)
+                      )}
+                    >
+                      <div className="space-y-3.5">
+                        {/* Top Badges & Difficulty Indicator */}
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300">
+                              {task.categoryLabel}
+                            </span>
 
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700/70 bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 flex items-center gap-1">
-                            {isSolo ? (
-                              <>
-                                <User className="h-3 w-3 text-sky-600 dark:text-sky-400" />
-                                <span>Solo</span>
-                              </>
-                            ) : (
-                              <>
-                                <Users className="h-3 w-3 text-purple-600 dark:text-purple-400" />
-                                <span>Team</span>
-                              </>
-                            )}
-                          </span>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700/70 bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 flex items-center gap-1">
+                              {isSolo ? (
+                                <>
+                                  <User className="h-3 w-3 text-sky-600 dark:text-sky-400" />
+                                  <span>Solo</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Users className="h-3 w-3 text-purple-600 dark:text-purple-400" />
+                                  <span>Team • {task.teamSlots || 'Slots'}</span>
+                                </>
+                              )}
+                            </span>
+                          </div>
+
+                          {/* Difficulty indicator baku */}
+                          <div className="text-[11px] font-bold tracking-tight text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                            {task.difficulty}
+                          </div>
                         </div>
 
-                        {/* Difficulty indicator baku */}
-                        <div className="text-[11px] font-bold tracking-tight text-slate-700 dark:text-slate-300 flex items-center gap-1">
-                          {task.difficulty}
+                        {/* Reward Box */}
+                        <div className="flex items-center justify-between px-3.5 py-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/60 group-hover:bg-sky-50/40 dark:group-hover:bg-slate-800/70 transition-colors">
+                          <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                            <Coins className="h-4 w-4 text-amber-500 shrink-0" />
+                            <span>Reward Bersih:</span>
+                          </div>
+                          <div className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
+                            {formatCurrencyIDR(task.reward)}
+                          </div>
+                        </div>
+
+                        {/* Title & Description */}
+                        <div>
+                          <h3 className="font-bold text-base text-slate-900 dark:text-white hover:text-sakode-cyan transition-colors line-clamp-2">
+                            {task.title}
+                          </h3>
+                          <p className="mt-1.5 text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                            {task.description}
+                          </p>
+                        </div>
+
+                        {/* Skills Tags */}
+                        <div className="flex flex-wrap gap-1.5 pt-1">
+                          {task.skills.map((skill) => (
+                            <span
+                              key={skill}
+                              className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/50"
+                            >
+                              {skill}
+                            </span>
+                          ))}
                         </div>
                       </div>
 
-                      {/* Streamlined Integrated Reward Pill with Coins icon */}
-                      <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/60">
-                        <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400">
-                          <Coins className="h-4 w-4 text-amber-500 shrink-0" />
-                          <span>Reward Bersih:</span>
+                      {/* Footer / Action */}
+                      <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-[11px] font-medium">
+                          <Clock className="h-3.5 w-3.5 text-slate-400" />
+                          <span>{task.deadlineNotice}</span>
                         </div>
-                        <div className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
-                          {formatCurrencyIDR(task.reward)}
-                        </div>
-                      </div>
 
-                      {/* Title & Description */}
-                      <div>
-                        <h3 className="font-bold text-base text-slate-900 dark:text-white hover:text-sakode-cyan transition-colors line-clamp-2">
-                          {task.title}
-                        </h3>
-                        <p className="mt-1.5 text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
-                          {task.description}
-                        </p>
-                      </div>
-
-                      {/* Skills Tags */}
-                      <div className="flex flex-wrap gap-1.5 pt-1">
-                        {task.skills.map((skill) => (
-                          <span
-                            key={skill}
-                            className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/50"
+                        <Link href="/member/tasks">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-xs font-bold border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-white shadow-xs group-hover:border-sakode-cyan transition-all"
+                            rightIcon={
+                              <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+                            }
                           >
-                            {skill}
-                          </span>
-                        ))}
+                            Lihat Detail
+                          </Button>
+                        </Link>
                       </div>
                     </div>
-
-                    {/* Footer / Action */}
-                    <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-[11px] font-medium">
-                        <Clock className="h-3.5 w-3.5 text-slate-400" />
-                        <span>{task.deadlineNotice}</span>
-                      </div>
-
-                      <Link href={`/member/tasks`}>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-8 text-xs font-bold border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-white shadow-xs"
-                          rightIcon={
-                            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
-                          }
-                        >
-                          Lihat Detail
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
 
             {/* Expand / Collapse Decongestion Toggle */}
             {filteredTasks.length > INITIAL_VISIBLE_COUNT && (
@@ -815,10 +1083,12 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Productivity & Gamification Showcase Section */}
+        {/* =================================================================== */}
+        {/* WORKFLOW & GAMIFICATION SHOWCASE SECTION */}
+        {/* =================================================================== */}
         <section id="workflow" className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0B0F19] py-16 scroll-mt-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-14">
-            {/* Part 1: Contributor 4-Step Workflow dengan Connected Steps & Tactile Feedback */}
+            {/* Part 1: Contributor 4-Step Workflow */}
             <div className="space-y-8">
               <div className="text-center max-w-2xl mx-auto space-y-2">
                 <span className="text-xs font-bold text-[#076991] dark:text-sakode-cyan uppercase tracking-wider">
@@ -833,28 +1103,32 @@ export default function HomePage() {
               </div>
 
               <div className="relative">
-                {/* Dashed line connectors between steps on lg screens */}
+                {/* Dashed line connectors */}
                 <div className="hidden lg:block absolute top-[52px] left-[10%] right-[10%] h-0.5 border-t-2 border-dashed border-slate-300 dark:border-slate-700 pointer-events-none z-0" />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
                   {/* Step 1 */}
-                  <div className="group relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-5 space-y-3 shadow-xs hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out active:scale-[0.98]">
+                  <div className="group relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-5 space-y-3 shadow-xs hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out">
                     <div className="flex items-center justify-between">
-                      <div className="text-xs font-black text-[#076991] dark:text-sakode-cyan">01</div>
+                      <div className="text-xs font-black px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950 text-[#076991] dark:text-sakode-cyan border border-sky-200 dark:border-sky-800">
+                        01
+                      </div>
                       <div className="rounded-2xl p-2.5 border shrink-0 bg-sky-50 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/20 text-sky-600 dark:text-sky-400 transition-transform duration-200 group-hover:scale-105">
                         <Compass className="h-5 w-5" />
                       </div>
                     </div>
                     <h3 className="font-bold text-sm text-slate-900 dark:text-white">Eksplorasi &amp; Seleksi</h3>
                     <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                      Telusuri task internal yang sesuai dengan spesialisasi keahlian di bidang IT, modul kurikulum, atau materi promosi.
+                      Telusuri task internal yang terbuka, periksa spesifikasi kriteria penerimaan, dan ajukan aplikasi kontribusi.
                     </p>
                   </div>
 
                   {/* Step 2 */}
-                  <div className="group relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-5 space-y-3 shadow-xs hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out active:scale-[0.98]">
+                  <div className="group relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-5 space-y-3 shadow-xs hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out">
                     <div className="flex items-center justify-between">
-                      <div className="text-xs font-black text-purple-600 dark:text-sakode-purple">02</div>
+                      <div className="text-xs font-black px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-sakode-purple border border-purple-200 dark:border-purple-800">
+                        02
+                      </div>
                       <div className="rounded-2xl p-2.5 border shrink-0 bg-purple-50 dark:bg-purple-500/10 border-purple-200 dark:border-purple-500/20 text-purple-600 dark:text-purple-400 transition-transform duration-200 group-hover:scale-105">
                         <Target className="h-5 w-5" />
                       </div>
@@ -866,9 +1140,11 @@ export default function HomePage() {
                   </div>
 
                   {/* Step 3 */}
-                  <div className="group relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-5 space-y-3 shadow-xs hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out active:scale-[0.98]">
+                  <div className="group relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-5 space-y-3 shadow-xs hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out">
                     <div className="flex items-center justify-between">
-                      <div className="text-xs font-black text-emerald-600 dark:text-emerald-400">03</div>
+                      <div className="text-xs font-black px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                        03
+                      </div>
                       <div className="rounded-2xl p-2.5 border shrink-0 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 transition-transform duration-200 group-hover:scale-105">
                         <FileCheck2 className="h-5 w-5" />
                       </div>
@@ -880,9 +1156,11 @@ export default function HomePage() {
                   </div>
 
                   {/* Step 4 */}
-                  <div className="group relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-5 space-y-3 shadow-xs hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out active:scale-[0.98]">
+                  <div className="group relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-5 space-y-3 shadow-xs hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out">
                     <div className="flex items-center justify-between">
-                      <div className="text-xs font-black text-amber-600 dark:text-amber-400">04</div>
+                      <div className="text-xs font-black px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                        04
+                      </div>
                       <div className="rounded-2xl p-2.5 border shrink-0 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-400 transition-transform duration-200 group-hover:scale-105">
                         <Wallet className="h-5 w-5" />
                       </div>
@@ -898,7 +1176,7 @@ export default function HomePage() {
 
             {/* Part 2: Gamified Progression & Achievements */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-6 border-t border-slate-200 dark:border-slate-800/80">
-              {/* Contributor Level Ladder dengan Refined Progression */}
+              {/* Contributor Level Ladder */}
               <div className="lg:col-span-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 sm:p-7 space-y-5 shadow-xs">
                 <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                   <div>
@@ -991,18 +1269,18 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Badges of Excellence Showcase dengan Nested Icons & Clean Status */}
+              {/* Badges of Excellence Showcase */}
               <div className="lg:col-span-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 sm:p-7 space-y-5 shadow-xs">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="font-bold text-lg text-slate-900 dark:text-white">Lencana Kehormatan (Badges)</h3>
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
-                        10 Tersedia
+                        {EXPANDED_BADGES.length} Tersedia
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                      Pengakuan resmi atas konsistensi dan kualitas deliverable multi-divisi.
+                      Klik lencana untuk melihat pratinjau kriteria dan cara membukanya.
                     </p>
                   </div>
                   <div className="rounded-xl p-2 bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-sakode-purple shrink-0 self-start sm:self-auto">
@@ -1065,6 +1343,7 @@ export default function HomePage() {
                     return (
                       <div
                         key={badge.id}
+                        onClick={() => setPreviewBadge(badge)}
                         className={`group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/50 p-3.5 space-y-2.5 transition-all duration-200 ease-out cursor-pointer active:scale-[0.98] animate-fade-in-up ${delayClass} ${tierStyle.cardHover}`}
                       >
                         <div className="flex items-start justify-between gap-2">
@@ -1097,7 +1376,7 @@ export default function HomePage() {
 
                         <div className="space-y-1">
                           <div className="flex items-center justify-between gap-1">
-                            <h4 className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-white leading-tight group-hover:text-sakode-cyan transition-colors">
                               {badge.title}
                             </h4>
                           </div>
@@ -1117,15 +1396,163 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Institutional Callout Banner (Refined Curved Container & Dual CTA) */}
+        {/* =================================================================== */}
+        {/* NEW SECTION: TRANSPARANSI & JAMINAN KONTRIBUSI SAKODE */}
+        {/* =================================================================== */}
+        <section id="guarantee" className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 py-16 scroll-mt-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
+            <div className="text-center max-w-2xl mx-auto space-y-2">
+              <span className="text-xs font-bold text-[#076991] dark:text-sakode-cyan uppercase tracking-wider">
+                Integritas &amp; Keamanan
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                4 Prinsip Proteksi Kontributor SAKODE
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                Setiap baris kode dan alur transaksi dibangun dengan aturan hukum yang tidak bisa dilanggar (*Strict Invariants*) demi keadilan bersama.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 p-6 space-y-3.5 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200">
+                <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 w-fit">
+                  <Coins className="h-6 w-6" />
+                </div>
+                <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                  100% Integer Rupiah
+                </h3>
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Tidak ada potongan biaya admin atau biaya perantara. Nominal reward yang tertera pada task adalah nilai bersih yang masuk ke rekening Anda.
+                </p>
+                <div className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 pt-1">
+                  <Check className="h-3.5 w-3.5" />
+                  <span>Zero Deduction Policy</span>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 p-6 space-y-3.5 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200">
+                <div className="p-3 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 w-fit">
+                  <Target className="h-6 w-6" />
+                </div>
+                <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                  Fokus 1 Active Task
+                </h3>
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Setiap member fokus menyelesaikan 1 task aktif sebelum mengambil task berikutnya. Mencegah overload dan menjamin mutu deliverable prima.
+                </p>
+                <div className="text-[11px] font-semibold text-sky-600 dark:text-sky-400 flex items-center gap-1 pt-1">
+                  <Check className="h-3.5 w-3.5" />
+                  <span>Workload Balance Protection</span>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 p-6 space-y-3.5 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200">
+                <div className="p-3 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 w-fit">
+                  <FileCheck2 className="h-6 w-6" />
+                </div>
+                <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                  Review QA Obyektif
+                </h3>
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Evaluasi didasarkan pada acceptance criteria yang disepakati bersama. Jika ada revisi, catatan teknis disampaikan secara jelas dan konstruktif.
+                </p>
+                <div className="text-[11px] font-semibold text-purple-600 dark:text-purple-400 flex items-center gap-1 pt-1">
+                  <Check className="h-3.5 w-3.5" />
+                  <span>Constructive Feedback</span>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 p-6 space-y-3.5 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200">
+                <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 w-fit">
+                  <Lock className="h-6 w-6" />
+                </div>
+                <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                  Privasi Rekening Bank
+                </h3>
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Data nomor rekening dienkripsi sebelum disimpan ke database dan ditampilkan dalam format masked (*BCA ****1234*) di antarmuka publik.
+                </p>
+                <div className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 pt-1">
+                  <Check className="h-3.5 w-3.5" />
+                  <span>Encrypted &amp; Masked Data</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* =================================================================== */}
+        {/* NEW SECTION: PERTANYAAN UMUM (FAQ ACCORDION) */}
+        {/* =================================================================== */}
+        <section id="faq" className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0B0F19] py-16 scroll-mt-16">
+          <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-8">
+            <div className="text-center space-y-2">
+              <span className="text-xs font-bold text-[#076991] dark:text-sakode-cyan uppercase tracking-wider">
+                Bantuan &amp; Panduan
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                Pertanyaan yang Sering Diajukan
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                Informasi seputar cara kerja platform, verifikasi akun, dan alur pencairan honor.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              {FAQ_ITEMS.map((faq, index) => {
+                const isOpen = activeFaqIndex === index;
+
+                return (
+                  <div
+                    key={index}
+                    className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 overflow-hidden shadow-xs transition-all"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setActiveFaqIndex(isOpen ? null : index)}
+                      className="w-full p-5 text-left flex items-center justify-between gap-4 font-bold text-sm text-slate-900 dark:text-white cursor-pointer hover:text-sakode-cyan transition-colors"
+                    >
+                      <span className="flex items-center gap-3">
+                        <HelpCircle className="h-4 w-4 text-sky-500 shrink-0" />
+                        <span>{faq.question}</span>
+                      </span>
+                      <ChevronDown
+                        className={`h-4 w-4 text-slate-400 transition-transform duration-200 shrink-0 ${
+                          isOpen ? 'rotate-180 text-sakode-cyan' : ''
+                        }`}
+                      />
+                    </button>
+
+                    {isOpen && (
+                      <div className="px-5 pb-5 pt-1 text-xs text-slate-600 dark:text-slate-300 leading-relaxed border-t border-slate-100 dark:border-slate-800 animate-fade-in-up">
+                        {faq.answer}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* =================================================================== */}
+        {/* INSTITUTIONAL CALLOUT BANNER DENGAN FLOATING BRAND EMBLEM */}
+        {/* =================================================================== */}
         <section className="py-16 px-4 sm:px-6 lg:px-8 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0B0F19]">
           <div className="mx-auto max-w-5xl">
-            <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-gradient-to-br from-white via-sky-50/20 to-purple-50/20 dark:from-slate-900 dark:via-slate-900/90 dark:to-slate-900 p-8 sm:p-12 text-center space-y-6 shadow-sm animate-ambient-sheen">
-              <div className="space-y-3 max-w-2xl mx-auto">
-                <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-800/80 px-3.5 py-1 text-xs font-bold text-[#076991] dark:text-sakode-cyan shadow-2xs">
-                  <span className="uppercase tracking-wider">Bukan Freelance Publik</span>
+            <div className="relative overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-gradient-to-br from-white via-sky-50/30 to-purple-50/30 dark:from-slate-900 dark:via-slate-900/90 dark:to-slate-900 p-8 sm:p-12 text-center space-y-6 shadow-sm animate-ambient-sheen">
+              {/* Background watermark logo */}
+              <div className="absolute -right-16 -bottom-16 w-64 h-64 opacity-5 pointer-events-none select-none">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/sakode-brandmark.svg" alt="" className="w-full h-full object-contain" />
+              </div>
+
+              <div className="relative z-10 space-y-3 max-w-2xl mx-auto">
+                <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-800/90 px-3.5 py-1 text-xs font-bold text-[#076991] dark:text-sakode-cyan shadow-2xs">
+                  <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+                  <span className="uppercase tracking-wider">Internal Workspace SAKODE</span>
                   <span className="text-slate-300 dark:text-slate-600">•</span>
-                  <span className="text-slate-600 dark:text-slate-400 font-medium">Internal Workspace</span>
+                  <span className="text-slate-600 dark:text-slate-400 font-medium">Bukan Freelance Terbuka</span>
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
                   Siap Berkontribusi Nyata untuk Ekosistem SAKODE?
@@ -1135,7 +1562,7 @@ export default function HomePage() {
                 </p>
               </div>
 
-              <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+              <div className="relative z-10 flex flex-wrap items-center justify-center gap-4 pt-2">
                 <Link href="/register">
                   <Button
                     variant="primary"
@@ -1162,6 +1589,95 @@ export default function HomePage() {
           </div>
         </section>
       </main>
+
+      {/* =================================================================== */}
+      {/* INTERACTIVE BADGE DETAIL PREVIEW MODAL */}
+      {/* =================================================================== */}
+      {previewBadge && (
+        <div
+          onClick={() => setPreviewBadge(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-xs animate-fade-in-up"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-2xl space-y-5"
+          >
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-14 w-14 rounded-2xl p-2.5 bg-slate-100 dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={previewBadge.file}
+                    alt={previewBadge.title}
+                    className="h-10 w-10 object-contain"
+                  />
+                </div>
+                <div>
+                  <h3 className="font-black text-lg text-slate-900 dark:text-white">
+                    {previewBadge.title}
+                  </h3>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                    {previewBadge.role}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setPreviewBadge(null)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-500">Tingkat Kelangkaan:</span>
+                <span className="font-extrabold uppercase">{previewBadge.tier}</span>
+              </div>
+
+              <div className="space-y-1">
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Deskripsi Lencana:
+                </span>
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed bg-slate-50 dark:bg-slate-950/60 p-3 rounded-xl border border-slate-200/70 dark:border-slate-800">
+                  {previewBadge.desc}
+                </p>
+              </div>
+
+              <div className="space-y-1">
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Kriteria Membuka Lencana:
+                </span>
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed bg-sky-50/50 dark:bg-slate-950/60 p-3 rounded-xl border border-sky-200/50 dark:border-sky-900/30">
+                  {previewBadge.criteria}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPreviewBadge(null)}
+                className="text-xs font-bold"
+              >
+                Tutup Pratinjau
+              </Button>
+              <Link href="/member/tasks">
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="text-xs font-black bg-sakode-cyan text-slate-950 hover:bg-[#5dbfe9]"
+                >
+                  Cari Task Relevan
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="w-full border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-[#070A10] py-12 text-slate-600 dark:text-slate-400 text-xs transition-colors">
@@ -1200,7 +1716,8 @@ export default function HomePage() {
                 SAKODE Academy ↗
               </a>
               <span className="text-slate-300 dark:text-slate-600">|</span>
-              <span className="text-slate-500 dark:text-slate-400 font-mono text-[11px]">
+              <span className="text-slate-500 dark:text-slate-400 font-mono text-[11px] inline-flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
                 Waktu Server: WIB (UTC+7)
               </span>
             </div>

@@ -69,6 +69,33 @@ body {
   }
 }
 
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(2deg);
+  }
+}
+
+@keyframes float-reverse {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(10px) rotate(-2deg);
+  }
+}
+
+@keyframes drift-lateral {
+  0%, 100% {
+    transform: translate(0px, 0px);
+  }
+  50% {
+    transform: translate(8px, -6px);
+  }
+}
+
 .animate-micro-pulse {
   animation: micro-pulse 3.2s ease-in-out infinite;
 }
@@ -80,6 +107,18 @@ body {
 
 .animate-fade-in-up {
   animation: fade-in-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-float-slow {
+  animation: float-slow 7s ease-in-out infinite;
+}
+
+.animate-float-reverse {
+  animation: float-reverse 9s ease-in-out infinite;
+}
+
+.animate-drift-lateral {
+  animation: drift-lateral 11s ease-in-out infinite;
 }
 
 .delay-50 {
@@ -101,7 +140,10 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .animate-micro-pulse,
   .animate-ambient-sheen,
-  .animate-fade-in-up {
+  .animate-fade-in-up,
+  .animate-float-slow,
+  .animate-float-reverse,
+  .animate-drift-lateral {
     animation: none !important;
     transition: none !important;
     transform: none !important;
