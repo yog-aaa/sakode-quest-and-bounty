@@ -6,11 +6,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Badge } from '@/components/ui/Badge';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { SakodeAmbientOrnaments, SakodeSmileArc } from '@/components/brand/SakodeAmbientOrnaments';
 import { loginSchema, registerSchema } from '@/lib/validations/auth';
-import { USER_ROLES, USER_APPROVAL_STATUS } from '@/lib/constants';
+import { USER_APPROVAL_STATUS } from '@/lib/constants';
 import {
   LogIn,
   UserPlus,
@@ -19,14 +18,13 @@ import {
   ArrowRight,
   CheckCircle2,
   AlertCircle,
-  ShieldCheck,
-  Clock,
   Loader2,
   Terminal,
   BookOpen,
   Megaphone,
-  Award,
   Wallet,
+  ShieldCheck,
+  Check,
 } from 'lucide-react';
 
 function AuthPageContent() {
@@ -42,8 +40,6 @@ function AuthPageContent() {
     signInWithGoogle,
     error: authError,
     emailVerificationSent,
-    setMockSession,
-    isMockSession,
   } = useAuth();
 
   // Auto-redirect jika pengguna sudah memiliki sesi aktif
@@ -54,7 +50,12 @@ function AuthPageContent() {
       } else if (user.isApprovedMember) {
         router.replace('/member');
       } else if (user.approvalStatus === USER_APPROVAL_STATUS.PENDING) {
-        router.replace('/pending-approval');
+        // Invariant UX: Jika data rekening belum dilengkapi, wajib ke tahap 2 onboarding
+        if (!user.paymentAccountEncrypted) {
+          router.replace('/onboarding');
+        } else {
+          router.replace('/pending-approval');
+        }
       } else if (user.approvalStatus === USER_APPROVAL_STATUS.REJECTED) {
         router.replace('/rejected');
       } else {
@@ -84,6 +85,10 @@ function AuthPageContent() {
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [unregisteredNotice, setUnregisteredNotice] = useState<{
+    email: string;
+    displayName?: string;
+  } | null>(null);
 
   // Submit Handler
   const handleSubmit = async (e: React.FormEvent) => {
@@ -135,9 +140,23 @@ function AuthPageContent() {
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
+    setUnregisteredNotice(null);
     try {
-      const ok = await signInWithGoogle();
-      if (ok) {
+      const res = await signInWithGoogle(activeTab);
+      if (res.notRegistered) {
+        // Mode login tapi akun Google belum terdaftar di SAKODE
+        if (res.email) {
+          setEmail(res.email);
+        }
+        setUnregisteredNotice({
+          email: res.email || 'Akun Google Anda',
+          displayName: res.displayName || undefined,
+        });
+        setActiveTab('register');
+        return;
+      }
+
+      if (res.success && activeTab === 'register') {
         router.push('/onboarding');
       }
     } finally {
@@ -279,6 +298,7 @@ function AuthPageContent() {
                   onClick={() => {
                     setActiveTab('login');
                     setValidationErrors({});
+                    setUnregisteredNotice(null);
                   }}
                   className={`py-2.5 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer ${
                     activeTab === 'login'
@@ -294,6 +314,7 @@ function AuthPageContent() {
                   onClick={() => {
                     setActiveTab('register');
                     setValidationErrors({});
+                    setUnregisteredNotice(null);
                   }}
                   className={`py-2.5 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer ${
                     activeTab === 'register'
@@ -306,19 +327,75 @@ function AuthPageContent() {
                 </button>
               </div>
 
-              {/* Headline */}
-              <div className="mb-6">
-                <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                  {activeTab === 'login' ? 'Masuk ke SAKODE Work' : 'Daftar Sebagai Kontributor'}
-                </h1>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                  {activeTab === 'login'
-                    ? 'Akses dashboard pengerjaan task, pantau status review, dan kelola pencairan reward Anda.'
-                    : 'Lengkapi profil Anda untuk mulai mengambil task dan berkolaborasi dalam ekosistem SAKODE.'}
-                </p>
+              {/* Headline & Registration Stepper Visualizer */}
+              <div className="mb-6 space-y-3">
+                <div>
+                  <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                    {activeTab === 'login' ? 'Masuk ke SAKODE Work' : 'Daftar Sebagai Kontributor'}
+                  </h1>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                    {activeTab === 'login'
+                      ? 'Akses dashboard pengerjaan task, pantau status review, dan kelola pencairan reward Anda.'
+                      : 'Mulai perjalanan kontribusi proyek nyata dan klaim reward bounty langsung ke rekening Anda.'}
+                  </p>
+                </div>
+
+                {/* Step-by-Step Register Visualizer (Hanya Tampil di Tab Register) */}
+                {activeTab === 'register' && (
+                  <div className="p-3 rounded-2xl bg-sky-50/70 dark:bg-sky-950/40 border border-sky-100 dark:border-sky-900/60 space-y-2 animate-fade-in-up">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-sky-900 dark:text-sakode-cyan">
+                      <span className="flex items-center gap-1.5">
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-sky-500 text-slate-950 text-[10px] font-black">
+                          1
+                        </span>
+                        <span>Tahap 1 dari 3: Akun Kontributor</span>
+                      </span>
+                      <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                        Berikutnya: Profil &amp; Rekening
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-1.5 text-[10px]">
+                      <div className="flex items-center gap-1.5 font-bold text-sky-700 dark:text-sakode-cyan bg-white dark:bg-slate-900/80 px-2 py-1 rounded-lg border border-sky-200 dark:border-sky-800">
+                        <span className="h-2 w-2 rounded-full bg-sky-500 animate-pulse"></span>
+                        <span>1. Buat Akun</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 font-medium bg-white/60 dark:bg-slate-900/40 px-2 py-1 rounded-lg border border-transparent">
+                        <span className="h-1.5 w-1.5 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+                        <span>2. Rekening</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 font-medium bg-white/60 dark:bg-slate-900/40 px-2 py-1 rounded-lg border border-transparent">
+                        <span className="h-1.5 w-1.5 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+                        <span>3. Kurasi</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {/* Status Banners */}
+              {/* Status Banners: Google Belum Terdaftar */}
+              {unregisteredNotice && (
+                <div className="mb-4 p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-500/50 text-xs text-amber-900 dark:text-amber-200 space-y-1.5 animate-fade-in-up shadow-xs">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-300">
+                      <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                      <span>Akun Google Belum Terdaftar</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setUnregisteredNotice(null)}
+                      className="text-amber-700 hover:text-amber-950 dark:text-amber-400 dark:hover:text-white text-xs font-bold px-1"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <p className="text-[11px] text-amber-800/95 dark:text-amber-300/90 leading-relaxed pl-6">
+                    Alamat email Google <strong className="font-bold underline">{unregisteredNotice.email}</strong> belum terdaftar sebagai kontributor SAKODE Work. Kami telah mengarahkan Anda ke formulir pendaftaran. Silakan klik tombol <strong>Daftar Cepat dengan Akun Google</strong> atau lengkapi password di bawah.
+                  </p>
+                </div>
+              )}
+
+              {/* Status Banners: Email Verifikasi */}
               {emailVerificationSent && (
                 <div className="mb-4 p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-500/40 text-xs text-emerald-800 dark:text-emerald-300 space-y-1">
                   <div className="flex items-center gap-2 font-bold">
@@ -365,14 +442,18 @@ function AuthPageContent() {
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
                   />
                 </svg>
-                <span>Lanjutkan dengan Akun Google</span>
+                <span>
+                  {activeTab === 'login'
+                    ? 'Masuk dengan Akun Google'
+                    : 'Daftar Cepat dengan Akun Google'}
+                </span>
               </Button>
 
               {/* Divider */}
               <div className="relative flex items-center justify-center my-5">
                 <div className="border-t border-slate-200 dark:border-slate-800 w-full"></div>
                 <span className="bg-white dark:bg-slate-900 px-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                  atau kredensial email
+                  {activeTab === 'login' ? 'atau masuk dengan email' : 'atau daftar dengan email baru'}
                 </span>
                 <div className="border-t border-slate-200 dark:border-slate-800 w-full"></div>
               </div>
@@ -410,7 +491,7 @@ function AuthPageContent() {
                 </div>
 
                 {activeTab === 'register' && (
-                  <div>
+                  <div className="space-y-3">
                     <Input
                       label="Konfirmasi Kata Sandi"
                       type="password"
@@ -423,6 +504,45 @@ function AuthPageContent() {
                       required
                       className="bg-white dark:bg-slate-950/60 border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-sakode-cyan focus:ring-sakode-cyan/20"
                     />
+
+                    {/* Live Password Requirement Helper */}
+                    <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 text-[11px] space-y-1">
+                      <span className="font-bold text-slate-700 dark:text-slate-300 block">
+                        Standar Keamanan Akun:
+                      </span>
+                      <div className="grid grid-cols-2 gap-1 text-[10px]">
+                        <span
+                          className={`flex items-center gap-1 ${
+                            password.length >= 8
+                              ? 'text-emerald-600 dark:text-emerald-400 font-bold'
+                              : 'text-slate-500 dark:text-slate-400'
+                          }`}
+                        >
+                          <Check
+                            className={`h-3 w-3 ${
+                              password.length >= 8 ? 'opacity-100' : 'opacity-30'
+                            }`}
+                          />
+                          Minimal 8 karakter
+                        </span>
+                        <span
+                          className={`flex items-center gap-1 ${
+                            /[a-zA-Z]/.test(password) && /[0-9]/.test(password)
+                              ? 'text-emerald-600 dark:text-emerald-400 font-bold'
+                              : 'text-slate-500 dark:text-slate-400'
+                          }`}
+                        >
+                          <Check
+                            className={`h-3 w-3 ${
+                              /[a-zA-Z]/.test(password) && /[0-9]/.test(password)
+                                ? 'opacity-100'
+                                : 'opacity-30'
+                            }`}
+                          />
+                          Huruf &amp; angka
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -432,9 +552,18 @@ function AuthPageContent() {
                   className="w-full font-black mt-2 h-11 cursor-pointer bg-sakode-cyan text-slate-950 hover:bg-[#5dbfe9] rounded-lg transition-colors shadow-xs"
                   isLoading={formSubmitting}
                 >
-                  {activeTab === 'login' ? 'Masuk ke Platform' : 'Daftar & Konfirmasi Profil'}
+                  {activeTab === 'login'
+                    ? 'Masuk ke Platform'
+                    : 'Lanjut ke Tahap 2: Profil & Rekening'}
                   <ArrowRight className="h-4 w-4 ml-1.5" />
                 </Button>
+
+                {activeTab === 'register' && (
+                  <div className="pt-1 flex items-center justify-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400 text-center">
+                    <ShieldCheck className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                    <span>Rekening dienkripsi AES-256 • Tanpa potongan • Honor 100% IDR</span>
+                  </div>
+                )}
               </form>
 
               {/* Bottom Switcher */}
@@ -447,6 +576,7 @@ function AuthPageContent() {
                       onClick={() => {
                         setActiveTab('register');
                         setValidationErrors({});
+                        setUnregisteredNotice(null);
                       }}
                       className="font-bold text-[#076991] dark:text-sakode-cyan hover:underline cursor-pointer"
                     >
@@ -461,6 +591,7 @@ function AuthPageContent() {
                       onClick={() => {
                         setActiveTab('login');
                         setValidationErrors({});
+                        setUnregisteredNotice(null);
                       }}
                       className="font-bold text-[#076991] dark:text-sakode-cyan hover:underline cursor-pointer"
                     >
@@ -468,74 +599,6 @@ function AuthPageContent() {
                     </button>
                   </p>
                 )}
-              </div>
-            </div>
-
-            {/* QA Testing Simulator Panel (Sprint 1 Verification) */}
-            <div className="mt-4 p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 bg-slate-100/70 dark:bg-slate-900/60 text-xs space-y-2.5">
-              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
-                <div className="flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-300">
-                  <Award className="h-4 w-4 text-[#076991] dark:text-sakode-cyan" />
-                  <span>QA Evaluation Mode &amp; Fast Roles</span>
-                </div>
-                {isMockSession && (
-                  <Badge variant="purple" className="text-[10px]">
-                    Mock Aktif
-                  </Badge>
-                )}
-              </div>
-              <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
-                Pintasan simulasi status kontributor &amp; route guard untuk pengujian tim QA:
-              </p>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
-                <button
-                  type="button"
-                  className="px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-700 text-[11px] font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-center gap-1 cursor-pointer transition-colors shadow-2xs"
-                  onClick={() => {
-                    setMockSession(USER_ROLES.MEMBER, USER_APPROVAL_STATUS.PENDING);
-                    router.push('/pending-approval');
-                  }}
-                >
-                  <Clock className="h-3 w-3 text-amber-500" />
-                  <span>Pending</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-700 text-[11px] font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-center gap-1 cursor-pointer transition-colors shadow-2xs"
-                  onClick={() => {
-                    setMockSession(USER_ROLES.MEMBER, USER_APPROVAL_STATUS.APPROVED);
-                    router.push('/member');
-                  }}
-                >
-                  <CheckCircle2 className="h-3 w-3 text-emerald-500" />
-                  <span>Approved</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-700 text-[11px] font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-center gap-1 cursor-pointer transition-colors shadow-2xs"
-                  onClick={() => {
-                    setMockSession(USER_ROLES.MEMBER, USER_APPROVAL_STATUS.REJECTED);
-                    router.push('/rejected');
-                  }}
-                >
-                  <AlertCircle className="h-3 w-3 text-rose-500" />
-                  <span>Rejected</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="px-2.5 py-1.5 rounded-lg border border-purple-300 dark:border-purple-500/40 bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-[11px] font-bold text-purple-700 dark:text-purple-300 flex items-center justify-center gap-1 cursor-pointer transition-colors shadow-2xs"
-                  onClick={() => {
-                    setMockSession(USER_ROLES.ADMIN, USER_APPROVAL_STATUS.APPROVED);
-                    router.push('/admin/members');
-                  }}
-                >
-                  <ShieldCheck className="h-3 w-3 text-purple-600 dark:text-purple-400" />
-                  <span>Admin</span>
-                </button>
               </div>
             </div>
           </div>
