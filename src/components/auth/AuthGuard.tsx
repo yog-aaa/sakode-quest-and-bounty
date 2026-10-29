@@ -1,5 +1,6 @@
 'use client';
 
+// SAKODE Work - Reusable Access & Authentication Gate Guard
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
@@ -112,205 +113,118 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
     );
   }
 
-  // 1. Jika belum login sama sekali (Stopper Screen dengan Ornamen SAKODE Work)
+  // 1. Jika belum login sama sekali (Stopper Screen dengan Background Ornamen SAKODE Work)
   if (!user) {
     return (
-      <div className="min-h-[85vh] flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden bg-slate-50/50 dark:bg-[#070C14]">
-        {/* Subtle Ambient Radial Glow */}
+      <div className="min-h-[85vh] flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden bg-slate-50/70 dark:bg-[#070C14]">
+        {/* =================================================================== */}
+        {/* BACKGROUND AMBIENT LAYER (ORNAMEN SAKODE WORK DI LATAR BELAKANG) */}
+        {/* =================================================================== */}
+
+        {/* Ambient Radial Color Glows */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[450px] bg-gradient-to-tr from-sky-400/15 via-sakode-purple/10 to-amber-400/10 dark:from-sakode-cyan/10 dark:via-sakode-purple/10 dark:to-amber-400/5 rounded-full blur-3xl -z-10"
+          className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[680px] h-[480px] bg-gradient-to-tr from-sky-400/10 via-sakode-purple/10 to-amber-400/10 dark:from-sakode-cyan/10 dark:via-sakode-purple/10 dark:to-amber-400/5 rounded-full blur-3xl -z-10"
         />
 
-        {/* Ambient Giant Brandmark Watermark behind Card */}
+        {/* Ambient Center Watermark Monogram {k} */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[0.03] dark:opacity-[0.05] -z-10 select-none overflow-hidden"
+          className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[0.03] dark:opacity-[0.06] -z-10 select-none overflow-hidden"
         >
-          <span className="text-[260px] font-mono font-black tracking-tighter">
+          <span className="text-[280px] font-mono font-black tracking-tighter text-slate-900 dark:text-white">
             &#123;k&#125;
           </span>
         </div>
 
-        {/* Stopper Container with Surrounding Floating Navbar Icons */}
-        <div className="relative max-w-lg w-full">
-          {/* ================================================================= */}
-          {/* FLOATING SAKODE NAVBAR ORNAMENTS (Eksplor, Pilar, Reward, QA, FAQ) */}
-          {/* ================================================================= */}
-
-          {/* 1. Top-Left: Eksplor Task (Compass) */}
-          <div
-            aria-hidden="true"
-            className="hidden sm:flex absolute -top-8 -left-8 lg:-left-12 z-20 items-center gap-2 px-3 py-2 rounded-2xl bg-white/90 dark:bg-slate-900/90 border border-sky-300 dark:border-sky-500/40 shadow-lg shadow-sky-500/10 backdrop-blur-md animate-float-slow select-none"
-          >
-            <div className="p-1 rounded-lg bg-sky-100 dark:bg-sky-950 text-sky-600 dark:text-sakode-cyan">
-              <Compass className="h-4 w-4" />
-            </div>
-            <span className="text-[10px] font-black text-slate-800 dark:text-slate-200">
-              Eksplor Task
+        {/* Background Ambient Brand Glyphs & Micro Elements (Subtle & Non-distracting) */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-10 select-none overflow-hidden"
+        >
+          {/* Top-Left: Compass & Code Tag */}
+          <div className="absolute top-12 left-10 md:left-24 flex items-center gap-2 opacity-[0.12] dark:opacity-[0.18]">
+            <Compass className="h-6 w-6 text-sky-600 dark:text-sakode-cyan" />
+            <span className="text-xs font-mono font-bold tracking-wider text-slate-800 dark:text-slate-200">
+              sa&#123;kode&#125; workspace
             </span>
           </div>
 
-          {/* 2. Top-Right: Lencana & Level Medallion (Award / Golden Ledger) */}
-          <div
-            aria-hidden="true"
-            className="hidden sm:flex absolute -top-10 -right-8 lg:-right-12 z-20 items-center gap-2 p-2 rounded-2xl bg-white/90 dark:bg-slate-900/90 border border-amber-300 dark:border-amber-500/40 shadow-lg shadow-amber-500/10 backdrop-blur-md animate-float-reverse select-none"
-          >
+          {/* Top-Right: Golden Ledger Badge Silhouette */}
+          <div className="absolute top-10 right-10 md:right-24 flex items-center gap-2.5 opacity-[0.14] dark:opacity-[0.20]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/badges/badge-golden-ledger.svg"
-              alt="Lencana"
-              className="h-8 w-8 object-contain drop-shadow-xs"
+              alt=""
+              className="h-9 w-9 object-contain grayscale opacity-80"
             />
-            <div className="text-left pr-1">
-              <div className="text-[10px] font-black text-amber-600 dark:text-amber-400">
-                Hall of Fame
-              </div>
-              <div className="text-[9px] text-slate-400 dark:text-slate-500">
-                24 Lencana
-              </div>
-            </div>
-          </div>
-
-          {/* 3. Middle-Left: 3 Pilar Kontribusi (Layers) */}
-          <div
-            aria-hidden="true"
-            className="hidden md:flex absolute top-1/2 -left-12 lg:-left-16 -translate-y-1/2 z-20 items-center gap-2 px-2.5 py-2 rounded-2xl bg-white/85 dark:bg-slate-900/85 border border-purple-300 dark:border-purple-500/30 shadow-md backdrop-blur-md animate-drift-lateral select-none"
-          >
-            <div className="p-1 rounded-lg bg-purple-100 dark:bg-purple-950 text-purple-600 dark:text-sakode-purple">
-              <Layers className="h-4 w-4" />
-            </div>
-            <span className="text-[10px] font-bold text-purple-700 dark:text-purple-300">
-              3 Pilar
+            <span className="text-xs font-mono font-bold tracking-wider text-amber-600 dark:text-amber-400 hidden sm:inline">
+              reputation: 24_badges
             </span>
           </div>
 
-          {/* 4. Middle-Right: Klaim Reward (Wallet & Coins) */}
-          <div
-            aria-hidden="true"
-            className="hidden md:flex absolute top-1/2 -right-12 lg:-right-16 -translate-y-1/2 z-20 items-center gap-2 px-2.5 py-2 rounded-2xl bg-white/85 dark:bg-slate-900/85 border border-emerald-300 dark:border-emerald-500/30 shadow-md backdrop-blur-md animate-float-slow select-none"
-          >
-            <div className="p-1 rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
-              <Coins className="h-4 w-4" />
-            </div>
-            <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300">
-              Integer IDR
+          {/* Bottom-Left: Currency / Integer IDR Tag */}
+          <div className="absolute bottom-12 left-12 md:left-28 flex items-center gap-2 opacity-[0.12] dark:opacity-[0.18]">
+            <Coins className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+            <span className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-300">
+              [INTEGER_IDR]
             </span>
           </div>
 
-          {/* 5. Bottom-Left: Alur Kerja & QA (Target) */}
-          <div
-            aria-hidden="true"
-            className="hidden sm:flex absolute -bottom-6 -left-6 lg:-left-10 z-20 items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-sm backdrop-blur-md animate-float-reverse select-none"
-          >
-            <Target className="h-3.5 w-3.5 text-sky-500" />
-            <span className="text-[10px] font-semibold text-slate-600 dark:text-slate-400">
-              Alur Review QA
+          {/* Bottom-Right: QA Protocol Tag */}
+          <div className="absolute bottom-12 right-12 md:right-28 flex items-center gap-2 opacity-[0.12] dark:opacity-[0.18]">
+            <ShieldCheck className="h-5 w-5 text-purple-600 dark:text-sakode-purple" />
+            <span className="text-xs font-mono font-bold text-purple-700 dark:text-purple-300">
+              verified_pipeline
             </span>
           </div>
 
-          {/* 6. Bottom-Right: Bantuan & FAQ (HelpCircle) */}
-          <div
-            aria-hidden="true"
-            className="hidden sm:flex absolute -bottom-6 -right-6 lg:-right-10 z-20 items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-sm backdrop-blur-md animate-float-slow select-none"
-          >
-            <HelpCircle className="h-3.5 w-3.5 text-amber-500" />
-            <span className="text-[10px] font-semibold text-slate-600 dark:text-slate-400">
-              Bantuan SAKODE
-            </span>
-          </div>
+          {/* Mid-Canvas Faint Float Glyphs */}
+          <span className="hidden lg:block absolute left-[15%] top-1/2 -translate-y-1/2 text-[11px] font-mono font-bold text-sky-500/10 select-none">
+            &lt;sakode_work /&gt;
+          </span>
+          <span className="hidden lg:block absolute right-[15%] top-1/2 -translate-y-1/2 text-[11px] font-mono font-bold text-amber-500/10 select-none">
+            &#123;status: auth_required&#125;
+          </span>
+        </div>
 
-          {/* ================================================================= */}
-          {/* MAIN GLASSMORPHIC STOPPER CARD */}
-          {/* ================================================================= */}
-          <div className="rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl p-6 sm:p-8 shadow-xl shadow-slate-900/5 dark:shadow-sky-500/5 space-y-6 text-center transition-all relative z-10">
-            {/* SAKODE Medallion Header with Sparkle Star */}
-            <div className="relative mx-auto w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-gradient-to-br from-sky-100 via-sky-50 to-white dark:from-sky-950/80 dark:via-slate-900 dark:to-slate-900 border-2 border-sky-300 dark:border-sakode-cyan/50 flex items-center justify-center shadow-md shadow-sky-500/15">
-              <Lock className="h-8 w-8 text-sky-600 dark:text-sakode-cyan" />
-              <div className="absolute -top-1.5 -right-1.5 p-1 rounded-full bg-amber-400 text-slate-950 shadow-xs">
-                <Sparkles className="h-3 w-3" />
+        {/* =================================================================== */}
+        {/* MAIN CLEAN STOPPER CARD (FOKUS, ELEGAN, DAN TIDAK RAMAI) */}
+        {/* =================================================================== */}
+        <div className="relative max-w-md w-full z-10">
+          <div className="rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl p-6 sm:p-8 shadow-xl shadow-slate-900/5 dark:shadow-sky-500/5 space-y-6 text-center transition-all">
+            {/* Header: SAKODE Work Logo & Minimalist Squircle Lock Icon */}
+            <div className="flex flex-col items-center justify-center gap-4">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/sakode-work-logo.svg"
+                alt="SAKODE Work"
+                className="h-8 sm:h-9 w-auto object-contain"
+              />
+              <div className="relative w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950/70 border border-sky-200 dark:border-sky-800 flex items-center justify-center shadow-xs">
+                <Lock className="h-6 w-6 text-sky-600 dark:text-sakode-cyan" />
+                <div className="absolute -top-1 -right-1 p-0.5 rounded-full bg-amber-400 text-slate-950">
+                  <Sparkles className="h-2.5 w-2.5" />
+                </div>
               </div>
             </div>
 
+            {/* Typography Section */}
             <div className="space-y-2">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-sky-100 dark:bg-sky-950/90 text-[#076991] dark:text-sakode-cyan border border-sky-200 dark:border-sky-800">
+              <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-sky-100 dark:bg-sky-950/80 text-[#076991] dark:text-sakode-cyan border border-sky-200/80 dark:border-sky-800/80">
                 <ShieldAlert className="h-3 w-3" />
                 <span>Autentikasi Diperlukan</span>
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                Akses Eksklusif Kontributor SAKODE
+                Akses Kontributor SAKODE
               </h2>
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-sm mx-auto">
-                Halaman ini memuat akses task bounty berbayar, antrean klaim honor, dan pencatatan reputasi. Masuk dengan akun terverifikasi SAKODE Academy untuk melanjutkan.
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-xs mx-auto">
+                Silakan masuk dengan akun SAKODE Academy Anda untuk mengeksplorasi task, mengajukan deliverable, dan memantau reward kontribusi.
               </p>
             </div>
 
-            {/* SAKODE Badge Preview Showcase Stack */}
-            <div className="flex items-center justify-center gap-2.5 py-1 px-3 rounded-xl bg-slate-50/80 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800/80 w-fit mx-auto">
-              <div className="flex items-center -space-x-2">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/badges/badge-level-1.svg"
-                  alt="Level 1"
-                  className="h-7 w-7 rounded-full ring-2 ring-white dark:ring-slate-900 object-contain shadow-xs"
-                />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/badges/badge-code-artisan.svg"
-                  alt="Code Artisan"
-                  className="h-7 w-7 rounded-full ring-2 ring-white dark:ring-slate-900 object-contain shadow-xs"
-                />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/badges/badge-knowledge-mentor.svg"
-                  alt="Mentor"
-                  className="h-7 w-7 rounded-full ring-2 ring-white dark:ring-slate-900 object-contain shadow-xs"
-                />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/badges/badge-level-5.svg"
-                  alt="Grandmaster"
-                  className="h-7 w-7 rounded-full ring-2 ring-white dark:ring-slate-900 object-contain shadow-xs"
-                />
-              </div>
-              <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                Buka 24 Lencana &amp; 5 Jenjang Level
-              </span>
-            </div>
-
-            {/* Value Preview Mini Chips */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1 text-left">
-              <div className="rounded-xl border border-slate-200 dark:border-slate-800/80 bg-slate-50/70 dark:bg-slate-950/40 p-2.5 space-y-1">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-white">
-                  <Coins className="h-3.5 w-3.5 text-amber-500 shrink-0" />
-                  <span>Bounty IDR</span>
-                </div>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
-                  Pencairan honor tunai langsung tanpa potongan.
-                </p>
-              </div>
-              <div className="rounded-xl border border-slate-200 dark:border-slate-800/80 bg-slate-50/70 dark:bg-slate-950/40 p-2.5 space-y-1">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-white">
-                  <Zap className="h-3.5 w-3.5 text-sky-500 shrink-0" />
-                  <span>Solo &amp; Team</span>
-                </div>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
-                  Proyek nyata dengan proteksi konsensus 100%.
-                </p>
-              </div>
-              <div className="rounded-xl border border-slate-200 dark:border-slate-800/80 bg-slate-50/70 dark:bg-slate-950/40 p-2.5 space-y-1">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-white">
-                  <Award className="h-3.5 w-3.5 text-purple-500 shrink-0" />
-                  <span>24 Lencana</span>
-                </div>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
-                  Reputasi keahlian diakui SAKODE Academy.
-                </p>
-              </div>
-            </div>
-
-            {/* Action CTAs */}
-            <div className="space-y-2.5 pt-2">
+            {/* Action Buttons */}
+            <div className="space-y-2.5 pt-1">
               <Link href="/login" className="block w-full">
                 <Button
                   variant="primary"
@@ -325,12 +239,13 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
                   variant="outline"
                   className="w-full h-10 text-xs font-bold border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 cursor-pointer"
                 >
-                  Belum Punya Akun? Daftar Sebagai Kontributor
+                  Belum Punya Akun? Daftar
                 </Button>
               </Link>
             </div>
 
-            <div className="pt-2 flex flex-col items-center gap-3">
+            {/* Clean Back Link & Single-Line Security Note */}
+            <div className="pt-1 flex flex-col items-center gap-3">
               <Link
                 href="/"
                 className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
@@ -339,16 +254,15 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
                 <span>Kembali ke Beranda Utama</span>
               </Link>
 
-              {/* Security Trust Footnote */}
-              <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 w-full flex items-center justify-center gap-3 text-[10px] text-slate-400 dark:text-slate-500">
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 w-full flex items-center justify-center gap-2 text-[10px] text-slate-400 dark:text-slate-500">
                 <span className="flex items-center gap-1">
-                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
-                  Firebase Auth Terenkripsi
+                  <ShieldCheck className="h-3 w-3 text-emerald-500" />
+                  Firebase Auth
                 </span>
                 <span>•</span>
                 <span className="flex items-center gap-1">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-sky-500" />
-                  SAKODE Single Sign-On
+                  <CheckCircle2 className="h-3 w-3 text-sky-500" />
+                  Single Sign-On
                 </span>
               </div>
             </div>
