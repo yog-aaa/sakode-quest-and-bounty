@@ -15,6 +15,7 @@ flowchart TD
     FE["frontend-engineer"]
     BE["backend-engineer"]
     FS["firestore-engineer"]
+    GD["graphic-designer"]
     QA["qa-reviewer (Independent Review)"]
     Rel["release-engineer"]
     Doc["documenter"]
@@ -23,8 +24,9 @@ flowchart TD
     Root -->|"UI & Layout"| FE
     Root -->|"Services & APIs"| BE
     Root -->|"Transactions & Rules"| FS
-    FE & BE & FS -->|"Delivery & Checks"| QA
-    QA -->|"Findings ke Owner Asli"| FE & BE & FS
+    Root -->|"Visual & SVG Badges"| GD
+    FE & BE & FS & GD -->|"Delivery & Checks"| QA
+    QA -->|"Findings ke Owner Asli"| FE & BE & FS & GD
     Root -->|"Release Prep"| Rel
     Root -->|"Documentation & Handoff"| Doc
 ```
@@ -35,6 +37,7 @@ flowchart TD
 | **`frontend-engineer`** | Design system, token, komponen UI, halaman/layout, client state, responsivitas, a11y, motion | `src/app/**`, `src/components/**`, `src/context/**`, styling | [frontend-engineer.md](file:///.agents/agents/frontend-engineer.md) |
 | **`backend-engineer`** | Server Actions, Route Handlers, service domain, Zod validations, auth, encryption, email/FCM | `src/server/**`, `src/lib/validations/**`, `src/app/api/**`, lib | [backend-engineer.md](file:///.agents/agents/backend-engineer.md) |
 | **`firestore-engineer`** | Firestore schema, transaksi atomik, Security Rules, indexes, concurrency safety, seed scripts | `firestore.rules`, `firestore.indexes.json`, `src/types/database.ts` | [firestore-engineer.md](file:///.agents/agents/firestore-engineer.md) |
+| **`graphic-designer`** | Desain medallion SVG, ikonografi pilar, badge gamifikasi, vektorisasi visual | `public/badges/**`, `public/images/**`, visual assets | [graphic-designer.md](file:///.agents/agents/graphic-designer.md) |
 | **`qa-reviewer`** | Independent code review, verifikasi invariants, keamanan, RBAC, a11y, regresi | Read-only; dilarang edit kode, temuan dikirim ke owner | [qa-reviewer.md](file:///.agents/agents/qa-reviewer.md) |
 | **`release-engineer`** | Build readiness, env validation, Firebase/Vercel deployment prep, release checklist | Read-only/prep; dilarang deploy langsung tanpa izin | [release-engineer.md](file:///.agents/agents/release-engineer.md) |
 | **`documenter`** | Pemeliharaan AGENTS.md, framework docs, arsitektur, changelog, proposed commits | Berkas dokumentasi (`AGENTS.md`, `docs/**`, `*.md`) | [documenter.md](file:///.agents/agents/documenter.md) |

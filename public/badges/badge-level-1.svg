@@ -1,0 +1,57 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background Radial Gradient -->
+    <radialGradient id="bg-lvl1" cx="50%" cy="38%" r="65%">
+      <stop offset="0%" stop-color="#1A2536" />
+      <stop offset="65%" stop-color="#0E1624" />
+      <stop offset="100%" stop-color="#070C14" />
+    </radialGradient>
+
+    <!-- Outer Rim Linear Gradient -->
+    <linearGradient id="rim-lvl1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#CBD5E1" />
+      <stop offset="50%" stop-color="#94A3B8" />
+      <stop offset="100%" stop-color="#94A3B8" stop-opacity="0.7" />
+    </linearGradient>
+
+    <!-- Subtle Drop Shadow -->
+    <filter id="shadow-lvl1" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
+  </defs>
+
+  <!-- LAYER 1: BASE MEDALLION (SQUIRCLE WITH DOUBLE BORDER) -->
+  <g filter="url(#shadow-lvl1)">
+    <rect x="10" y="8" width="108" height="108" rx="28" fill="url(#bg-lvl1)" stroke="url(#rim-lvl1)" stroke-width="2.5" />
+    <rect x="15" y="13" width="98" height="98" rx="23" fill="none" stroke="white" stroke-opacity="0.1" stroke-width="1.2" />
+  </g>
+
+  <!-- Ambient Radar Arc -->
+  <path d="M 32 30 A 48 48 0 0 1 96 30" stroke="#94A3B8" stroke-opacity="0.18" stroke-width="1.5" stroke-dasharray="3 3" />
+
+  <!-- Level Ribbon Tag -->
+  <g transform="translate(64, 25)">
+    <rect x="-24" y="-8" width="48" height="15" rx="7.5" fill="#94A3B8" />
+    <text x="0" y="3" font-family="system-ui, -apple-system, sans-serif" font-size="9" font-weight="900" fill="#070C14" text-anchor="middle" letter-spacing="0.5">LVL 1</text>
+  </g>
+
+  <!-- LAYER 2: ICONOGRAPHY -->
+  <g id="icon-lvl1">
+    <!-- Compass Ring & Paper Plane -->
+    <g transform="translate(64, 63)">
+      <circle cx="0" cy="0" r="22" stroke="#94A3B8" stroke-width="2" stroke-dasharray="2 4" fill="none" />
+      <circle cx="0" cy="0" r="3" fill="#EDAC1C" />
+      <!-- Paper Plane Launcher -->
+      <polygon points="0,-16 14,14 0,8 -14,14" fill="#CBD5E1" stroke="#94A3B8" stroke-width="1.5" stroke-linejoin="round" />
+      <polygon points="0,-16 14,14 0,8" fill="#94A3B8" />
+      <line x1="0" y1="-16" x2="0" y2="8" stroke="#475569" stroke-width="1.2" />
+    </g>
+  </g>
+
+  <!-- LAYER 3: SAKODE SIGNATURE GOLD SMILE ARC -->
+  <g id="smile-lvl1">
+    <path d="M 48 102 C 54 107.5 74 107.5 80 102" stroke="#94A3B8" stroke-width="2.8" stroke-linecap="round" />
+    <circle cx="48" cy="102" r="1.2" fill="#94A3B8" />
+    <circle cx="80" cy="102" r="1.2" fill="#94A3B8" />
+  </g>
+</svg>

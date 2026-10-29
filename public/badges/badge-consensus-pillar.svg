@@ -1,0 +1,58 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background Radial Gradient -->
+    <radialGradient id="bg-consensus-pillar" cx="50%" cy="38%" r="65%">
+      <stop offset="0%" stop-color="#1A2536" />
+      <stop offset="65%" stop-color="#0E1624" />
+      <stop offset="100%" stop-color="#070C14" />
+    </radialGradient>
+
+    <!-- Outer Rim Linear Gradient -->
+    <linearGradient id="rim-consensus-pillar" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A7F3D0" />
+      <stop offset="50%" stop-color="#00A86B" />
+      <stop offset="100%" stop-color="#00A86B" stop-opacity="0.7" />
+    </linearGradient>
+
+    <!-- Subtle Drop Shadow -->
+    <filter id="shadow-consensus-pillar" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
+  </defs>
+
+  <!-- LAYER 1: BASE MEDALLION (SQUIRCLE WITH DOUBLE BORDER) -->
+  <g filter="url(#shadow-consensus-pillar)">
+    <rect x="10" y="8" width="108" height="108" rx="28" fill="url(#bg-consensus-pillar)" stroke="url(#rim-consensus-pillar)" stroke-width="2.5" />
+    <rect x="15" y="13" width="98" height="98" rx="23" fill="none" stroke="white" stroke-opacity="0.1" stroke-width="1.2" />
+  </g>
+
+  <!-- Ambient Radar Arc -->
+  <path d="M 32 30 A 48 48 0 0 1 96 30" stroke="#00A86B" stroke-opacity="0.18" stroke-width="1.5" stroke-dasharray="3 3" />
+
+
+
+  <!-- LAYER 2: ICONOGRAPHY -->
+  <g id="icon-consensus-pillar">
+    <!-- Symmetrical Balance Scales with Handshake Core -->
+    <g transform="translate(64, 58)">
+      <line x1="0" y1="-20" x2="0" y2="18" stroke="#00A86B" stroke-width="3" stroke-linecap="round" />
+      <!-- Scale Beam -->
+      <line x1="-22" y1="-12" x2="22" y2="-12" stroke="#34D399" stroke-width="2.5" stroke-linecap="round" />
+      <!-- Left Pan -->
+      <path d="M -28 4 L -16 4 L -22 14 Z" fill="#00A86B" />
+      <line x1="-22" y1="-12" x2="-22" y2="4" stroke="#6EE7B7" stroke-width="1.5" />
+      <!-- Right Pan -->
+      <path d="M 16 4 L 28 4 L 22 14 Z" fill="#00A86B" />
+      <line x1="22" y1="-12" x2="22" y2="4" stroke="#6EE7B7" stroke-width="1.5" />
+      <!-- Consensus 100% Core -->
+      <circle cx="0" cy="-12" r="5" fill="#EDAC1C" />
+    </g>
+  </g>
+
+  <!-- LAYER 3: SAKODE SIGNATURE GOLD SMILE ARC -->
+  <g id="smile-consensus-pillar">
+    <path d="M 48 102 C 54 107.5 74 107.5 80 102" stroke="#EDAC1C" stroke-width="2.8" stroke-linecap="round" />
+    <circle cx="48" cy="102" r="1.2" fill="#EDAC1C" />
+    <circle cx="80" cy="102" r="1.2" fill="#EDAC1C" />
+  </g>
+</svg>

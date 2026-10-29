@@ -201,10 +201,9 @@ const FEATURED_TASKS: FeaturedTask[] = [
 ];
 
 // =============================================================================
-// Suite Lencana Kehormatan SAKODE (10 Badges Multi-Disiplin & Milestone)
+// Hall of Fame: Lencana Kehormatan Tertinggi SAKODE (Pinnacle Badges)
+// Catatan: Seluruh 20+ lencana lengkap tersedia di Halaman Achievement Dashboard.
 // =============================================================================
-type BadgeRole = 'all' | 'tech' | 'edu' | 'marketing' | 'milestone';
-
 interface BadgeItem {
   id: string;
   file: string;
@@ -218,7 +217,19 @@ interface BadgeItem {
   icon: React.ComponentType<{ className?: string }>;
 }
 
-const EXPANDED_BADGES: BadgeItem[] = [
+const PINNACLE_BADGES: BadgeItem[] = [
+  {
+    id: 'precision-craft',
+    file: '/badges/badge-golden-ledger.svg',
+    title: 'Presisi Tanpa Revisi',
+    role: 'Milestone SAKODE',
+    roleKey: 'milestone',
+    tier: 'Legendary • 🟡',
+    tierKey: 'legendary',
+    desc: 'Konsistensi 5 deliverable beruntun dengan nilai sempurna tanpa revisi admin.',
+    criteria: 'Pertahankan catatan 5 task berurutan dengan status Langsung Disetujui (Approved) oleh tim QA.',
+    icon: CheckCircle2,
+  },
   {
     id: 'code-artisan',
     file: '/badges/badge-code-artisan.svg',
@@ -227,45 +238,9 @@ const EXPANDED_BADGES: BadgeItem[] = [
     roleKey: 'tech',
     tier: 'Epic • 🟣',
     tierKey: 'epic',
-    desc: 'Penyelesaian arsitektur kode zero-defect berskala produksi.',
+    desc: 'Penyelesaian arsitektur kode zero-defect berskala produksi tingkat lanjut.',
     criteria: 'Selesaikan minimal 3 task arsitektur backend/frontend skala Advanced dengan akurasi 100%.',
     icon: Terminal,
-  },
-  {
-    id: 'system-architect',
-    file: '/badges/badge-system-architect.svg',
-    title: 'Sistem Integrator',
-    role: 'Teknologi & IT',
-    roleKey: 'tech',
-    tier: 'Epic • 🟣',
-    tierKey: 'epic',
-    desc: 'Penguasaan pipeline CI/CD, cloud functions, dan database.',
-    criteria: 'Implementasi pipeline integrasi otomatis dan manajemen persistensi data tanpa downtime.',
-    icon: Layers,
-  },
-  {
-    id: 'bug-hunter',
-    file: '/badges/badge-bug-hunter.svg',
-    title: 'Bug Hunter',
-    role: 'Teknologi & IT',
-    roleKey: 'tech',
-    tier: 'Rare • 🔵',
-    tierKey: 'rare',
-    desc: 'Audit keamanan dan penemuan celah kritis sebelum rilis.',
-    criteria: 'Temukan dan laporkan celah keamanan atau regresi kritis melalui alur QA resmi.',
-    icon: ShieldCheck,
-  },
-  {
-    id: 'curriculum-pioneer',
-    file: '/badges/badge-curriculum-pioneer.svg',
-    title: 'Penyusun Kurikulum',
-    role: 'Modul & Edukasi',
-    roleKey: 'edu',
-    tier: 'Rare • 🔵',
-    tierKey: 'rare',
-    desc: 'Penyusunan modul praktikum dan silabus bootcamp.',
-    criteria: 'Menulis silabus bootcamp atau 5 lab praktikum yang disetujui kurator SAKODE Academy.',
-    icon: BookOpen,
   },
   {
     id: 'knowledge-mentor',
@@ -275,8 +250,8 @@ const EXPANDED_BADGES: BadgeItem[] = [
     roleKey: 'edu',
     tier: 'Epic • 🟣',
     tierKey: 'epic',
-    desc: 'Pembuatan bank soal kuis mendalam dan bimbingan talent.',
-    criteria: 'Membuat 50+ bank soal analitis dan membimbing tim peserta hingga lulus tugas akhir.',
+    desc: 'Penyusunan kurikulum industri komprehensif dan bimbingan talent hingga lulus.',
+    criteria: 'Menyusun modul kurikulum terverifikasi dan membimbing kontributor baru hingga tuntas.',
     icon: Award,
   },
   {
@@ -285,59 +260,87 @@ const EXPANDED_BADGES: BadgeItem[] = [
     title: 'Katalis Komunitas',
     role: 'Marketing & Komunitas',
     roleKey: 'marketing',
-    tier: 'Rare • 🔵',
-    tierKey: 'rare',
-    desc: 'Manajemen tech event nasional dengan 500+ partisipan.',
-    criteria: 'Mengkoordinasikan webinar atau event komunitas resmi dengan tingkat kepuasan peserta tinggi.',
+    tier: 'Epic • 🟣',
+    tierKey: 'epic',
+    desc: 'Manajemen kampanye tech berskala nasional dengan 500+ partisipan aktif.',
+    criteria: 'Mengkoordinasikan tech event atau produksi konten edukasi dengan impresi tertinggi.',
     icon: Megaphone,
   },
+];
+
+interface ContributorLevel {
+  level: string;
+  name: string;
+  subtitle: string;
+  tag: string;
+  tagColor: string;
+  badgeBg: string;
+  borderColor: string;
+  badgeFile: string;
+  req: string;
+  perk: string;
+}
+
+const CONTRIBUTOR_LEVELS: ContributorLevel[] = [
   {
-    id: 'creative-storyteller',
-    file: '/badges/badge-creative-storyteller.svg',
-    title: 'Storyteller Kreatif',
-    role: 'Marketing & Komunitas',
-    roleKey: 'marketing',
-    tier: 'Rare • 🔵',
-    tierKey: 'rare',
-    desc: 'Produksi carousel edukasi dan copywriting konversi tinggi.',
-    criteria: 'Menerbitkan 5 infografis edukatif terverifikasi atau naskah promosi dengan engagement tinggi.',
-    icon: FileText,
+    level: 'LVL 1',
+    name: 'Onboarded Contributor',
+    subtitle: 'Pemula Terverifikasi',
+    tag: 'Entry',
+    tagColor: 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300',
+    badgeBg: 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300',
+    borderColor: 'border-slate-200 dark:border-slate-800',
+    badgeFile: '/badges/badge-level-1.svg',
+    req: 'Persetujuan profil & verifikasi akun oleh admin',
+    perk: 'Akses penuh ke task kategori Beginner (Reward hingga Rp 750.000)',
   },
   {
-    id: 'first-mission',
-    file: '/badges/badge-first-blood.svg',
-    title: 'Misi Pertama',
-    role: 'Milestone SAKODE',
-    roleKey: 'milestone',
-    tier: 'Common • 🟢',
-    tierKey: 'common',
-    desc: 'Penyelesaian dan penerimaan tugas pertama ke ekosistem.',
-    criteria: 'Diberikan otomatis saat task pertama Anda dinyatakan lulus review oleh tim admin.',
-    icon: Zap,
+    level: 'LVL 2',
+    name: 'Active Contributor',
+    subtitle: '3+ Task Sukses',
+    tag: '3+ Task',
+    tagColor: 'bg-sky-100 dark:bg-sky-900/60 text-sky-700 dark:text-sky-300',
+    badgeBg: 'bg-sky-100 dark:bg-sky-950 text-[#076991] dark:text-sakode-cyan border border-sky-300 dark:border-sky-800',
+    borderColor: 'border-sky-200 dark:border-sky-500/20',
+    badgeFile: '/badges/badge-level-2.svg',
+    req: 'Menyelesaikan 3 task mandiri dengan penilaian A',
+    perk: 'Membuka task Intermediate & hak bergabung dalam Team Party',
   },
   {
-    id: 'rapid-delivery',
-    file: '/badges/badge-speed-demon.svg',
-    title: 'Pengiriman Kilat',
-    role: 'Milestone SAKODE',
-    roleKey: 'milestone',
-    tier: 'Legendary • 🟡',
-    tierKey: 'legendary',
-    desc: 'Penyelesaian tugas di bawah 24 jam dengan kelulusan QA 100%.',
-    criteria: 'Kirimkan deliverable utuh dalam 24 jam sejak task diambil dan lolos tanpa revisi.',
-    icon: Clock,
+    level: 'LVL 3',
+    name: 'Senior Specialist',
+    subtitle: '8+ Task Selesai',
+    tag: 'Advanced',
+    tagColor: 'bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300',
+    badgeBg: 'bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-sakode-purple border border-purple-300 dark:border-purple-800',
+    borderColor: 'border-purple-200 dark:border-purple-500/20',
+    badgeFile: '/badges/badge-level-3.svg',
+    req: 'Menyelesaikan 8 task dengan riwayat zero-critical defect',
+    perk: 'Akses task Advanced, prioritas review tim QA, & kuota aplikasi prioritas',
   },
   {
-    id: 'precision-craft',
-    file: '/badges/badge-golden-ledger.svg',
-    title: 'Presisi Tanpa Revisi',
-    role: 'Milestone SAKODE',
-    roleKey: 'milestone',
-    tier: 'Legendary • 🟡',
-    tierKey: 'legendary',
-    desc: 'Konsistensi 5 deliverable beruntun tanpa revisi admin.',
-    criteria: 'Pertahankan catatan 5 task berurutan dengan status Langsung Disetujui (Approved).',
-    icon: CheckCircle2,
+    level: 'LVL 4',
+    name: 'Lead Fellow',
+    subtitle: 'Inisiator Tim & QA',
+    tag: 'Fellow',
+    tagColor: 'bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300',
+    badgeBg: 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-800',
+    borderColor: 'border-amber-200 dark:border-amber-500/20',
+    badgeFile: '/badges/badge-level-4.svg',
+    req: '15+ task selesai & memimpin minimal 2 Team Projects',
+    perk: 'Memimpin Party Tim multi-disiplin & hak diundang sebagai Co-Reviewer QA',
+  },
+  {
+    level: 'LVL 5',
+    name: 'Grandmaster Fellow',
+    subtitle: 'Apex Legend Kontributor',
+    tag: 'Grandmaster',
+    tagColor: 'bg-gradient-to-r from-amber-500/20 to-sky-500/20 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700/50',
+    badgeBg: 'bg-gradient-to-br from-amber-100 to-amber-200 dark:from-amber-950 dark:to-amber-900 text-amber-800 dark:text-amber-300 border border-amber-400 dark:border-amber-600 shadow-xs shadow-amber-500/20',
+    borderColor: 'border-amber-300/80 dark:border-amber-500/40',
+    badgeFile: '/badges/badge-level-5.svg',
+    req: '30+ task selesai, rasio revisi < 5%, & kontribusi lintas pilar',
+    perk: 'Hak veto arsitektur teknis, profil berlapis emas, & instruktur utama akademi',
   },
 ];
 
@@ -377,7 +380,6 @@ export default function HomePage() {
   const [selectedModeFilter, setSelectedModeFilter] = useState<TaskModeFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
-  const [selectedBadgeCategory, setSelectedBadgeCategory] = useState<BadgeRole>('all');
   const [previewBadge, setPreviewBadge] = useState<BadgeItem | null>(null);
   const [activeFaqIndex, setActiveFaqIndex] = useState<number | null>(null);
 
@@ -405,11 +407,6 @@ export default function HomePage() {
       task.categoryLabel.toLowerCase().includes(searchQuery.toLowerCase());
 
     return matchesCategory && matchesMode && matchesSearch;
-  });
-
-  const filteredBadges = EXPANDED_BADGES.filter((b) => {
-    if (selectedBadgeCategory === 'all') return true;
-    return b.roleKey === selectedBadgeCategory;
   });
 
   const INITIAL_VISIBLE_COUNT = 3;
@@ -1174,187 +1171,127 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Part 2: Gamified Progression & Achievements */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-6 border-t border-slate-200 dark:border-slate-800/80">
+            {/* Part 2: Gamified Progression & Pinnacle Achievements */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch pt-6 border-t border-slate-200 dark:border-slate-800/80">
               {/* Contributor Level Ladder */}
-              <div className="lg:col-span-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 sm:p-7 space-y-5 shadow-xs">
-                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="lg:col-span-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 sm:p-7 flex flex-col justify-between shadow-xs">
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
                   <div>
-                    <h3 className="font-bold text-lg text-slate-900 dark:text-white">Jenjang Level Kontributor</h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Kenaikan level berbasis track record penyelesaian task nyata.</p>
+                    <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                      <Award className="h-5 w-5 text-[#076991] dark:text-sakode-cyan" />
+                      <span>Jenjang Level Kontributor</span>
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      Tingkatkan level dengan menyelesaikan task nyata untuk membuka hak istimewa baru.
+                    </p>
                   </div>
-                  <Award className="h-5 w-5 text-sky-600 dark:text-sakode-cyan" />
+                  <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-sky-100 dark:bg-sky-950 text-[#076991] dark:text-sakode-cyan border border-sky-200 dark:border-sky-800 shrink-0">
+                    5 Jenjang
+                  </span>
                 </div>
 
-                <div className="space-y-3">
-                  <div className="flex items-start justify-between gap-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-3.5 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 ease-out">
-                    <div className="flex items-start gap-3">
-                      <div className="text-xs font-black px-2.5 py-1 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0">
-                        LVL 1
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                          <span>Onboarded Contributor</span>
-                          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal">• Pemula Terverifikasi</span>
+                <div className="flex-1 flex flex-col justify-between gap-3 pt-4">
+                  {CONTRIBUTOR_LEVELS.map((lvl) => (
+                    <div
+                      key={lvl.level}
+                      className={cn(
+                        'group flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border p-3 sm:p-3.5 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-xs',
+                        lvl.borderColor,
+                        'bg-slate-50/70 dark:bg-slate-950/40'
+                      )}
+                    >
+                      <div className="flex items-center gap-3.5">
+                        {/* Custom Level Medallion SVG */}
+                        <div className="relative shrink-0">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={lvl.badgeFile}
+                            alt={lvl.name}
+                            className="h-10 w-10 sm:h-11 sm:w-11 object-contain drop-shadow-sm transition-transform duration-200 group-hover:scale-105"
+                          />
                         </div>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                          Tahap awal setelah persetujuan profil; memiliki akses ke task kategori Beginner.
-                        </p>
-                      </div>
-                    </div>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-400 shrink-0">
-                      Entry
-                    </span>
-                  </div>
-
-                  <div className="flex items-start justify-between gap-3.5 rounded-xl border border-sky-200 dark:border-sky-500/20 bg-sky-50/60 dark:bg-slate-950/50 p-3.5 hover:border-sky-300 dark:hover:border-sky-500/40 hover:shadow-xs transition-all duration-200 ease-out">
-                    <div className="flex items-start gap-3">
-                      <div className="text-xs font-black px-2.5 py-1 rounded-md bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-400 border border-sky-300 dark:border-sky-500/20 shrink-0">
-                        LVL 2
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                          <span>Active Contributor</span>
-                          <span className="text-[10px] text-sky-600 dark:text-sky-400 font-normal">• 3+ Task Sukses</span>
+                        <div className="space-y-0.5">
+                          <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5 flex-wrap">
+                            <span
+                              className={cn(
+                                'text-[10px] font-black px-2 py-0.5 rounded shrink-0',
+                                lvl.badgeBg
+                              )}
+                            >
+                              {lvl.level}
+                            </span>
+                            <span>{lvl.name}</span>
+                            <span className="text-[10px] text-slate-400 font-normal">• {lvl.subtitle}</span>
+                          </div>
+                          <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                            <span className="font-semibold text-slate-700 dark:text-slate-300">Syarat:</span>
+                            <span>{lvl.req}</span>
+                          </div>
+                          <div className="text-[11px] text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-semibold">
+                            <Check className="h-3 w-3 shrink-0" />
+                            <span>{lvl.perk}</span>
+                          </div>
                         </div>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                          Menyelesaikan task mandiri dengan penilaian A; membuka kuota task tingkat Intermediate.
-                        </p>
                       </div>
+                      <span
+                        className={cn(
+                          'text-[10px] font-extrabold px-2.5 py-0.5 rounded-full shrink-0 self-start sm:self-center uppercase tracking-wider',
+                          lvl.tagColor
+                        )}
+                      >
+                        {lvl.tag}
+                      </span>
                     </div>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900/60 text-sky-700 dark:text-sky-300 shrink-0">
-                      3+ Task
-                    </span>
-                  </div>
-
-                  <div className="flex items-start justify-between gap-3.5 rounded-xl border border-purple-200 dark:border-purple-500/20 bg-purple-50/60 dark:bg-slate-950/50 p-3.5 hover:border-purple-300 dark:hover:border-purple-500/40 hover:shadow-xs transition-all duration-200 ease-out">
-                    <div className="flex items-start gap-3">
-                      <div className="text-xs font-black px-2.5 py-1 rounded-md bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-400 border border-purple-300 dark:border-purple-500/20 shrink-0">
-                        LVL 3
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                          <span>Senior Specialist</span>
-                          <span className="text-[10px] text-purple-600 dark:text-purple-400 font-normal">• Arsitektur &amp; Kurikulum</span>
-                        </div>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                          Dipercaya menangani task kompleks Advanced dan berkontribusi sebagai co-reviewer teknis.
-                        </p>
-                      </div>
-                    </div>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 shrink-0">
-                      Advanced
-                    </span>
-                  </div>
-
-                  <div className="flex items-start justify-between gap-3.5 rounded-xl border border-amber-200 dark:border-amber-500/20 bg-amber-50/60 dark:bg-slate-950/50 p-3.5 hover:border-amber-300 dark:hover:border-amber-500/40 hover:shadow-xs transition-all duration-200 ease-out">
-                    <div className="flex items-start gap-3">
-                      <div className="text-xs font-black px-2.5 py-1 rounded-md bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-500/20 shrink-0">
-                        LVL 4
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                          <span>Lead Fellow</span>
-                          <span className="text-[10px] text-amber-600 dark:text-amber-400 font-normal">• Pemimpin Inisiatif Tim</span>
-                        </div>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                          Memimpin pembentukan Team Project multi-disiplin dan merumuskan inisiatif baru SAKODE Academy.
-                        </p>
-                      </div>
-                    </div>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 shrink-0">
-                      Fellow
-                    </span>
-                  </div>
+                  ))}
                 </div>
               </div>
 
-              {/* Badges of Excellence Showcase */}
-              <div className="lg:col-span-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 sm:p-7 space-y-5 shadow-xs">
+              {/* Hall of Fame: Lencana Kehormatan Tertinggi (Pinnacle Badges) */}
+              <div className="lg:col-span-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 sm:p-7 flex flex-col justify-between shadow-xs">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="font-bold text-lg text-slate-900 dark:text-white">Lencana Kehormatan (Badges)</h3>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
-                        {EXPANDED_BADGES.length} Tersedia
-                      </span>
+                      <Sparkles className="h-5 w-5 text-amber-500 animate-micro-pulse" />
+                      <h3 className="font-bold text-lg text-slate-900 dark:text-white">
+                        Lencana Kehormatan Tertinggi
+                      </h3>
                     </div>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                      Klik lencana untuk melihat pratinjau kriteria dan cara membukanya.
+                      4 lencana apex paling bergengsi yang dapat diraih oleh talenta SAKODE.
                     </p>
                   </div>
-                  <div className="rounded-xl p-2 bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-sakode-purple shrink-0 self-start sm:self-auto">
-                    <ShieldCheck className="h-5 w-5 animate-micro-pulse" />
-                  </div>
+                  <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800 self-start sm:self-auto shrink-0">
+                    Hall of Fame
+                  </span>
                 </div>
 
-                {/* Filter Tabs */}
-                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-                  {(
-                    [
-                      { key: 'all', label: 'Semua', count: EXPANDED_BADGES.length },
-                      { key: 'tech', label: 'Teknologi', count: EXPANDED_BADGES.filter((b) => b.roleKey === 'tech').length },
-                      { key: 'edu', label: 'Edukasi', count: EXPANDED_BADGES.filter((b) => b.roleKey === 'edu').length },
-                      { key: 'marketing', label: 'Komunitas', count: EXPANDED_BADGES.filter((b) => b.roleKey === 'marketing').length },
-                      { key: 'milestone', label: 'Milestone', count: EXPANDED_BADGES.filter((b) => b.roleKey === 'milestone').length },
-                    ] as const
-                  ).map((tab) => {
-                    const isActive = selectedBadgeCategory === tab.key;
-                    return (
-                      <button
-                        key={tab.key}
-                        type="button"
-                        onClick={() => setSelectedBadgeCategory(tab.key)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 shrink-0 cursor-pointer flex items-center gap-1.5 ${
-                          isActive
-                            ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 shadow-xs'
-                            : 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                        }`}
-                      >
-                        <span>{tab.label}</span>
-                        <span
-                          className={`text-[10px] px-1.5 py-0.2 rounded-full ${
-                            isActive
-                              ? 'bg-white/20 dark:bg-slate-900/20 text-white dark:text-slate-900'
-                              : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
-                          }`}
-                        >
-                          {tab.count}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Badges Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 max-h-[500px] overflow-y-auto pr-1">
-                  {filteredBadges.map((badge, idx) => {
+                {/* 2x2 Grid of Pinnacle Badges */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 flex-1 pt-4">
+                  {PINNACLE_BADGES.map((badge) => {
                     const tierStyle = getTierStyle(badge.tierKey);
                     const IconComponent = badge.icon;
-                    const delayClass =
-                      idx % 4 === 1
-                        ? 'delay-50'
-                        : idx % 4 === 2
-                        ? 'delay-100'
-                        : idx % 4 === 3
-                        ? 'delay-150'
-                        : '';
 
                     return (
                       <div
                         key={badge.id}
                         onClick={() => setPreviewBadge(badge)}
-                        className={`group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/50 p-3.5 space-y-2.5 transition-all duration-200 ease-out cursor-pointer active:scale-[0.98] animate-fade-in-up ${delayClass} ${tierStyle.cardHover}`}
+                        className={cn(
+                          'group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/50 p-4 flex flex-col justify-between space-y-3 transition-all duration-200 ease-out cursor-pointer active:scale-[0.98] hover:-translate-y-1 hover:shadow-md',
+                          tierStyle.cardHover
+                        )}
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div
-                            className={`relative rounded-2xl p-2 border shrink-0 transition-transform duration-200 group-hover:scale-105 flex items-center justify-center h-11 w-11 ${tierStyle.squircleBg}`}
+                            className={cn(
+                              'relative rounded-2xl p-2.5 border shrink-0 transition-transform duration-200 group-hover:scale-105 flex items-center justify-center h-12 w-12',
+                              tierStyle.squircleBg
+                            )}
                           >
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={badge.file}
                               alt={badge.title}
-                              className="h-7 w-7 object-contain transition-opacity duration-200"
+                              className="h-8 w-8 object-contain transition-opacity duration-200"
                               onError={(e) => {
                                 (e.currentTarget as HTMLElement).style.display = 'none';
                                 const fallback = e.currentTarget.parentElement?.querySelector(
@@ -1364,22 +1301,23 @@ export default function HomePage() {
                               }}
                             />
                             <div className="badge-fallback-icon hidden">
-                              <IconComponent className="h-5 w-5" />
+                              <IconComponent className="h-6 w-6" />
                             </div>
                           </div>
                           <span
-                            className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 ${tierStyle.tag}`}
+                            className={cn(
+                              'text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0',
+                              tierStyle.tag
+                            )}
                           >
                             {badge.tier}
                           </span>
                         </div>
 
                         <div className="space-y-1">
-                          <div className="flex items-center justify-between gap-1">
-                            <h4 className="text-xs font-bold text-slate-900 dark:text-white leading-tight group-hover:text-sakode-cyan transition-colors">
-                              {badge.title}
-                            </h4>
-                          </div>
+                          <h4 className="text-xs font-black text-slate-900 dark:text-white leading-tight group-hover:text-sakode-cyan transition-colors">
+                            {badge.title}
+                          </h4>
                           <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500">
                             {badge.role}
                           </p>
@@ -1390,6 +1328,28 @@ export default function HomePage() {
                       </div>
                     );
                   })}
+                </div>
+
+                {/* Dashboard Teaser Box */}
+                <div className="mt-4 rounded-xl border border-dashed border-sky-300 dark:border-sky-500/50 bg-sky-50/70 dark:bg-sky-950/40 p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+                  <div className="space-y-0.5">
+                    <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center justify-center sm:justify-start gap-1.5">
+                      <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+                      <span>20+ Lencana Lengkap di Dashboard</span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      Lacak progres XP, unlock milestone baru, dan klaim reward achievement di akun Anda.
+                    </p>
+                  </div>
+                  <Link href="/login" className="shrink-0 w-full sm:w-auto">
+                    <Button
+                      size="sm"
+                      className="w-full sm:w-auto text-xs font-black text-white bg-sky-600 hover:bg-sky-700 dark:bg-sakode-cyan dark:text-slate-950 dark:hover:bg-sky-300 shadow-md shadow-sky-500/20 dark:shadow-sky-400/20 border-0 transition-all active:scale-95 cursor-pointer"
+                      rightIcon={<ChevronRight className="h-3.5 w-3.5 stroke-[2.5]" />}
+                    >
+                      Buka Dashboard
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>

@@ -31,8 +31,9 @@ flowchart TD
     Root --> FE
     Root --> BE
     Root --> FS
-    FE & BE & FS --> QA
-    QA -->|"Revisi ke Owner Asli"| FE & BE & FS
+    Root --> GD["graphic-designer"]
+    FE & BE & FS & GD --> QA
+    QA -->|"Revisi ke Owner Asli"| FE & BE & FS & GD
     Root --> Rel
     Root --> Doc
 ```
@@ -49,6 +50,7 @@ Setiap implementasi memiliki batasan kepemilikan berkas (*file ownership*) yang 
 | **`frontend-engineer`** | `src/app/**`, `src/components/**`, `src/context/**`, `src/app/globals.css`, `tailwind.config.ts` | Tidak memiliki `src/app/api/**` dan `src/server/**` |
 | **`backend-engineer`** | `src/server/actions/**`, `src/server/services/**`, `src/lib/validations/**`, `src/app/api/**`, `src/lib/cloudinary.ts`, `src/lib/crypto.ts` | Tidak memaparkan secret / admin SDK ke client |
 | **`firestore-engineer`** | `firestore.rules`, `firestore.indexes.json`, `firebase.json`, `src/types/database.ts`, `scripts/seed-database.mjs`, `scripts/run-concurrency-test.mjs` | Dilarang seed/reset/deploy ke target non-emulator tanpa izin |
+| **`graphic-designer`** | `public/badges/**`, `public/images/**`, `public/illustrations/**`, `scripts/build_*badges*.py` | Dilarang menyentuh logika bisnis, data, dan server |
 | **`qa-reviewer`** | Read-only di seluruh repositori | Dilarang memperbaiki temuan sendiri; temuan dikirim ke owner asli |
 | **`release-engineer`** | Konfigurasi deployment, build script, environment check | Dilarang deploy production tanpa izin eksplisit pengguna |
 | **`documenter`** | `AGENTS.md`, `ARCHITECTURE.md`, `DESIGN.md`, `PLANNING.md`, `README.md`, `docs/**`, `CHANGELOG.md` | Dilarang menyentuh kode produk aplikasi |
