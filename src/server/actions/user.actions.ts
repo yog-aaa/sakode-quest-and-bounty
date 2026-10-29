@@ -8,8 +8,9 @@ import {
   requestProfileRevision,
   revealUserPaymentAccount,
   getUserProfile,
+  updateSelfUserProfile,
 } from '@/server/services/user.service';
-import type { ProfileCompletionInput } from '@/lib/validations/auth';
+import type { ProfileCompletionInput, AdminProfileUpdateInput } from '@/lib/validations/auth';
 import type { UserDocument } from '@/types/database';
 import type { BankAccountDetails } from '@/lib/crypto';
 import { serializeUserDoc } from '@/server/serializers';
@@ -130,6 +131,22 @@ export async function revealPaymentAction(
     return {
       success: false,
       error: getErrorMessage(error, 'Gagal membuka data rekening.'),
+    };
+  }
+}
+
+export async function updateSelfProfileAction(
+  uid: string,
+  input: AdminProfileUpdateInput
+): Promise<{ success: boolean; user?: UserDocument; error?: string }> {
+  try {
+    const updated = await updateSelfUserProfile(uid, input);
+    return { success: true, user: serializeUserDoc(updated) };
+  } catch (error: unknown) {
+    console.error('Error on updateSelfProfileAction:', error);
+    return {
+      success: false,
+      error: getErrorMessage(error, 'Gagal memperbarui profil.'),
     };
   }
 }

@@ -30,11 +30,6 @@ export const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
   const isLanding = pathname === '/';
 
-  // Halaman admin memiliki layout AdminSidebar tersendiri dan tidak menggunakan top navbar publik
-  if (pathname.startsWith('/admin')) {
-    return null;
-  }
-
   const adminLinks = [
     { href: '/admin', label: 'Ringkasan', icon: Layers },
     { href: '/admin/tasks', label: 'Kelola Task', icon: Compass },
@@ -128,6 +123,11 @@ export const Navbar: React.FC = () => {
       }
     }
   };
+
+  // Halaman admin memiliki layout AdminSidebar tersendiri dan tidak menggunakan top navbar publik
+  if (pathname.startsWith('/admin')) {
+    return null;
+  }
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200/80 dark:border-slate-800/80 bg-white/90 dark:bg-[#070C14]/90 backdrop-blur-xl transition-colors text-slate-800 dark:text-slate-100 shadow-xs">

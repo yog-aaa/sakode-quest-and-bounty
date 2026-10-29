@@ -117,3 +117,40 @@ export const reviewActionSchema = z.object({
 });
 
 export type ReviewActionInput = z.infer<typeof reviewActionSchema>;
+
+/**
+ * 5. Skema Pembaruan Profil Mandiri (Admin / User)
+ */
+export const adminProfileUpdateSchema = z.object({
+  displayName: z
+    .string()
+    .trim()
+    .min(3, 'Nama lengkap minimal 3 karakter')
+    .max(60, 'Nama lengkap maksimal 60 karakter'),
+  contactNumber: z
+    .string()
+    .trim()
+    .min(1, 'Nomor WhatsApp / kontak wajib diisi')
+    .regex(
+      indonesiaPhoneRegex,
+      'Nomor kontak tidak valid. Gunakan format 08xxxxxxxx atau +628xxxxxxxx'
+    ),
+  bankName: z.enum(SUPPORTED_PAYMENT_PROVIDERS).optional(),
+  accountNumber: z
+    .string()
+    .trim()
+    .optional()
+    .refine((val) => !val || (val.length >= 5 && val.length <= 25 && /^[0-9]+$/.test(val)), {
+      message: 'Nomor rekening harus 5-25 digit angka',
+    }),
+  accountHolderName: z
+    .string()
+    .trim()
+    .optional()
+    .refine((val) => !val || (val.length >= 3 && val.length <= 60), {
+      message: 'Nama pemilik rekening minimal 3 karakter',
+    }),
+});
+
+export type AdminProfileUpdateInput = z.infer<typeof adminProfileUpdateSchema>;
+

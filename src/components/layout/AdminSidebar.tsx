@@ -3,7 +3,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,
@@ -15,16 +14,17 @@ import {
   AlertTriangle,
   FileText,
   Bell,
-  ShieldAlert,
-  LogOut,
+  Lock,
   X,
-  ExternalLink,
-  ShieldCheck,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
 
 interface AdminSidebarProps {
   isOpenMobile: boolean;
   onCloseMobile: () => void;
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
 }
 
 interface NavItem {
@@ -43,9 +43,10 @@ interface NavSection {
 export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   isOpenMobile,
   onCloseMobile,
+  isCollapsed,
+  onToggleCollapse,
 }) => {
   const pathname = usePathname();
-  const { user, logout } = useAuth();
 
   const navSections: NavSection[] = [
     {
@@ -114,154 +115,234 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         {
           href: '/admin/roles',
           label: 'Delegasi Role Staf',
-          icon: ShieldAlert,
+          icon: Lock,
           superAdminOnly: true,
         },
       ],
     },
   ];
 
-  const handleLogout = async () => {
-    await logout();
-    window.location.href = '/login';
+  // Helper untuk menentukan apakah link rute sedang aktif
+  const isItemActive = (href: string) => {
+    if (href === '/admin') {
+      return pathname === '/admin';
+    }
+    return pathname.startsWith(href);
   };
 
-  const sidebarContent = (
-    <div className="flex flex-col h-full bg-white dark:bg-[#070C14] border-r border-slate-200/80 dark:border-slate-800/80 text-slate-800 dark:text-slate-200">
-      {/* 1. Header & Brand */}
-      <div className="h-16 px-5 border-b border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between shrink-0">
-        <Link href="/admin" className="flex items-center gap-2.5 group">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/sakode-work-logo.svg"
-            alt="SAKODE Work Admin"
-            className="h-8 w-auto object-contain transition-transform group-hover:scale-[1.02]"
-          />
-          <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
-            ADMIN
-          </span>
-        </Link>
+  // Konten navigasi untuk Desktop dan Mobile Drawer
+  const renderSidebarContent = (isDrawerMobile: boolean = false) => {
+    const collapsed = !isDrawerMobile && isCollapsed;
 
-        {/* Mobile close button */}
-        <button
-          type="button"
-          onClick={onCloseMobile}
-          className="lg:hidden p-1.5 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
-          aria-label="Tutup Menu"
+    return (
+      <div
+        className={cn(
+          'flex flex-col h-full bg-white dark:bg-[#0A0E17] border-r border-slate-200/80 dark:border-slate-800/80 select-none transition-colors',
+          collapsed ? 'overflow-visible' : ''
+        )}
+      >
+        {/* ============================================================= */}
+        {/* HEADER SIDEBAR: LOGO (FULL / BRANDMARK) & TOGGLE */}
+        {/* ============================================================= */}
+        <div
+          className={cn(
+            'h-16 flex items-center border-b border-slate-200/80 dark:border-slate-800/80 px-4 transition-all duration-300',
+            collapsed ? 'justify-center px-2' : 'justify-between'
+          )}
         >
-          <X className="h-5 w-5" />
-        </button>
-      </div>
+          {/* Brand Logo with Smooth Transition */}
+          <Link
+            href="/admin"
+            className="flex items-center gap-2 group py-1 overflow-hidden"
+            title="SAKODE Work HQ"
+          >
+            {collapsed ? (
+              // Mode Tersembunyi (Collapsed): Icon Brandmark Beranimasi
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src="/sakode-brandmark.svg"
+                alt="SAKODE"
+                className="h-8 w-8 object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-xs"
+              />
+            ) : (
+              // Mode Tampil (Expanded): Logo Full SAKODE Work
+              <div className="flex items-center gap-2 transition-opacity duration-300">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/sakode-work-logo.svg"
+                  alt="SAKODE Work"
+                  className="h-7 w-auto object-contain transition-transform duration-200 group-hover:scale-[1.02]"
+                />
+              </div>
+            )}
+          </Link>
 
-      {/* 2. Navigation Sections (Scrollable) */}
-      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6 scrollbar-none [&::-webkit-scrollbar]:hidden">
-        {navSections.map((section) => {
-          const visibleItems = section.items.filter(
-            (item) => !item.superAdminOnly || user?.isSuperAdmin
-          );
-          if (visibleItems.length === 0) return null;
+          {/* Toggle Button Desktop */}
+          {!isDrawerMobile && (
+            <button
+              type="button"
+              onClick={onToggleCollapse}
+              className={cn(
+                'p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/70 transition-all cursor-pointer',
+                collapsed && 'hidden'
+              )}
+              title="Kecilkan Sidebar"
+              aria-label="Kecilkan Sidebar"
+            >
+              <PanelLeftClose className="h-4 w-4" />
+            </button>
+          )}
 
-          return (
-            <div key={section.title} className="space-y-1">
-              <span className="px-3 text-[10px] font-mono font-bold tracking-wider text-slate-400 dark:text-slate-500 uppercase block">
-                {section.title}
-              </span>
+          {/* Close Button Mobile Drawer */}
+          {isDrawerMobile && (
+            <button
+              type="button"
+              onClick={onCloseMobile}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              aria-label="Tutup menu navigasi"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          )}
+        </div>
 
-              <div className="space-y-0.5 pt-1">
-                {visibleItems.map((item) => {
+        {/* ============================================================= */}
+        {/* NAV SECTION LIST */}
+        {/* ============================================================= */}
+        <div
+          className={cn(
+            'flex-1 px-3 py-4 space-y-6 scrollbar-none',
+            collapsed ? 'overflow-visible' : 'overflow-y-auto'
+          )}
+        >
+          {navSections.map((section, sIdx) => (
+            <div key={section.title || sIdx} className="space-y-1">
+              {/* Judul Bagian */}
+              {!collapsed ? (
+                <div className="px-3 pb-1.5 text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                  {section.title}
+                </div>
+              ) : (
+                sIdx > 0 && (
+                  <div className="my-2 border-t border-slate-200/60 dark:border-slate-800/60 mx-1" />
+                )
+              )}
+
+              {/* Items */}
+              <div className="space-y-1">
+                {section.items.map((item) => {
                   const Icon = item.icon;
-                  const isActive =
-                    item.href === '/admin'
-                      ? pathname === '/admin'
-                      : pathname.startsWith(item.href);
+                  const active = isItemActive(item.href);
 
                   return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={onCloseMobile}
-                      className={cn(
-                        'flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all group relative',
-                        isActive
-                          ? 'bg-sky-50 dark:bg-sky-950/60 text-[#076991] dark:text-sakode-cyan font-bold shadow-2xs'
-                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100/80 dark:hover:bg-slate-800/60'
-                      )}
-                    >
-                      {isActive && (
-                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-r-full bg-sakode-cyan" />
-                      )}
-                      <Icon
+                    <div key={item.href} className="relative group">
+                      <Link
+                        href={item.href}
+                        onClick={() => {
+                          if (isDrawerMobile) onCloseMobile();
+                        }}
                         className={cn(
-                          'h-4 w-4 shrink-0 transition-colors',
-                          isActive
-                            ? 'text-sky-600 dark:text-sakode-cyan'
-                            : 'text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200'
+                          'relative flex items-center rounded-xl text-xs font-semibold transition-all duration-200',
+                          collapsed
+                            ? 'justify-center p-2.5'
+                            : 'gap-3 px-3 py-2.5',
+                          active
+                            ? 'bg-gradient-to-r from-sky-500/10 to-cyan-500/10 text-sky-700 dark:text-sakode-cyan font-bold shadow-2xs border border-sky-500/20 dark:border-cyan-500/30'
+                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100/80 dark:hover:bg-slate-800/60'
                         )}
-                      />
-                      <span className="truncate">{item.label}</span>
-                      {item.badge && (
-                        <span className="ml-auto text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300">
-                          {item.badge}
-                        </span>
+                      >
+                        {/* Aksen Strip Aktif (Expanded Only) */}
+                        {active && !collapsed && (
+                          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-r-full bg-gradient-to-b from-sky-500 to-cyan-400" />
+                        )}
+
+                        {/* Icon dengan Animasi Gamified */}
+                        <Icon
+                          className={cn(
+                            'shrink-0 transition-transform duration-200 group-hover:scale-110',
+                            collapsed ? 'h-5 w-5' : 'h-4 w-4',
+                            active
+                              ? 'text-sky-600 dark:text-sakode-cyan'
+                              : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-700 dark:group-hover:text-slate-300'
+                          )}
+                        />
+
+                        {/* Label Teks (Expanded Only) */}
+                        {!collapsed && (
+                          <span className="truncate flex-1">{item.label}</span>
+                        )}
+
+                        {/* Badge Tambahan jika ada */}
+                        {!collapsed && item.badge && (
+                          <span className="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                            {item.badge}
+                          </span>
+                        )}
+                      </Link>
+
+                      {/* Tooltip Khusus Mode Collapsed */}
+                      {collapsed && (
+                        <div
+                          role="tooltip"
+                          className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-3.5 px-3 py-1.5 bg-slate-900 text-white dark:bg-slate-800 dark:text-slate-100 text-xs font-bold rounded-lg shadow-2xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-1 group-hover:translate-x-0 z-[100] flex items-center"
+                        >
+                          <span>{item.label}</span>
+                          <span className="absolute -left-1 top-1/2 -translate-y-1/2 border-y-4 border-y-transparent border-r-4 border-r-slate-900 dark:border-r-slate-800" />
+                        </div>
                       )}
-                    </Link>
+                    </div>
                   );
                 })}
               </div>
             </div>
-          );
-        })}
-      </div>
+          ))}
+        </div>
 
-      {/* 3. Footer: Portal Switcher & Admin User Profile */}
-      <div className="p-3 border-t border-slate-200/80 dark:border-slate-800/80 space-y-3 bg-slate-50/60 dark:bg-slate-950/40 shrink-0">
-        <Link
-          href="/"
-          className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-900 border border-slate-200/70 dark:border-slate-800/80 transition-colors shadow-2xs"
-        >
-          <span className="flex items-center gap-1.5">
-            <ExternalLink className="h-3.5 w-3.5 text-slate-400" />
-            <span>Lihat Portal Publik</span>
-          </span>
-          <span className="text-[10px] text-slate-400">↗</span>
-        </Link>
-
-        {/* User Profile Card */}
-        <div className="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-2xs">
-          <div className="flex items-center gap-2 min-w-0 pr-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-sky-400 to-purple-500 text-white flex items-center justify-center text-xs font-black shrink-0 shadow-2xs">
-              {(user?.displayName || user?.email || 'A')[0].toUpperCase()}
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                {user?.displayName || user?.email?.split('@')[0]}
-              </p>
-              <div className="flex items-center gap-1">
-                <span className="text-[9px] uppercase font-mono font-bold px-1.5 py-0.2 rounded bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300">
-                  {user?.isSuperAdmin ? 'Super Admin' : 'Admin'}
-                </span>
+        {/* ============================================================= */}
+        {/* FOOTER SIDEBAR (TOGGLE SAAT COLLAPSED & VERSI) */}
+        {/* ============================================================= */}
+        <div className="p-3 border-t border-slate-200/80 dark:border-slate-800/80 transition-all duration-300 overflow-visible">
+          {collapsed ? (
+            <button
+              type="button"
+              onClick={onToggleCollapse}
+              className="w-full flex items-center justify-center p-2 rounded-xl text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer group relative"
+              title="Perluas Sidebar"
+              aria-label="Perluas Sidebar"
+            >
+              <PanelLeftOpen className="h-5 w-5 group-hover:scale-110 transition-transform" />
+              <div
+                role="tooltip"
+                className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-3.5 px-3 py-1.5 bg-slate-900 text-white dark:bg-slate-800 dark:text-slate-100 text-xs font-bold rounded-lg shadow-2xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-1 group-hover:translate-x-0 z-[100] flex items-center"
+              >
+                <span>Perluas Sidebar</span>
+                <span className="absolute -left-1 top-1/2 -translate-y-1/2 border-y-4 border-y-transparent border-r-4 border-r-slate-900 dark:border-r-slate-800" />
               </div>
+            </button>
+          ) : (
+            <div className="flex items-center justify-between px-2 py-1 text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
+                <span>SAKODE HQ</span>
+              </span>
+              <span className="text-[10px] font-mono">v1.2</span>
             </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer shrink-0"
-            title="Keluar dari Akun Admin"
-          >
-            <LogOut className="h-4 w-4" />
-          </button>
+          )}
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <>
-      {/* Desktop Persistent Sidebar */}
-      <aside className="hidden lg:block w-64 shrink-0 h-screen sticky top-0 z-40">
-        {sidebarContent}
+      {/* Desktop Persistent Sidebar with Width Transition */}
+      <aside
+        className={cn(
+          'hidden lg:block shrink-0 h-screen sticky top-0 z-40 transition-all duration-300 ease-in-out',
+          isCollapsed ? 'w-20 overflow-visible' : 'w-64'
+        )}
+      >
+        {renderSidebarContent(false)}
       </aside>
 
       {/* Mobile Drawer Overlay */}
@@ -275,8 +356,8 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           />
 
           {/* Drawer Canvas */}
-          <div className="relative flex-1 flex flex-col max-w-xs w-full">
-            {sidebarContent}
+          <div className="relative flex-1 flex flex-col max-w-xs w-full animate-in slide-in-from-left duration-200">
+            {renderSidebarContent(true)}
           </div>
         </div>
       )}
