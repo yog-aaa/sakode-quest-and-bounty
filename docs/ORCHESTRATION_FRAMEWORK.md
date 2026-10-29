@@ -1,114 +1,179 @@
-# SAKODE Task & Reward Platform - Agent Collaboration Protocol
+# SAKODE Task & Reward Platform — Framework Orkestrasi Multi-Agent
 
-Dokumen ini adalah acuan kerja sama antara **Orchestrator / Planner / QA Agent** dengan **Coder / Programmer Agent**.
-
----
-
-## 1. Peran & Tanggung Jawab
-
-| Peran | Pemegang | Tanggung Jawab |
-|---|---|---|
-| **Orchestrator / Planner** | Antigravity AI | Memecah spesifikasi menjadi task atomik, menetapkan arsitektur, kriteria penerimaan, dan rule teknis. |
-| **Coder Agent** | Programmer Agent | Menulis kode, membuat file konfigurasi, menjalankan build/lint, melakukan self-testing, dan melaporkan hasil kerja. |
-| **Reviewer & QA** | Antigravity AI | Memverifikasi kepatuhan arsitektur, keamanan transaksi Firestore, kualitas kode, akurasi design tokens, dan acceptance criteria. |
+Dokumen ini adalah acuan arsitektur orkestrasi kolaborasi multi-agent di repositori **SAKODE Task & Reward Platform** (`sakode-task-reward`).
 
 ---
 
-## 2. Siklus Kerja Tektokan (Workflow Loop)
+## 1. Filosofi & Arsitektur Roster Tetap (Fixed Reusable Roster)
+
+Antigravity beroperasi dengan prinsip:
+> **"Specialization belongs to the task, not to the agent identity."**
+
+Agent merepresentasikan domain keahlian yang stabil. Spesialisasi sementara diberikan melalui payload task terstruktur. Dilarang keras membuat agent sementara (*transient agents*) atau agent yang dinamai berdasarkan halaman, fitur, sprint, atau bug.
 
 ```mermaid
-sequenceDiagram
-    autonumber
-    actor User as User / Team
-    participant O as Orchestrator / QA
-    participant C as Coder Agent
-
-    O->>User: Rilis Prompt Eksekusi Task (Sprint X.Y)
-    User->>C: Berikan Prompt Eksekusi
-    Note over C: Analisis, Penulisan Kode,<br/>Self-Testing (Build, Lint, Unit Test)
-    C->>User: Kirim Laporan Selesai (Format Standar)
-    User->>O: Teruskan Laporan Coder Agent
-    Note over O: QA Review, Static Check,<br/>Security & Invariant Verification
-    alt Ada Kekurangan / Bug
-        O->>User: Revision Request (Daftar Temuan + Petunjuk Perbaikan)
-        User->>C: Kirimkan Revisi
-    else Lulus QA (Acceptance Criteria Terpenuhi)
-        O->>User: Task Approved! Rilis Prompt Eksekusi Berikutnya
+flowchart TD
+    subgraph Governance ["Root Orchestration & Review"]
+        Root["Root Orchestrator"]
+        QA["qa-reviewer (Independent QA)"]
+        Doc["documenter (Docs & Handoff)"]
+        Rel["release-engineer (Build & Release Prep)"]
     end
+
+    subgraph Implementation ["Reusable Domain Specialists"]
+        Arch["repo-architect (Analysis & Boundaries)"]
+        FE["frontend-engineer (UI/UX, A11y, Tokens)"]
+        BE["backend-engineer (Server, Auth, APIs)"]
+        FS["firestore-engineer (Transactions, Rules, DB)"]
+    end
+
+    Root --> Arch
+    Root --> FE
+    Root --> BE
+    Root --> FS
+    FE & BE & FS --> QA
+    QA -->|"Revisi ke Owner Asli"| FE & BE & FS
+    Root --> Rel
+    Root --> Doc
 ```
 
 ---
 
-## 3. Strict Invariants (Hukum Mutlak Proyek SAKODE)
+## 2. Roster Agent & Matriks Kepemilikan Berkas (File Ownership)
 
-Semua kode yang ditulis Coder Agent **WAJIB** tunduk pada invariant berikut tanpa pengecualian:
+Setiap implementasi memiliki batasan kepemilikan berkas (*file ownership*) yang eksklusif untuk mencegah konflik:
 
-1. **Mata Uang Finansial**:
-   - Seluruh nominal reward disimpan sebagai **Integer Rupiah** (IDR, tanpa floating point, tanpa desimal). Contoh: `Rp 150.000` disimpan sebagai `150000`.
-2. **Zona Waktu & Tanggal**:
-   - Disimpan di Firestore dalam format UTC (`admin.firestore.Timestamp` / ISO UTC).
-   - Ditampilkan di UI pengguna dalam zona waktu **Asia/Jakarta (WIB)**.
-3. **No-Cron Deadline Validation**:
-   - Status batas waktu divalidasi langsung di sisi server (`Server Timestamp`) pada setiap mutasi data sensitif. UI hanya menampilkan derivasi visual.
-4. **Pembatasan Task & Application**:
-   - 1 Member aktif hanya boleh memiliki **maksimal 1 Active Task** (baik Solo maupun Team).
-   - Maksimal **3 Application** pending per member. Ketika terpilih pada 1 task, aplikasi lain otomatis dibatalkan (`withdrawn`) tanpa penalti.
-5. **Integritas Firestore**:
-   - Setiap mutasi finansial, klaim reward, instant take task, dan perubahan status tim **wajib** menggunakan Firestore Transactions (`runTransaction`).
-   - Audit trail bersifat **Append-Only** (hanya `create`, tidak ada `update` atau `delete`).
-6. **Privasi Rekening Bank / E-Wallet**:
-   - Data rekening dienkripsi di level aplikasi sebelum masuk Firestore.
-   - Tampilan UI selalu menggunakan format masked (contoh: `BCA ****5678`), kecuali pada panel transfer Admin yang berwenang.
-   - Saat claim diajukan, buat snapshot data rekening di dokumen claim untuk membekukan data pembayaran.
-7. **Design System & Tokens SAKODE**:
-   - Font: `Nunito`
-   - Primary Cyan: `#71CFFE`
-   - Accent Purple: `#BC71FE` (khusus tim / kolaborasi)
-   - Accent Orange: `#F9723B` (deadline / warning)
-   - Background: `#F7FBFE` & `#FFFFFF`
-   - Border: `#DBE8F0`
-   - Text Utama: `#172033`, Text Sekunder: `#64748B`
-   - Border radius default: `8px` (`rounded-lg`)
-8. **Bahasa Antarmuka**:
-   - Pesan error, modal, notifikasi, dan CTA menggunakan **Bahasa Indonesia** yang baku, lugas, dan profesional (misal: "Ambil Task", "Kirim Hasil", "Setujui Pembagian", "Ajukan Pencairan").
+| Agent | File Ownership Baseline | Pengecualian / Larangan |
+|---|---|---|
+| **`repo-architect`** | Read-only di seluruh repositori | Dilarang memodifikasi berkas apapun |
+| **`frontend-engineer`** | `src/app/**`, `src/components/**`, `src/context/**`, `src/app/globals.css`, `tailwind.config.ts` | Tidak memiliki `src/app/api/**` dan `src/server/**` |
+| **`backend-engineer`** | `src/server/actions/**`, `src/server/services/**`, `src/lib/validations/**`, `src/app/api/**`, `src/lib/cloudinary.ts`, `src/lib/crypto.ts` | Tidak memaparkan secret / admin SDK ke client |
+| **`firestore-engineer`** | `firestore.rules`, `firestore.indexes.json`, `firebase.json`, `src/types/database.ts`, `scripts/seed-database.mjs`, `scripts/run-concurrency-test.mjs` | Dilarang seed/reset/deploy ke target non-emulator tanpa izin |
+| **`qa-reviewer`** | Read-only di seluruh repositori | Dilarang memperbaiki temuan sendiri; temuan dikirim ke owner asli |
+| **`release-engineer`** | Konfigurasi deployment, build script, environment check | Dilarang deploy production tanpa izin eksplisit pengguna |
+| **`documenter`** | `AGENTS.md`, `ARCHITECTURE.md`, `DESIGN.md`, `PLANNING.md`, `README.md`, `docs/**`, `CHANGELOG.md` | Dilarang menyentuh kode produk aplikasi |
 
 ---
 
-## 4. Format Laporan Coder Agent (Wajib Dipakai Coder)
+## 3. Alur Kerja Berbasis Kontrak (Contract-First Workflow)
 
-Ketika Coder Agent menyelesaikan suatu task, format laporannya harus seperti berikut:
+Sebelum implementasi frontend dan backend berjalan secara paralel, Root menetapkan kontrak teknis lintas layer:
 
-```markdown
-### [LAPORAN PENYELESAIAN TASK: <KODE_TASK>]
-
-#### 1. Ringkasan Pekerjaan
-- <Deskripsi singkat apa saja yang telah diimplementasikan>
-
-#### 2. Berkas yang Dibuat / Diubah
-- [file/path/one.ts](file:///...) - <Keterangan perubahan>
-- [file/path/two.tsx](file:///...) - <Keterangan perubahan>
-
-#### 3. Verifikasi & Pengujian Mandiri
-- Status Build (`npm run build`): <Lolos / Ada catatan>
-- Status Lint/Typecheck (`npm run lint` / `npx tsc --noEmit`): <Lolos>
-- Unit/Integration Test: <Lolos / N/A>
-
-#### 4. Catatan Teknis / Keputusan Arsitektur
-- <Misalnya penanganan state, indexing Firestore yang dibutuhkan, atau env vars baru>
-
-#### 5. Checklist Acceptance Criteria
-- [x] Kriteria 1
-- [x] Kriteria 2
-- [x] Kriteria 3
+```json
+{
+  "type": "contract",
+  "id": "C-01",
+  "feature": "Nama Fitur",
+  "actors": ["MEMBER", "ADMIN"],
+  "input": {
+    "taskId": "string (zod uuid/alphanumeric)",
+    "payload": "object"
+  },
+  "output": {
+    "success": true,
+    "data": {}
+  },
+  "errors": [
+    { "code": "ACTIVE_TASK_EXISTS", "message": "Anda masih memiliki task aktif." }
+  ],
+  "authorization": "Wajib terautentikasi dan status approved",
+  "validation": "src/lib/validations/task.ts",
+  "firestore": {
+    "reads": ["tasks/{taskId}", "users/{userId}"],
+    "writes": ["tasks/{taskId}", "auditEvents/{eventId}"],
+    "transaction_required": true
+  },
+  "audit_event": "TASK_ASSIGNED",
+  "notifications": ["FCM ke admin"],
+  "owners": {
+    "frontend": "frontend-engineer",
+    "backend": "backend-engineer",
+    "data": "firestore-engineer"
+  }
+}
 ```
 
 ---
 
-## 5. Checklist Review & QA (Orchestrator Review Rubric)
+## 4. Protokol JSON Antar-Agent
 
-Setiap laporan yang masuk akan ditinjau oleh Orchestrator dengan checklist berikut:
-- [ ] **Type Safety & Clean Architecture**: Tidak ada penggunaan `any` tanpa justifikasi, struktur folder modular terpisah (Domain, Application, Infrastructure, UI).
-- [ ] **Security & Invariants**: Tidak ada mutasi finansial tanpa transaksi Firestore; pembatasan 1 Active Task / 3 Pending Applications ditegakkan.
-- [ ] **Server Validation**: Input payload divalidasi via Zod / schema validator di Server Actions / Route Handlers.
-- [ ] **Design Consistency**: Menggunakan token Tailwind SAKODE, responsif mobile-first.
-- [ ] **Error Handling**: Error tersaji ramah dalam Bahasa Indonesia, tidak ada crash silent.
+### A. Penugasan Tugas (`task`)
+```json
+{
+  "v": 1,
+  "type": "task",
+  "id": "FE-01",
+  "from": "root",
+  "to": "frontend-engineer",
+  "goal": "Implementasi kartu task responsif",
+  "scope": ["src/components/tasks/**"],
+  "skills": ["frontend-design", "tailwind-design-system"],
+  "allowed": ["read", "edit:src/components/tasks/**", "run:npm run lint"],
+  "forbidden": ["define_subagent", "invoke_subagent", "git-write"],
+  "inputs": ["C-01"],
+  "deliverables": ["src/components/tasks/TaskCard.tsx"],
+  "done_when": ["WCAG AA compliant", "Touch target >= 44px", "Lint PASS"],
+  "depends_on": []
+}
+```
+
+### B. Laporan Penyelesaian (`result`)
+```json
+{
+  "v": 1,
+  "type": "result",
+  "id": "FE-01",
+  "from": "frontend-engineer",
+  "status": "done",
+  "summary": "Komponen TaskCard selesai dengan token resmi SAKODE",
+  "files": ["src/components/tasks/TaskCard.tsx"],
+  "evidence": ["src/components/tasks/TaskCard.tsx:45", "npm run lint=PASS"],
+  "checks": ["lint=PASS", "typecheck=PASS"]
+}
+```
+
+### C. Handoff Antar-Agent (`handoff`)
+```json
+{
+  "v": 1,
+  "type": "handoff",
+  "from": "backend-engineer",
+  "to": "frontend-engineer",
+  "contract": "C-01",
+  "summary": "Server action selesai diekspor di src/server/actions/task.ts",
+  "artifacts": ["src/server/actions/task.ts"],
+  "constraints": ["Gunakan Server Action via useActionState atau form action"]
+}
+```
+
+### D. Hasil Peninjauan QA (`review`)
+```json
+{
+  "v": 1,
+  "type": "review",
+  "task": "FE-01",
+  "status": "changes_requested",
+  "findings": [
+    {
+      "severity": "major",
+      "owner": "frontend-engineer",
+      "file": "src/components/tasks/TaskCard.tsx",
+      "line": 48,
+      "issue": "Touch target tombol aksi hanya 36px, di bawah standar 44px",
+      "expected": "Tambahkan class min-h-[44px] min-w-[44px]"
+    }
+  ],
+  "checks": ["lint=PASS"]
+}
+```
+
+---
+
+## 5. Review Loop & Quality Gates
+
+1. **Implementer** menyelesaikan pekerjaan dan menjalankan verifikasi mandiri (`npm run lint`, `npx tsc --noEmit`).
+2. **Root** mengevaluasi diff dan output command.
+3. **`qa-reviewer`** menjalankan independent code review tanpa menyentuh kode.
+4. Jika ada temuan, instruksi revisi dikembalikan kepada **agent pemilik mula-mula**. Agent baru dilarang dibuat.
+5. Setelah lolos review, **`documenter`** memperbarui dokumentasi terkait.
+6. **Git Safety Gate**: Dilarang menjalankan perintah mutasi git (`git add`, `git commit`, `git push`). Root menyajikan *Proposed Commit Message* menggunakan format Conventional Commits.

@@ -1,64 +1,62 @@
-# SKILLS_GUIDE.md — Panduan Pemanfaatan Local Agent Skills
+# SKILLS_GUIDE.md — Panduan Pemanfaatan Skills Antigravity SAKODE
 
-Dokumen ini memandu **Coder Agent** untuk mengakses dan memanfaatkan secara maksimal seluruh skill pengembangan web yang telah terpasang di:
-📂 `C:\Users\yogaa\Document Local\AGENT-SKILLS\skills\`
-
----
-
-## 1. Daftar Skill & Panduan Pemanfaatan
-
-### 1. `frontend-design`
-* **Lokasi**: `C:\Users\yogaa\Document Local\AGENT-SKILLS\skills\frontend-design\SKILL.md`
-* **Kapan Dibaca**: Setiap kali membuat atau merombak komponen antarmuka, layout dashboard, atau kartu task.
-* **Instruksi Kunci**:
-  * Hindari desain generik "AI slop" (misal: font Inter/Arial biasa, gradient ungu membosankan di latar putih tanpa konteks).
-  * Terapkan arah estetika SAKODE secara konsisten: perpaduan struktur dashboard profesional SIMADEP dengan elemen visual anime/RPG halus (bounty card, quest progress, tiering kesulitan).
-  * Perhatikan detail mikro: border tipis `#DBE8F0`, aksen cyan `#71CFFE`, purple `#BC71FE` untuk konteks tim, dan orange `#F9723B` untuk deadline.
-
-### 2. `tailwind-design-system`
-* **Lokasi**: `C:\Users\yogaa\Document Local\AGENT-SKILLS\skills\tailwind-design-system\SKILL.md`
-* **Kapan Dibaca**: Saat mengonfigurasi tema, menyusun variabel CSS, membuat varian komponen, dan merapikan utility classes.
-* **Instruksi Kunci**:
-  * Gunakan token semantik yang dapat diskalakan.
-  * Pastikan komponen UI primitif (`Button`, `Card`, `Badge`, `Modal`) memiliki varian status yang rapi dan konsisten.
-  * Jaga agar tidak terjadi duplikasi styling sembarangan.
-
-### 3. `security-best-practices` & `security-threat-model`
-* **Lokasi**:
-  * `C:\Users\yogaa\Document Local\AGENT-SKILLS\skills\security-best-practices\SKILL.md`
-  * `C:\Users\yogaa\Document Local\AGENT-SKILLS\skills\security-threat-model\SKILL.md`
-* **Kapan Dibaca**: Saat membangun Server Actions, Route Handlers, skema validasi Zod, dan transaksi Firestore.
-* **Instruksi Kunci**:
-  * Seluruh input dari client harus divalidasi ketat di server menggunakan Zod.
-  * Hindari mempercayai status atau timestamp dari client browser — selalu gunakan `admin.firestore.FieldValue.serverTimestamp()`.
-  * Enkripsi data pembayaran sebelum masuk ke database, tampilkan selalu dalam format *masked*.
-  * Terapkan transaksi atomik (`firestore.runTransaction`) untuk mencegah race condition / double spending.
-
-### 4. `web-design-guidelines`
-* **Lokasi**: `C:\Users\yogaa\Document Local\AGENT-SKILLS\skills\web-design-guidelines\SKILL.md`
-* **Kapan Dibaca**: Saat mengecek kepatuhan aksesibilitas, responsivitas layar kecil, dan ergonomi form.
-* **Instruksi Kunci**:
-  * Pastikan touch target di mobile memiliki tinggi minimal `44px`.
-  * Setiap status task harus memiliki teks dan ikon, bukan hanya warna (WCAG AA).
-  * Navigasi form dapat diakses dengan keyboard (tab index, focus-visible ring).
-
-### 5. `animate`
-* **Lokasi**: `C:\Users\yogaa\Document Local\AGENT-SKILLS\skills\animate\SKILL.md`
-* **Kapan Dibaca**: Saat mengimplementasikan animasi transisi status, feedback loading, atau modal dialog.
-* **Instruksi Kunci**:
-  * Animasi harus bermakna dan tidak mengganggu alur kerja operasional.
-  * Gunakan easing yang halus (`cubic-bezier` yang natural) dan durasi ringkas (150ms - 250ms).
+Dokumen ini memandu implementer dan orkestrator dalam memanfaatkan sistem skill Antigravity untuk repositori **SAKODE Task & Reward Platform** (`sakode-task-reward`).
 
 ---
 
-## 2. Cara Coder Agent Membaca File Skill
+## 1. Lokasi & Penyimpanan Skills
 
-Coder Agent dapat membaca langsung file `SKILL.md` pada path absolut lokal:
+1. **Koleksi Sumber Custom Skills (Root Hub)**:
+   `C:\Users\yogaa\Document Local\AGENT-SKILLS\`
+   - Berisi 35 custom skills di `skills/<nama-skill>/SKILL.md`.
+   - Terhubung secara resmi ke Antigravity via plugin junction di `~/.gemini/config/plugins/agent-skills`.
+   - *(Repositori sumber ini bersifat read-only bagi task project. Dilarang mengubah file sumber langsung dari repo project).*
+
+2. **Project-Local Skills SAKODE**:
+   `.agents/skills/<nama-skill>/SKILL.md`
+   - Salinan terpilih skill yang relevan langsung untuk SAKODE (`frontend-design`, `tailwind-design-system`, `web-design-guidelines`, `animate`, `security-best-practices`, `security-threat-model`, `shadcn`).
+   - Dapat diakses langsung oleh subagent di dalam lingkungan workspace.
+
+---
+
+## 2. Prinsip Progressive Disclosure
+
+Dalam memanfaatkan skill, agen wajib menerapkan prinsip keterbukaan bertahap (*progressive disclosure*):
+
+1. **Jangan Memuat Seluruh Skill**: Jangan pernah memuat atau membaca seluruh isi direktori skill ke dalam konteks sekaligus.
+2. **Cek Deskripsi & Kebutuhan Terlebih Dahulu**: Identifikasi skill yang benar-benar dibutuhkan oleh task aktif.
+3. **Baca `SKILL.md` yang Dipilih**: Baca berkas `SKILL.md` lokal secara lengkap dan terarah saat eksekusi dimulai.
+4. **Skills Tidak Memperluas Otorisasi**: Skill menyediakan panduan desain dan arsitektur, bukan memperluas akses mutasi atau izin eksternal.
+
+---
+
+## 3. Matriks Routing Skill Berdasarkan Tugas
+
+| Domain Tugas | Agen Terkait | Skill Rujukan Lokal (`.agents/skills/...`) | Fokus Panduan |
+|---|---|---|---|
+| **Antarmuka & Estetika Visual** | `frontend-engineer` | `frontend-design` | Hindari "AI slop" generik; estetika SAKODE (SIMADEP x RPG quest board halus); kontras dan ruang tajam. |
+| **Design System & Tokens** | `frontend-engineer` | `tailwind-design-system` | Semantic color tokens, konsistensi Tailwind CSS 4, skalabilitas komponen UI. |
+| **Aksesibilitas & Standar Web** | `frontend-engineer`<br/>`qa-reviewer` | `web-design-guidelines` | Target sentuh mobile >= 44px, status multi-indikator (ikon + teks), keyboard focus-visible, WCAG AA. |
+| **Komponen UI Primitif** | `frontend-engineer` | `shadcn` | Pola komponen dialog, popover, dropdown, dan form accessibility yang solid. |
+| **Animasi & Mikro-interaksi** | `frontend-engineer` | `animate` | Transisi status halus, feedback pemuatan, kurva easing natural, dukungan *reduced motion*. |
+| **Keamanan & Validasi Server** | `backend-engineer`<br/>`firestore-engineer` | `security-best-practices` | Validasi Zod ketat di server, proteksi IDOR, masking rekening, pencegahan privilege escalation. |
+| **Model Ancaman Keamanan** | `backend-engineer`<br/>`qa-reviewer` | `security-threat-model` | Evaluasi potensi eksploitasi, race condition finansial, kebocoran secret, dan boundary server/client. |
+
+---
+
+## 4. Cara Agen Mengakses File Skill
+
+Agen dapat membaca dokumen panduan skill menggunakan tool pembacaan berkas pada path lokal:
+
 ```powershell
-# Contoh membaca panduan frontend-design
-Get-Content "C:\Users\yogaa\Document Local\AGENT-SKILLS\skills\frontend-design\SKILL.md"
+# Contoh membaca panduan frontend-design lokal
+Get-Content ".agents/skills/frontend-design/SKILL.md"
 
-# Contoh membaca panduan security-best-practices
-Get-Content "C:\Users\yogaa\Document Local\AGENT-SKILLS\skills\security-best-practices\SKILL.md"
+# Atau membaca panduan keamanan lokal
+Get-Content ".agents/skills/security-best-practices/SKILL.md"
 ```
-Atau menggunakan tool `read_file` pada path tersebut.
+
+Jika memerlukan skill baru dari sumber eksternal `AGENT-SKILLS`:
+1. Verifikasi kebutuhan dan reusabilitasnya untuk SAKODE.
+2. Salin folder skill ke `.agents/skills/<nama-skill>/SKILL.md`.
+3. Dilarang menyalin seluruh direktori eksternal secara membabi buta.
