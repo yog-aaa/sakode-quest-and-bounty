@@ -375,6 +375,30 @@ const FAQ_ITEMS: FaqItem[] = [
   },
 ];
 
+// =============================================================================
+// SAKODE Brand Ornament Components (Vector Smile Arc & Glyphs)
+// =============================================================================
+const SakodeSmileArc: React.FC<{ className?: string }> = ({
+  className = 'w-9 h-3 text-amber-500',
+}) => (
+  <svg
+    viewBox="0 0 48 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={cn('inline-block shrink-0', className)}
+    aria-hidden="true"
+  >
+    <path
+      d="M 6 4 C 14 14, 34 14, 42 4"
+      stroke="currentColor"
+      strokeWidth="2.8"
+      strokeLinecap="round"
+    />
+    <circle cx="6" cy="4" r="1.5" fill="currentColor" />
+    <circle cx="42" cy="4" r="1.5" fill="currentColor" />
+  </svg>
+);
+
 export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState<TaskCategory>('all');
   const [selectedModeFilter, setSelectedModeFilter] = useState<TaskModeFilter>('all');
@@ -674,14 +698,25 @@ export default function HomePage() {
         </section>
 
         {/* =================================================================== */}
-        {/* 3 PILARS SECTION (ELEVATED DENGAN DIRECT EXPLORE INTERACTION) */}
+        {/* 3 PILARS SECTION (ELEVATED DENGAN SAKODE BRAND ORNAMENTS) */}
         {/* =================================================================== */}
-        <section id="pillars" className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0B0F19] py-16 scroll-mt-16">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <section id="pillars" className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0B0F19] py-16 scroll-mt-16 relative overflow-hidden">
+          {/* Ambient Brandmark Watermark behind Pillars */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 opacity-[0.025] dark:opacity-[0.045] select-none text-[260px] font-mono font-black -z-0"
+          >
+            &#123;k&#125;
+          </div>
+
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="max-w-2xl space-y-2 mb-10">
-              <span className="text-xs font-bold text-[#076991] dark:text-sakode-cyan uppercase tracking-wider">
-                Ekosistem Multi-Disiplin
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-[#076991] dark:text-sakode-cyan uppercase tracking-wider">
+                  Ekosistem Multi-Disiplin
+                </span>
+                <SakodeSmileArc className="w-8 h-2.5 text-amber-500/80" />
+              </div>
               <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
                 3 Pilar Kontribusi Utama SAKODE
               </h2>
@@ -701,9 +736,14 @@ export default function HomePage() {
                   <div className="rounded-2xl p-2.5 border shrink-0 bg-sky-50 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/20 text-sky-600 dark:text-sky-400 w-fit transition-transform duration-200 group-hover:scale-105">
                     <Terminal className="h-6 w-6" />
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300">
-                    {FEATURED_TASKS.filter((t) => t.category === 'tech').length} Task Aktif
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-sky-50 dark:bg-sky-950/80 text-sky-600 dark:text-sakode-cyan border border-sky-200 dark:border-sky-800">
+                      &#123;&nbsp;&#125;
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300">
+                      {FEATURED_TASKS.filter((t) => t.category === 'tech').length} Task Aktif
+                    </span>
+                  </div>
                 </div>
 
                 <div>
@@ -734,9 +774,14 @@ export default function HomePage() {
                   <div className="rounded-2xl p-2.5 border shrink-0 bg-purple-50 dark:bg-purple-500/10 border-purple-200 dark:border-purple-500/20 text-purple-600 dark:text-purple-400 w-fit transition-transform duration-200 group-hover:scale-105">
                     <BookOpen className="h-6 w-6" />
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300">
-                    {FEATURED_TASKS.filter((t) => t.category === 'edu').length} Task Aktif
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-purple-50 dark:bg-purple-950/80 text-purple-600 dark:text-sakode-purple border border-purple-200 dark:border-purple-800">
+                      ¶ Edu
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300">
+                      {FEATURED_TASKS.filter((t) => t.category === 'edu').length} Task Aktif
+                    </span>
+                  </div>
                 </div>
 
                 <div>
@@ -767,9 +812,14 @@ export default function HomePage() {
                   <div className="rounded-2xl p-2.5 border shrink-0 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-400 w-fit transition-transform duration-200 group-hover:scale-105">
                     <Megaphone className="h-6 w-6" />
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300">
-                    {FEATURED_TASKS.filter((t) => t.category === 'marketing').length} Task Aktif
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-950/80 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                      ★ Nexus
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300">
+                      {FEATURED_TASKS.filter((t) => t.category === 'marketing').length} Task Aktif
+                    </span>
+                  </div>
                 </div>
 
                 <div>
@@ -794,15 +844,26 @@ export default function HomePage() {
         </section>
 
         {/* =================================================================== */}
-        {/* TASK EXPLORER SECTION (DENGAN SEARCH BAR & FILTER MODE SOLO/TEAM) */}
+        {/* TASK EXPLORER SECTION (DENGAN SAKODE BRAND ORNAMENTS) */}
         {/* =================================================================== */}
-        <section id="task-explorer" className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/60 py-16 scroll-mt-16">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-8">
+        <section id="task-explorer" className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/60 py-16 scroll-mt-16 relative overflow-hidden">
+          {/* Ambient Brand Watermark behind Task Explorer */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute left-4 bottom-8 opacity-[0.025] dark:opacity-[0.045] select-none text-[140px] font-mono font-black -z-0"
+          >
+            sa&#123;kode&#125;
+          </div>
+
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-8 relative z-10">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
               <div className="space-y-1.5">
-                <span className="text-xs font-bold text-[#076991] dark:text-sakode-cyan uppercase tracking-wider">
-                  Eksplorasi Proyek Aktif
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-[#076991] dark:text-sakode-cyan uppercase tracking-wider">
+                    Eksplorasi Proyek Aktif
+                  </span>
+                  <SakodeSmileArc className="w-8 h-2.5 text-amber-500/80" />
+                </div>
                 <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
                   Multi-Disciplinary Task Explorer
                 </h2>
@@ -811,16 +872,23 @@ export default function HomePage() {
                 </p>
               </div>
 
-              <Link href="/member/tasks">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold"
-                  rightIcon={<ChevronRight className="h-3.5 w-3.5" />}
-                >
-                  Buka Katalog Task Penuh
-                </Button>
-              </Link>
+              <div className="flex items-center gap-2.5 self-start md:self-end">
+                <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                  <Coins className="h-3 w-3" />
+                  Integer IDR
+                </span>
+
+                <Link href="/member/tasks">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold cursor-pointer"
+                    rightIcon={<ChevronRight className="h-3.5 w-3.5" />}
+                  >
+                    Buka Katalog Penuh
+                  </Button>
+                </Link>
+              </div>
             </div>
 
             {/* Quick Search & Filters Bar */}
@@ -1081,98 +1149,139 @@ export default function HomePage() {
         </section>
 
         {/* =================================================================== */}
-        {/* WORKFLOW & GAMIFICATION SHOWCASE SECTION */}
+        {/* WORKFLOW SECTION (4 LANGKAH DENGAN ORNAMEN SAKODE WORK) */}
         {/* =================================================================== */}
-        <section id="workflow" className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0B0F19] py-16 scroll-mt-16">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-14">
-            {/* Part 1: Contributor 4-Step Workflow */}
-            <div className="space-y-8">
-              <div className="text-center max-w-2xl mx-auto space-y-2">
+        <section id="workflow" className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0B0F19] py-16 scroll-mt-16 relative overflow-hidden">
+          {/* Ambient Lifecycle Watermark */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute right-6 top-1/2 -translate-y-1/2 opacity-[0.025] dark:opacity-[0.04] select-none text-[160px] font-mono font-black -z-0"
+          >
+            01&rarr;04
+          </div>
+
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12 relative z-10">
+            <div className="text-center max-w-2xl mx-auto space-y-2">
+              <div className="flex items-center justify-center gap-2">
                 <span className="text-xs font-bold text-[#076991] dark:text-sakode-cyan uppercase tracking-wider">
                   Alur Kerja Produktivitas
                 </span>
-                <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-                  4 Langkah Kontribusi Terstruktur SAKODE Work
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                  Transparansi di setiap tahap pengerjaan menjamin keamanan deliverable dan kepastian pencairan reward bagi setiap kontributor.
-                </p>
+                <SakodeSmileArc className="w-8 h-2.5 text-amber-500/80" />
               </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                4 Langkah Kontribusi Terstruktur SAKODE Work
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                Transparansi di setiap tahap pengerjaan menjamin keamanan deliverable dan kepastian pencairan reward bagi setiap kontributor.
+              </p>
+            </div>
 
-              <div className="relative">
-                {/* Dashed line connectors */}
-                <div className="hidden lg:block absolute top-[52px] left-[10%] right-[10%] h-0.5 border-t-2 border-dashed border-slate-300 dark:border-slate-700 pointer-events-none z-0" />
+            <div className="relative">
+              {/* Dashed line connectors */}
+              <div className="hidden lg:block absolute top-[52px] left-[10%] right-[10%] h-0.5 border-t-2 border-dashed border-slate-300 dark:border-slate-700 pointer-events-none z-0" />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
-                  {/* Step 1 */}
-                  <div className="group relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-5 space-y-3 shadow-xs hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out">
-                    <div className="flex items-center justify-between">
-                      <div className="text-xs font-black px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950 text-[#076991] dark:text-sakode-cyan border border-sky-200 dark:border-sky-800">
-                        01
-                      </div>
-                      <div className="rounded-2xl p-2.5 border shrink-0 bg-sky-50 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/20 text-sky-600 dark:text-sky-400 transition-transform duration-200 group-hover:scale-105">
-                        <Compass className="h-5 w-5" />
-                      </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+                {/* Step 1 */}
+                <div className="group relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-5 space-y-3 shadow-xs hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out">
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs font-black px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950 text-[#076991] dark:text-sakode-cyan border border-sky-200 dark:border-sky-800">
+                      01
                     </div>
-                    <h3 className="font-bold text-sm text-slate-900 dark:text-white">Eksplorasi &amp; Seleksi</h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                      Telusuri task internal yang terbuka, periksa spesifikasi kriteria penerimaan, dan ajukan aplikasi kontribusi.
-                    </p>
-                  </div>
-
-                  {/* Step 2 */}
-                  <div className="group relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-5 space-y-3 shadow-xs hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out">
-                    <div className="flex items-center justify-between">
-                      <div className="text-xs font-black px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-sakode-purple border border-purple-200 dark:border-purple-800">
-                        02
-                      </div>
-                      <div className="rounded-2xl p-2.5 border shrink-0 bg-purple-50 dark:bg-purple-500/10 border-purple-200 dark:border-purple-500/20 text-purple-600 dark:text-purple-400 transition-transform duration-200 group-hover:scale-105">
-                        <Target className="h-5 w-5" />
-                      </div>
+                    <div className="rounded-2xl p-2.5 border shrink-0 bg-sky-50 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/20 text-sky-600 dark:text-sky-400 transition-transform duration-200 group-hover:scale-105">
+                      <Compass className="h-5 w-5" />
                     </div>
-                    <h3 className="font-bold text-sm text-slate-900 dark:text-white">Pengerjaan Terstruktur</h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                      Selesaikan deliverable secara mandiri atau koordinasikan tim party dengan konsensus pembagian honor di muka.
-                    </p>
                   </div>
+                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">Eksplorasi &amp; Seleksi</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                    Telusuri task internal yang terbuka, periksa spesifikasi kriteria penerimaan, dan ajukan aplikasi kontribusi.
+                  </p>
+                </div>
 
-                  {/* Step 3 */}
-                  <div className="group relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-5 space-y-3 shadow-xs hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out">
-                    <div className="flex items-center justify-between">
-                      <div className="text-xs font-black px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
-                        03
-                      </div>
-                      <div className="rounded-2xl p-2.5 border shrink-0 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 transition-transform duration-200 group-hover:scale-105">
-                        <FileCheck2 className="h-5 w-5" />
-                      </div>
+                {/* Step 2 */}
+                <div className="group relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-5 space-y-3 shadow-xs hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out">
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs font-black px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-sakode-purple border border-purple-200 dark:border-purple-800">
+                      02
                     </div>
-                    <h3 className="font-bold text-sm text-slate-900 dark:text-white">Review &amp; Verifikasi Mutu</h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                      Hasil kerja diperiksa secara obyektif oleh Reviewer &amp; QA Academy dengan catatan evaluasi yang konstruktif.
-                    </p>
+                    <div className="rounded-2xl p-2.5 border shrink-0 bg-purple-50 dark:bg-purple-500/10 border-purple-200 dark:border-purple-500/20 text-purple-600 dark:text-purple-400 transition-transform duration-200 group-hover:scale-105">
+                      <Target className="h-5 w-5" />
+                    </div>
                   </div>
+                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">Pengerjaan Terstruktur</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                    Selesaikan deliverable secara mandiri atau koordinasikan tim party dengan konsensus pembagian honor di muka.
+                  </p>
+                </div>
 
-                  {/* Step 4 */}
-                  <div className="group relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-5 space-y-3 shadow-xs hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out">
-                    <div className="flex items-center justify-between">
-                      <div className="text-xs font-black px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
-                        04
-                      </div>
-                      <div className="rounded-2xl p-2.5 border shrink-0 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-400 transition-transform duration-200 group-hover:scale-105">
-                        <Wallet className="h-5 w-5" />
-                      </div>
+                {/* Step 3 */}
+                <div className="group relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-5 space-y-3 shadow-xs hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out">
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs font-black px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                      03
                     </div>
-                    <h3 className="font-bold text-sm text-slate-900 dark:text-white">Pencairan Reward Instan</h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                      Reward integer Rupiah tercatat langsung di buku besar saldo dan ditransfer ke rekening bank resmi tanpa potongan.
-                    </p>
+                    <div className="rounded-2xl p-2.5 border shrink-0 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 transition-transform duration-200 group-hover:scale-105">
+                      <FileCheck2 className="h-5 w-5" />
+                    </div>
                   </div>
+                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">Review &amp; Verifikasi Mutu</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                    Hasil kerja diperiksa secara obyektif oleh Reviewer &amp; QA Academy dengan catatan evaluasi yang konstruktif.
+                  </p>
+                </div>
+
+                {/* Step 4 */}
+                <div className="group relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-5 space-y-3 shadow-xs hover:-translate-y-1 hover:shadow-md transition-all duration-200 ease-out">
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs font-black px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                      04
+                    </div>
+                    <div className="rounded-2xl p-2.5 border shrink-0 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-400 transition-transform duration-200 group-hover:scale-105">
+                      <Wallet className="h-5 w-5" />
+                    </div>
+                  </div>
+                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">Pencairan Reward Instan</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                    Reward integer Rupiah tercatat langsung di buku besar saldo dan ditransfer ke rekening bank resmi tanpa potongan.
+                  </p>
                 </div>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* =================================================================== */}
+        {/* REPUTATION & GAMIFIED ACHIEVEMENTS SECTION (DEDICATED) */}
+        {/* =================================================================== */}
+        <section
+          id="reputation"
+          className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/60 py-16 scroll-mt-16 relative overflow-hidden"
+        >
+          {/* Ambient Brandmark Watermark */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 opacity-[0.025] dark:opacity-[0.045] select-none text-[260px] font-mono font-black -z-0"
+          >
+            &#123;k&#125;
+          </div>
+
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-10 relative z-10">
+            <div className="text-center max-w-2xl mx-auto space-y-2">
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-xs font-bold text-[#076991] dark:text-sakode-cyan uppercase tracking-wider">
+                  Gamifikasi &amp; Reputasi
+                </span>
+                <SakodeSmileArc className="w-8 h-2.5 text-amber-500/80" />
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                Jenjang Level &amp; Lencana Kehormatan SAKODE
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                Tingkatkan kredibilitas profesional Anda. Setiap deliverable berkualitas membuka akses perk eksklusif dan lencana medali terverifikasi.
+              </p>
+            </div>
 
             {/* Part 2: Gamified Progression & Pinnacle Achievements */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch pt-6 border-t border-slate-200 dark:border-slate-800/80">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
               {/* Contributor Level Ladder */}
               <div className="lg:col-span-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 sm:p-7 flex flex-col justify-between shadow-xs">
                 <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
@@ -1359,12 +1468,24 @@ export default function HomePage() {
         {/* =================================================================== */}
         {/* NEW SECTION: TRANSPARANSI & JAMINAN KONTRIBUSI SAKODE */}
         {/* =================================================================== */}
-        <section id="guarantee" className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 py-16 scroll-mt-16">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
+        <section id="guarantee" className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 py-16 scroll-mt-16 relative overflow-hidden">
+          {/* Background Brand Watermark & Ambient Accents */}
+          <div className="absolute -left-12 -bottom-16 select-none pointer-events-none opacity-[0.03] dark:opacity-[0.05] text-[180px] font-black font-mono leading-none tracking-tighter text-slate-900 dark:text-white">
+            {'{k}'}
+          </div>
+          <div className="absolute right-6 top-8 select-none pointer-events-none opacity-[0.04] dark:opacity-[0.07] text-[120px] font-black font-mono leading-none tracking-tighter text-sky-500">
+            [SAFE]
+          </div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-gradient-to-r from-sky-400/5 via-purple-400/5 to-amber-400/5 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
             <div className="text-center max-w-2xl mx-auto space-y-2">
-              <span className="text-xs font-bold text-[#076991] dark:text-sakode-cyan uppercase tracking-wider">
-                Integritas &amp; Keamanan
-              </span>
+              <div className="inline-flex items-center gap-2">
+                <span className="text-xs font-bold text-[#076991] dark:text-sakode-cyan uppercase tracking-wider">
+                  Integritas &amp; Keamanan
+                </span>
+                <SakodeSmileArc className="w-8 h-2.5 text-amber-500/80" />
+              </div>
               <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
                 4 Prinsip Proteksi Kontributor SAKODE
               </h2>
@@ -1374,11 +1495,15 @@ export default function HomePage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 p-6 space-y-3.5 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200">
-                <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 w-fit">
+              {/* Card 1: Integer Rupiah */}
+              <div className="relative overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 p-6 space-y-3.5 hover:border-amber-300/80 dark:hover:border-amber-500/40 hover:shadow-md transition-all duration-200 group">
+                <div className="absolute -right-2 -bottom-2 text-4xl font-mono font-black text-slate-200/50 dark:text-slate-800/40 select-none pointer-events-none group-hover:text-amber-500/10 transition-colors">
+                  Rp
+                </div>
+                <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 w-fit group-hover:scale-105 transition-transform duration-200">
                   <Coins className="h-6 w-6" />
                 </div>
-                <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                <h3 className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
                   100% Integer Rupiah
                 </h3>
                 <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -1390,11 +1515,15 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 p-6 space-y-3.5 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200">
-                <div className="p-3 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 w-fit">
+              {/* Card 2: Fokus 1 Task */}
+              <div className="relative overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 p-6 space-y-3.5 hover:border-sky-300/80 dark:hover:border-sky-500/40 hover:shadow-md transition-all duration-200 group">
+                <div className="absolute -right-2 -bottom-2 text-4xl font-mono font-black text-slate-200/50 dark:text-slate-800/40 select-none pointer-events-none group-hover:text-sky-500/10 transition-colors">
+                  1:1
+                </div>
+                <div className="p-3 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 w-fit group-hover:scale-105 transition-transform duration-200">
                   <Target className="h-6 w-6" />
                 </div>
-                <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                <h3 className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
                   Fokus 1 Active Task
                 </h3>
                 <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -1406,11 +1535,15 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 p-6 space-y-3.5 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200">
-                <div className="p-3 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 w-fit">
+              {/* Card 3: QA Review */}
+              <div className="relative overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 p-6 space-y-3.5 hover:border-purple-300/80 dark:hover:border-purple-500/40 hover:shadow-md transition-all duration-200 group">
+                <div className="absolute -right-2 -bottom-2 text-4xl font-mono font-black text-slate-200/50 dark:text-slate-800/40 select-none pointer-events-none group-hover:text-purple-500/10 transition-colors">
+                  QA
+                </div>
+                <div className="p-3 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 w-fit group-hover:scale-105 transition-transform duration-200">
                   <FileCheck2 className="h-6 w-6" />
                 </div>
-                <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                <h3 className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                   Review QA Obyektif
                 </h3>
                 <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -1422,11 +1555,15 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 p-6 space-y-3.5 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200">
-                <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 w-fit">
+              {/* Card 4: Data Rekening */}
+              <div className="relative overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 p-6 space-y-3.5 hover:border-emerald-300/80 dark:hover:border-emerald-500/40 hover:shadow-md transition-all duration-200 group">
+                <div className="absolute -right-2 -bottom-2 text-4xl font-mono font-black text-slate-200/50 dark:text-slate-800/40 select-none pointer-events-none group-hover:text-emerald-500/10 transition-colors">
+                  ••••
+                </div>
+                <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 w-fit group-hover:scale-105 transition-transform duration-200">
                   <Lock className="h-6 w-6" />
                 </div>
-                <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                <h3 className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                   Privasi Rekening Bank
                 </h3>
                 <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -1444,12 +1581,23 @@ export default function HomePage() {
         {/* =================================================================== */}
         {/* NEW SECTION: PERTANYAAN UMUM (FAQ ACCORDION) */}
         {/* =================================================================== */}
-        <section id="faq" className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0B0F19] py-16 scroll-mt-16">
-          <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-8">
+        <section id="faq" className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0B0F19] py-16 scroll-mt-16 relative overflow-hidden">
+          {/* Subtle Background Monograms */}
+          <div className="absolute right-4 top-6 select-none pointer-events-none opacity-[0.04] dark:opacity-[0.06] text-[160px] font-black font-mono leading-none tracking-tighter text-sky-500">
+            {'{?}'}
+          </div>
+          <div className="absolute left-6 bottom-4 select-none pointer-events-none opacity-[0.03] dark:opacity-[0.05] text-[120px] font-black font-mono leading-none tracking-tighter text-amber-500">
+            sa{'{kode}'}
+          </div>
+
+          <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-8">
             <div className="text-center space-y-2">
-              <span className="text-xs font-bold text-[#076991] dark:text-sakode-cyan uppercase tracking-wider">
-                Bantuan &amp; Panduan
-              </span>
+              <div className="inline-flex items-center gap-2">
+                <span className="text-xs font-bold text-[#076991] dark:text-sakode-cyan uppercase tracking-wider">
+                  Bantuan &amp; Panduan
+                </span>
+                <SakodeSmileArc className="w-8 h-2.5 text-amber-500/80" />
+              </div>
               <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
                 Pertanyaan yang Sering Diajukan
               </h2>
@@ -1465,7 +1613,12 @@ export default function HomePage() {
                 return (
                   <div
                     key={index}
-                    className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 overflow-hidden shadow-xs transition-all"
+                    className={cn(
+                      'rounded-2xl border bg-white dark:bg-slate-900/90 overflow-hidden shadow-xs transition-all duration-200',
+                      isOpen
+                        ? 'border-sky-400/80 dark:border-sky-500/60 shadow-md ring-1 ring-sky-400/20'
+                        : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                    )}
                   >
                     <button
                       type="button"
@@ -1473,7 +1626,14 @@ export default function HomePage() {
                       className="w-full p-5 text-left flex items-center justify-between gap-4 font-bold text-sm text-slate-900 dark:text-white cursor-pointer hover:text-sakode-cyan transition-colors"
                     >
                       <span className="flex items-center gap-3">
-                        <HelpCircle className="h-4 w-4 text-sky-500 shrink-0" />
+                        <div className={cn(
+                          'p-1.5 rounded-lg shrink-0 transition-colors',
+                          isOpen
+                            ? 'bg-sky-500/10 text-sky-600 dark:text-sakode-cyan'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                        )}>
+                          <HelpCircle className="h-4 w-4" />
+                        </div>
                         <span>{faq.question}</span>
                       </span>
                       <ChevronDown
@@ -1498,7 +1658,15 @@ export default function HomePage() {
         {/* =================================================================== */}
         {/* INSTITUTIONAL CALLOUT BANNER DENGAN FLOATING BRAND EMBLEM */}
         {/* =================================================================== */}
-        <section className="py-16 px-4 sm:px-6 lg:px-8 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0B0F19]">
+        <section className="py-16 px-4 sm:px-6 lg:px-8 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0B0F19] relative overflow-hidden">
+          {/* Subtle floating letter glyphs across the banner canvas */}
+          <span className="absolute left-[8%] top-[18%] text-xs font-mono font-bold text-sky-500/20 select-none pointer-events-none animate-pulse">
+            {'<sakode />'}
+          </span>
+          <span className="absolute right-[12%] bottom-[20%] text-xs font-mono font-bold text-amber-500/20 select-none pointer-events-none">
+            {'{work: integer_idr}'}
+          </span>
+
           <div className="mx-auto max-w-5xl">
             <div className="relative overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-gradient-to-br from-white via-sky-50/30 to-purple-50/30 dark:from-slate-900 dark:via-slate-900/90 dark:to-slate-900 p-8 sm:p-12 text-center space-y-6 shadow-sm animate-ambient-sheen">
               {/* Background watermark logo */}
@@ -1507,12 +1675,43 @@ export default function HomePage() {
                 <img src="/sakode-brandmark.svg" alt="" className="w-full h-full object-contain" />
               </div>
 
+              {/* Floating Badge Ornament Showcase Left (Desktop) */}
+              <div className="hidden lg:flex absolute left-6 top-1/2 -translate-y-1/2 flex-col items-center gap-1 p-3 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-white/70 dark:bg-slate-950/60 backdrop-blur-xs shadow-md -rotate-6 pointer-events-none select-none animate-bounce-subtle">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/badges/badge-level-5.svg"
+                  alt="Level 5"
+                  className="h-10 w-10 object-contain drop-shadow"
+                />
+                <span className="text-[9px] font-extrabold uppercase text-purple-600 dark:text-purple-400">
+                  Level 5
+                </span>
+                <span className="text-[8px] font-semibold text-slate-400">Architect</span>
+              </div>
+
+              {/* Floating Badge Ornament Showcase Right (Desktop) */}
+              <div className="hidden lg:flex absolute right-6 top-1/2 -translate-y-1/2 flex-col items-center gap-1 p-3 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-white/70 dark:bg-slate-950/60 backdrop-blur-xs shadow-md rotate-6 pointer-events-none select-none animate-bounce-subtle">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/badges/badge-golden-ledger.svg"
+                  alt="Golden Ledger"
+                  className="h-10 w-10 object-contain drop-shadow"
+                />
+                <span className="text-[9px] font-extrabold uppercase text-amber-600 dark:text-amber-400">
+                  Mythic
+                </span>
+                <span className="text-[8px] font-semibold text-slate-400">Golden Ledger</span>
+              </div>
+
               <div className="relative z-10 space-y-3 max-w-2xl mx-auto">
                 <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-800/90 px-3.5 py-1 text-xs font-bold text-[#076991] dark:text-sakode-cyan shadow-2xs">
                   <Sparkles className="h-3.5 w-3.5 text-amber-500" />
                   <span className="uppercase tracking-wider">Internal Workspace SAKODE</span>
                   <span className="text-slate-300 dark:text-slate-600">•</span>
                   <span className="text-slate-600 dark:text-slate-400 font-medium">Bukan Freelance Terbuka</span>
+                </div>
+                <div className="flex items-center justify-center gap-2 pt-1">
+                  <SakodeSmileArc className="w-9 h-3 text-amber-500" />
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
                   Siap Berkontribusi Nyata untuk Ekosistem SAKODE?

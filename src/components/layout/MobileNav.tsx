@@ -13,8 +13,8 @@ export const MobileNav: React.FC = () => {
   const isLanding = pathname === '/';
 
   const landingItems = [
-    { href: '#task-explorer', label: 'Eksplor', icon: Compass },
     { href: '#pillars', label: 'Pilar', icon: Layers },
+    { href: '#task-explorer', label: 'Eksplor', icon: Compass },
     { href: '#workflow', label: 'Alur', icon: Target },
     {
       href: user ? (user.isAdmin || user.isSuperAdmin ? '/admin' : '/member') : '/login',

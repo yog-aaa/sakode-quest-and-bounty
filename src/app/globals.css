@@ -27,6 +27,10 @@
   --foreground: #172033;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background-color: #F7FBFE;
   color: #172033;
