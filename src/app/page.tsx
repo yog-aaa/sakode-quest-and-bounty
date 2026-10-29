@@ -496,64 +496,64 @@ export default function HomePage() {
           {/* LAYER ORNAMEN BACKGROUND MELAYANG (Watermarks & Floating Letterforms) */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0">
             {/* Ornamen 1: Logo Emblem SAKODE Work Besar di Sisi Kanan Atas */}
-            <div className="absolute top-8 -right-12 sm:right-6 lg:right-14 w-60 sm:w-80 lg:w-[420px] opacity-[0.06] dark:opacity-[0.08] rotate-[-12deg] animate-float-slow">
+            <div className="absolute top-6 -right-12 sm:right-6 lg:right-12 w-64 sm:w-80 lg:w-[460px] opacity-15 dark:opacity-25 rotate-[-12deg] animate-float-slow filter drop-shadow-[0_0_24px_rgba(113,207,254,0.3)]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/sakode-work-emblem.svg"
                 alt=""
-                className="w-full h-auto filter grayscale contrast-125 dark:invert"
+                className="w-full h-auto"
               />
             </div>
 
             {/* Ornamen 2: Brandmark {k} Maskot di Sisi Kiri Bawah */}
-            <div className="absolute -bottom-10 -left-10 sm:left-4 lg:left-10 w-48 sm:w-64 lg:w-76 opacity-[0.06] dark:opacity-[0.07] rotate-[14deg] animate-float-reverse">
+            <div className="absolute -bottom-8 -left-8 sm:left-4 lg:left-10 w-52 sm:w-68 lg:w-80 opacity-15 dark:opacity-25 rotate-[14deg] animate-float-reverse filter drop-shadow-[0_0_24px_rgba(188,113,254,0.3)]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/sakode-brandmark.svg"
                 alt=""
-                className="w-full h-auto filter grayscale contrast-125 dark:invert"
+                className="w-full h-auto"
               />
             </div>
 
             {/* Ornamen Huruf Melayang 1: 'S' (Cyan) */}
-            <div className="absolute top-16 left-[6%] hidden md:flex items-center justify-center w-12 h-12 rounded-2xl bg-white/60 dark:bg-slate-900/50 border border-sky-300/40 dark:border-sky-500/30 shadow-xs backdrop-blur-xs text-[#076991] dark:text-sakode-cyan font-black text-2xl rotate-[-12deg] animate-float-slow">
+            <div className="absolute top-16 left-[6%] hidden md:flex items-center justify-center w-12 h-12 rounded-2xl bg-white/90 dark:bg-slate-900/90 border border-sky-300 dark:border-sky-500/60 shadow-md backdrop-blur-md text-[#076991] dark:text-sakode-cyan font-black text-2xl rotate-[-12deg] animate-float-slow">
               S
             </div>
 
             {/* Ornamen Huruf Melayang 2: Kurung Kurawal Kiri '{' (Purple) */}
-            <div className="absolute top-28 right-[10%] hidden sm:flex items-center justify-center w-11 h-11 rounded-xl bg-purple-50/60 dark:bg-purple-950/40 border border-purple-300/40 dark:border-purple-500/30 shadow-xs backdrop-blur-xs text-purple-600 dark:text-sakode-purple font-mono font-bold text-xl rotate-[16deg] animate-float-reverse">
+            <div className="absolute top-28 right-[10%] hidden sm:flex items-center justify-center w-11 h-11 rounded-xl bg-purple-50/90 dark:bg-purple-950/80 border border-purple-300 dark:border-purple-500/60 shadow-md backdrop-blur-md text-purple-600 dark:text-sakode-purple font-mono font-bold text-xl rotate-[16deg] animate-float-reverse">
               &#123;
             </div>
 
             {/* Ornamen Huruf Melayang 3: 'k' Maskot (Emerald) */}
-            <div className="absolute bottom-24 left-[12%] hidden lg:flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/40 border border-emerald-300/40 dark:border-emerald-500/30 shadow-xs backdrop-blur-xs text-emerald-600 dark:text-emerald-400 font-black text-lg rotate-[8deg] animate-drift-lateral">
+            <div className="absolute bottom-24 left-[12%] hidden lg:flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-50/90 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-500/60 shadow-md backdrop-blur-md text-emerald-600 dark:text-emerald-400 font-black text-lg rotate-[8deg] animate-drift-lateral">
               k
             </div>
 
             {/* Ornamen Huruf Melayang 4: Kurung Kurawal Kanan '}' (Purple) */}
-            <div className="absolute bottom-28 right-[8%] hidden md:flex items-center justify-center w-11 h-11 rounded-xl bg-purple-50/60 dark:bg-purple-950/40 border border-purple-300/40 dark:border-purple-500/30 shadow-xs backdrop-blur-xs text-purple-600 dark:text-sakode-purple font-mono font-bold text-xl rotate-[-10deg] animate-float-slow">
+            <div className="absolute bottom-28 right-[8%] hidden md:flex items-center justify-center w-11 h-11 rounded-xl bg-purple-50/90 dark:bg-purple-950/80 border border-purple-300 dark:border-purple-500/60 shadow-md backdrop-blur-md text-purple-600 dark:text-sakode-purple font-mono font-bold text-xl rotate-[-10deg] animate-float-slow">
               &#125;
             </div>
 
             {/* Ornamen Tag Pengembang: '</>' Code Chip */}
-            <div className="absolute top-1/2 -left-2 hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/70 dark:bg-slate-900/70 border border-slate-200/80 dark:border-slate-800/80 shadow-xs backdrop-blur-xs text-slate-500 dark:text-slate-400 font-mono text-xs rotate-[-8deg] animate-float-reverse">
+            <div className="absolute top-1/2 -left-2 hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700 shadow-md backdrop-blur-md text-slate-700 dark:text-slate-200 font-mono text-xs rotate-[-8deg] animate-float-reverse">
               &lt;/&gt;
               <span className="text-[10px] text-[#076991] dark:text-sakode-cyan font-sans font-bold">Dev</span>
             </div>
 
             {/* Ornamen Badge Mini: WORK Stamp */}
-            <div className="absolute top-24 left-[34%] hidden xl:flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-50/70 dark:bg-amber-950/40 border border-amber-300/50 dark:border-amber-500/30 text-amber-700 dark:text-amber-300 text-[10px] font-black uppercase tracking-wider rotate-[6deg] animate-drift-lateral shadow-2xs">
+            <div className="absolute top-24 left-[34%] hidden xl:flex items-center gap-1 px-3 py-1 rounded-lg bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-500/60 text-amber-800 dark:text-amber-300 text-[10px] font-black uppercase tracking-wider rotate-[6deg] animate-drift-lateral shadow-md">
               WORK
             </div>
 
             {/* Ornamen Huruf Melayang 5: 'O' (Orange) */}
-            <div className="absolute bottom-16 right-[30%] hidden xl:flex items-center justify-center w-9 h-9 rounded-lg bg-white/50 dark:bg-slate-900/50 border border-orange-300/40 dark:border-orange-500/30 text-orange-600 dark:text-sakode-orange font-black text-base rotate-[12deg] animate-float-slow">
+            <div className="absolute bottom-16 right-[30%] hidden xl:flex items-center justify-center w-10 h-10 rounded-xl bg-white/90 dark:bg-slate-900/90 border border-orange-300 dark:border-orange-500/60 text-orange-600 dark:text-sakode-orange font-black text-lg rotate-[12deg] animate-float-slow shadow-md">
               O
             </div>
 
             {/* Ornamen Koin Integer IDR Mini */}
-            <div className="absolute top-40 left-[20%] hidden 2xl:flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-300/50 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-[10px] font-black rotate-[-6deg] animate-float-slow">
-              <Coins className="w-3 h-3 text-amber-500" />
+            <div className="absolute top-40 left-[20%] hidden 2xl:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-500/60 text-emerald-800 dark:text-emerald-300 text-xs font-black rotate-[-6deg] animate-float-slow shadow-md">
+              <Coins className="w-3.5 h-3.5 text-amber-500" />
               <span>Integer IDR</span>
             </div>
           </div>

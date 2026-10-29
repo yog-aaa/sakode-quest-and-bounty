@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -23,8 +23,6 @@ import {
   Lock,
   ArrowRight,
   LogIn,
-  Award,
-  Sparkles,
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -64,6 +62,12 @@ export const Navbar: React.FC = () => {
 
   // Dynamic Active Section Tracking on Scroll
   const [activeSection, setActiveSection] = useState<string>('');
+  // Client-mount guard tanpa cascading renders (React 19 / ESLint compliant)
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   useEffect(() => {
     if (!isLanding) return;
@@ -196,8 +200,8 @@ export const Navbar: React.FC = () => {
           {/* Theme Toggle (Light / Dark) */}
           <ThemeToggle />
 
-          {/* User Logged In Actions */}
-          {user ? (
+          {/* User Logged In Actions (Mounted Guard to prevent Hydration Mismatch) */}
+          {mounted && user ? (
             <div className="flex items-center gap-2">
               <NotificationBell />
 

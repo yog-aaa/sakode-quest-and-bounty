@@ -38,7 +38,7 @@ import {
 } from 'lucide-react';
 
 export function NotificationBell() {
-  const { user } = useAuth();
+  const { user, isMockSession } = useAuth();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationDocument[]>([]);
@@ -54,7 +54,8 @@ export function NotificationBell() {
 
   // 1. Realtime Firestore Listener untuk Notifikasi Pengguna
   useEffect(() => {
-    if (!userId) {
+    // Lewati realtime listener jika user belum login atau sedang dalam sesi mock QA
+    if (!userId || isMockSession) {
       return;
     }
 
@@ -80,7 +81,10 @@ export function NotificationBell() {
           setUnreadCount(unread);
         },
         (error) => {
-          console.warn('[NotificationBell] onSnapshot listener error:', error);
+          // Tangani permission-denied secara graceful tanpa mengganggu log browser
+          if (error.code !== 'permission-denied') {
+            console.warn('[NotificationBell] onSnapshot listener error:', error);
+          }
         }
       );
 
@@ -88,7 +92,7 @@ export function NotificationBell() {
     } catch (err) {
       console.warn('[NotificationBell] Setup listener error:', err);
     }
-  }, [userId]);
+  }, [userId, isMockSession]);
 
   // 2. Click Outside & Escape Handler
   useEffect(() => {

@@ -37,24 +37,24 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const variantStyles: Record<ButtonVariant, string> = {
-      // Primary: Warna identitas SAKODE Cyan (#71CFFE), Teks #172033 tebal
+      // Primary: Warna identitas SAKODE Cyan (#71CFFE), Teks gelap kontras tinggi
       primary:
-        'bg-sakode-cyan text-sakode-text font-bold hover:bg-[#5dbfe8] active:bg-[#4cb3de] shadow-sm focus-visible:ring-sakode-cyan',
+        'bg-sakode-cyan text-sakode-text dark:text-slate-950 font-bold hover:bg-[#5dbfe8] dark:hover:bg-sky-400 active:bg-[#4cb3de] shadow-xs focus-visible:ring-sakode-cyan',
       // Team: Aksen kolaborasi & tim SAKODE Purple (#BC71FE), Teks putih
       team:
-        'bg-sakode-purple text-white font-semibold hover:bg-[#a85be8] active:bg-[#9746dc] shadow-sm focus-visible:ring-sakode-purple',
+        'bg-sakode-purple text-white font-semibold hover:bg-[#a85be8] active:bg-[#9746dc] shadow-xs focus-visible:ring-sakode-purple dark:bg-sakode-purple dark:hover:bg-purple-500',
       // Danger: Batas waktu, aksi kritis, peringatan SAKODE Orange (#F9723B), Teks putih
       danger:
-        'bg-sakode-orange text-white font-semibold hover:bg-[#e65f27] active:bg-[#d04e18] shadow-sm focus-visible:ring-sakode-orange',
-      // Outline: Garis tepi halus #DBE8F0, latar putih, teks #172033
+        'bg-sakode-orange text-white font-semibold hover:bg-[#e65f27] active:bg-[#d04e18] shadow-xs focus-visible:ring-sakode-orange dark:bg-sakode-orange dark:hover:bg-orange-600',
+      // Outline: Garis tepi halus, latar adaptif, teks adaptif kontras tinggi di Dark Mode
       outline:
-        'border border-sakode-border bg-sakode-card text-sakode-text font-medium hover:bg-sakode-bg active:bg-[#eef5fa] focus-visible:ring-sakode-cyan',
-      // Secondary: Abu-abu halus
+        'border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 dark:hover:text-white active:bg-slate-100 dark:active:bg-slate-700 focus-visible:ring-sakode-cyan shadow-2xs',
+      // Secondary: Abu-abu halus adaptif
       secondary:
-        'bg-[#EEF4F8] text-sakode-text font-medium hover:bg-[#E0EBF2] active:bg-[#D5E3EC] focus-visible:ring-sakode-cyan',
-      // Ghost: Transparan
+        'bg-[#EEF4F8] dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-medium hover:bg-[#E0EBF2] dark:hover:bg-slate-700 active:bg-[#D5E3EC] dark:active:bg-slate-600 focus-visible:ring-sakode-cyan',
+      // Ghost: Transparan adaptif
       ghost:
-        'text-sakode-text hover:bg-sakode-border/40 active:bg-sakode-border/70 focus-visible:ring-sakode-cyan',
+        'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/80 dark:hover:text-white active:bg-slate-200 dark:active:bg-slate-700 focus-visible:ring-sakode-cyan',
     };
 
     const sizeStyles: Record<ButtonSize, string> = {

@@ -292,7 +292,11 @@ function TaskSubmitInner() {
                 : 'Hanya Team Lead dari tim yang ditugaskan yang berwenang menyerahkan hasil pekerjaan tim.'}
             </p>
             <Link href={`/member/tasks/${task.id}`}>
-              <Button variant="outline" size="sm" className="mt-2 text-xs bg-white">
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-2 text-xs bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-2xs"
+              >
                 Kembali ke Ringkasan
               </Button>
             </Link>

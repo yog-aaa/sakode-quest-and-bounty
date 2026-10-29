@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Badge } from '@/components/ui/Badge';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { SakodeAmbientOrnaments, SakodeSmileArc } from '@/components/brand/SakodeAmbientOrnaments';
 import { loginSchema, registerSchema } from '@/lib/validations/auth';
 import { USER_ROLES, USER_APPROVAL_STATUS } from '@/lib/constants';
 import {
@@ -62,18 +63,19 @@ function AuthPageContent() {
     }
   }, [user, isLoading, router]);
 
-  const [activeTab, setActiveTab] = useState<'login' | 'register'>(
-    queryTab === 'register' ? 'register' : 'login'
-  );
+  // Tab State: Sinkronisasi query param URL & aksi pengguna tanpa cascading effect (React 19 / ESLint compliant)
+  const [tabOverride, setTabOverride] = useState<'login' | 'register' | null>(null);
+  const [prevQueryTab, setPrevQueryTab] = useState(queryTab);
 
-  // Perbarui activeTab jika query param URL berubah
-  useEffect(() => {
-    if (queryTab === 'register') {
-      setActiveTab('register');
-    } else if (queryTab === 'login') {
-      setActiveTab('login');
-    }
-  }, [queryTab]);
+  if (queryTab !== prevQueryTab) {
+    setPrevQueryTab(queryTab);
+    setTabOverride(null);
+  }
+
+  const activeTab = tabOverride ?? (queryTab === 'register' ? 'register' : 'login');
+  const setActiveTab = (newTab: 'login' | 'register') => {
+    setTabOverride(newTab);
+  };
 
   // Form states
   const [email, setEmail] = useState('');
@@ -155,9 +157,12 @@ function AuthPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 flex flex-col justify-between selection:bg-sakode-cyan/30 transition-colors">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#070C14] text-slate-900 dark:text-slate-100 flex flex-col justify-between selection:bg-sakode-cyan/30 transition-colors relative overflow-hidden">
+      {/* Rich SAKODE Ambient Ornaments (Watermarks, Scattered Letters & Floating Badges) */}
+      <SakodeAmbientOrnaments showForegroundBadges={true} />
+
       {/* Top Simple Header */}
-      <header className="w-full border-b border-slate-200 dark:border-slate-800/80 bg-white/90 dark:bg-[#0B0F19]/90 backdrop-blur-md">
+      <header className="w-full border-b border-slate-200 dark:border-slate-800/80 bg-white/90 dark:bg-[#070C14]/90 backdrop-blur-md relative z-10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 group">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -184,71 +189,69 @@ function AuthPageContent() {
       </header>
 
       {/* Main Container */}
-      <main className="flex-1 flex items-center justify-center py-10 px-4 sm:px-6 lg:px-8">
+      <main className="flex-1 flex items-center justify-center py-10 px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch">
           {/* Left Column: Contributor Ecosystem Value Panel */}
-          <div className="lg:col-span-5 flex flex-col justify-between rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-gradient-to-b dark:from-slate-900/90 dark:to-slate-900/50 p-6 sm:p-8 shadow-xs">
+          <div className="lg:col-span-5 flex flex-col justify-between rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl p-6 sm:p-8 shadow-sm">
             <div className="space-y-6">
               {/* Brand Lockup */}
               <div className="space-y-2">
-                <div className="flex items-center gap-2.5">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/sakode-brandmark.svg"
-                    alt="SAKODE Brandmark"
-                    className="h-7 w-7 object-contain"
-                  />
-                  <span className="text-sm font-black tracking-tight text-slate-900 dark:text-white uppercase">
-                    SAKODE Work
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-[#076991] dark:text-sakode-cyan uppercase tracking-wider">
+                    Internal Ekosistem SAKODE
                   </span>
+                  <SakodeSmileArc className="w-7 h-2 text-amber-500/80" />
                 </div>
-                <p className="text-xs font-semibold text-[#076991] dark:text-sakode-cyan">
-                  Masa Depan Digital, Dimulai Dari Sini
-                </p>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/sakode-work-logo.svg"
+                  alt="SAKODE Work"
+                  className="h-8 w-auto object-contain pt-1"
+                />
               </div>
 
               <div>
                 <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-snug">
-                  Platform Kolaborasi &amp; Task Internal SAKODE
+                  Platform Kolaborasi &amp; Task Kontributor
                 </h2>
                 <p className="mt-2 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                  Ruang kerja terstruktur bagi talenta, instruktur, dan kontributor SAKODE Academy untuk menggarap proyek teknologi, modul edukasi, dan inisiatif komunitas.
+                  Ruang kerja terstruktur bagi talenta dan kontributor SAKODE Academy untuk menggarap proyek teknologi, modul edukasi, dan inisiatif komunitas dengan transparansi penuh.
                 </p>
               </div>
 
               {/* 3 Pillars List */}
-              <div className="space-y-3.5 pt-2">
-                <div className="flex items-start gap-3 rounded-xl border border-slate-200 dark:border-slate-800/80 bg-slate-50/80 dark:bg-slate-950/40 p-3.5">
-                  <div className="rounded-lg bg-sky-50 dark:bg-sky-500/10 p-2 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-500/20 shrink-0">
+              <div className="space-y-3 pt-1">
+                <div className="flex items-start gap-3 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/70 dark:bg-slate-950/40 p-3.5 hover:border-sky-300 dark:hover:border-sky-500/30 transition-colors">
+                  <div className="rounded-xl bg-sky-50 dark:bg-sky-500/10 p-2 text-sky-600 dark:text-sakode-cyan border border-sky-200 dark:border-sky-500/20 shrink-0">
                     <Terminal className="h-4 w-4" />
                   </div>
                   <div>
                     <div className="text-xs font-bold text-slate-900 dark:text-white">Teknologi &amp; IT</div>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">
                       Frontend, backend, mobile app, DevOps, hingga security audit berstandar industri.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 rounded-xl border border-slate-200 dark:border-slate-800/80 bg-slate-50/80 dark:bg-slate-950/40 p-3.5">
-                  <div className="rounded-lg bg-emerald-50 dark:bg-emerald-500/10 p-2 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 shrink-0">
+                <div className="flex items-start gap-3 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/70 dark:bg-slate-950/40 p-3.5 hover:border-purple-300 dark:hover:border-purple-500/30 transition-colors">
+                  <div className="rounded-lg bg-purple-50 dark:bg-purple-500/10 p-2 text-purple-600 dark:text-sakode-purple border border-purple-200 dark:border-purple-500/20 shrink-0">
                     <BookOpen className="h-4 w-4" />
                   </div>
                   <div>
                     <div className="text-xs font-bold text-slate-900 dark:text-white">Modul &amp; Edukasi</div>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">
                       Penyusunan silabus kurikulum, penulisan modul lab praktikum, dan bank soal bootcamp.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 rounded-xl border border-slate-200 dark:border-slate-800/80 bg-slate-50/80 dark:bg-slate-950/40 p-3.5">
+                <div className="flex items-start gap-3 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/70 dark:bg-slate-950/40 p-3.5 hover:border-amber-300 dark:hover:border-amber-500/30 transition-colors">
                   <div className="rounded-lg bg-amber-50 dark:bg-amber-500/10 p-2 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20 shrink-0">
                     <Megaphone className="h-4 w-4" />
                   </div>
                   <div>
                     <div className="text-xs font-bold text-slate-900 dark:text-white">Marketing &amp; Komunitas</div>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">
                       Desain konten sosial, copywriting edukatif, dan penyelenggaraan event teknologi.
                     </p>
                   </div>
@@ -262,7 +265,7 @@ function AuthPageContent() {
                 <Wallet className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                 <span className="text-slate-600 dark:text-slate-300 font-semibold">Reward Integer Transparan</span>
               </div>
-              <span className="font-bold text-emerald-600 dark:text-emerald-400">100% WIB</span>
+              <span className="font-bold text-emerald-600 dark:text-emerald-400 font-mono">100% Bersih (IDR)</span>
             </div>
           </div>
 

@@ -676,7 +676,11 @@ function SubmissionDetailInner() {
               </div>
             </div>
             <Link href={`/member/tasks/${task.continuationTaskId}`} target="_blank">
-              <Button variant="outline" size="sm" className="text-xs bg-white text-blue-700 border-blue-300 hover:bg-blue-100/50">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/60 shadow-2xs"
+              >
                 <span>Lihat Task Lanjutan</span>
                 <ArrowUpRight className="h-3.5 w-3.5 ml-1" />
               </Button>

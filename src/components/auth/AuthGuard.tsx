@@ -124,66 +124,72 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
         {/* Ambient Radial Color Glows */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[680px] h-[480px] bg-gradient-to-tr from-sky-400/10 via-sakode-purple/10 to-amber-400/10 dark:from-sakode-cyan/10 dark:via-sakode-purple/10 dark:to-amber-400/5 rounded-full blur-3xl -z-10"
+          className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-sky-400/20 via-sakode-purple/15 to-amber-400/15 dark:from-sakode-cyan/25 dark:via-sakode-purple/20 dark:to-amber-400/15 rounded-full blur-3xl z-0 opacity-80"
         />
 
         {/* Ambient Center Watermark Monogram {k} */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[0.03] dark:opacity-[0.06] -z-10 select-none overflow-hidden"
+          className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-10 dark:opacity-20 z-0 select-none overflow-hidden"
         >
-          <span className="text-[280px] font-mono font-black tracking-tighter text-slate-900 dark:text-white">
+          <span className="text-[260px] sm:text-[340px] font-mono font-black tracking-tighter text-slate-800 dark:text-sky-400 drop-shadow-sm">
             &#123;k&#125;
           </span>
         </div>
 
-        {/* Background Ambient Brand Glyphs & Micro Elements (Subtle & Non-distracting) */}
+        {/* Background Ambient Brand Glyphs & Micro Elements */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 -z-10 select-none overflow-hidden"
+          className="pointer-events-none absolute inset-0 z-0 select-none overflow-hidden"
         >
           {/* Top-Left: Compass & Code Tag */}
-          <div className="absolute top-12 left-10 md:left-24 flex items-center gap-2 opacity-[0.12] dark:opacity-[0.18]">
-            <Compass className="h-6 w-6 text-sky-600 dark:text-sakode-cyan" />
+          <div className="absolute top-10 left-8 md:left-20 flex items-center gap-2 opacity-50 dark:opacity-75 -rotate-6">
+            <div className="p-1.5 rounded-lg bg-sky-100 dark:bg-sky-950/80 text-sky-600 dark:text-sakode-cyan border border-sky-300 dark:border-sky-700">
+              <Compass className="h-4 w-4" />
+            </div>
             <span className="text-xs font-mono font-bold tracking-wider text-slate-800 dark:text-slate-200">
               sa&#123;kode&#125; workspace
             </span>
           </div>
 
-          {/* Top-Right: Golden Ledger Badge Silhouette */}
-          <div className="absolute top-10 right-10 md:right-24 flex items-center gap-2.5 opacity-[0.14] dark:opacity-[0.20]">
+          {/* Top-Right: Golden Ledger Badge */}
+          <div className="absolute top-8 right-8 md:right-20 flex items-center gap-2.5 opacity-60 dark:opacity-80 rotate-6">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/badges/badge-golden-ledger.svg"
               alt=""
-              className="h-9 w-9 object-contain grayscale opacity-80"
+              className="h-10 w-10 object-contain drop-shadow"
             />
-            <span className="text-xs font-mono font-bold tracking-wider text-amber-600 dark:text-amber-400 hidden sm:inline">
+            <span className="text-xs font-mono font-bold tracking-wider text-amber-700 dark:text-amber-300 hidden sm:inline">
               reputation: 24_badges
             </span>
           </div>
 
           {/* Bottom-Left: Currency / Integer IDR Tag */}
-          <div className="absolute bottom-12 left-12 md:left-28 flex items-center gap-2 opacity-[0.12] dark:opacity-[0.18]">
-            <Coins className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+          <div className="absolute bottom-10 left-8 md:left-24 flex items-center gap-2 opacity-50 dark:opacity-75 rotate-3">
+            <div className="p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700">
+              <Coins className="h-4 w-4" />
+            </div>
             <span className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-300">
               [INTEGER_IDR]
             </span>
           </div>
 
           {/* Bottom-Right: QA Protocol Tag */}
-          <div className="absolute bottom-12 right-12 md:right-28 flex items-center gap-2 opacity-[0.12] dark:opacity-[0.18]">
-            <ShieldCheck className="h-5 w-5 text-purple-600 dark:text-sakode-purple" />
+          <div className="absolute bottom-10 right-8 md:right-24 flex items-center gap-2 opacity-50 dark:opacity-75 -rotate-3">
+            <div className="p-1.5 rounded-lg bg-purple-100 dark:bg-purple-950/80 text-purple-600 dark:text-sakode-purple border border-purple-300 dark:border-purple-700">
+              <ShieldCheck className="h-4 w-4" />
+            </div>
             <span className="text-xs font-mono font-bold text-purple-700 dark:text-purple-300">
               verified_pipeline
             </span>
           </div>
 
           {/* Mid-Canvas Faint Float Glyphs */}
-          <span className="hidden lg:block absolute left-[15%] top-1/2 -translate-y-1/2 text-[11px] font-mono font-bold text-sky-500/10 select-none">
+          <span className="hidden lg:block absolute left-[12%] top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-sky-600/40 dark:text-sakode-cyan/50 select-none">
             &lt;sakode_work /&gt;
           </span>
-          <span className="hidden lg:block absolute right-[15%] top-1/2 -translate-y-1/2 text-[11px] font-mono font-bold text-amber-500/10 select-none">
+          <span className="hidden lg:block absolute right-[12%] top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-amber-600/40 dark:text-amber-400/50 select-none">
             &#123;status: auth_required&#125;
           </span>
         </div>
@@ -276,25 +282,25 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
   if (requireSuperAdmin && !user.isSuperAdmin) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center p-4">
-        <Card className="max-w-md w-full text-center border-sakode-purple/40 bg-gradient-to-b from-white to-purple-50/20">
-          <CardHeader>
-            <div className="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-sakode-purple/15 text-sakode-purple">
-              <ShieldAlert className="h-7 w-7" />
-            </div>
-            <CardTitle className="text-xl">403 - Akses Khusus Super Admin</CardTitle>
-            <CardDescription className="text-xs leading-relaxed">
-              Halaman ini dibatasi secara ketat dan hanya dapat diakses oleh Super Administrator resmi SAKODE Academy. Akun Anda saat ini memiliki peran <strong className="font-bold text-sakode-text">{user.role}</strong>.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
+        <div className="max-w-md w-full text-center rounded-3xl border border-purple-200 dark:border-purple-800/80 bg-white dark:bg-slate-900/90 p-6 sm:p-8 shadow-xl shadow-purple-500/5 space-y-4">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-100 dark:bg-purple-950/80 text-purple-600 dark:text-sakode-purple border border-purple-200 dark:border-purple-800">
+            <ShieldAlert className="h-7 w-7" />
+          </div>
+          <div className="space-y-1.5">
+            <h2 className="text-xl font-black text-slate-900 dark:text-white">403 - Akses Khusus Super Admin</h2>
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Halaman ini dibatasi secara ketat dan hanya dapat diakses oleh Super Administrator resmi SAKODE Academy. Akun Anda saat ini memiliki peran <strong className="font-bold text-slate-900 dark:text-white">{user.role}</strong>.
+            </p>
+          </div>
+          <div className="pt-2">
             <Link href="/admin" className="inline-block w-full">
-              <Button variant="outline" className="w-full gap-2">
+              <Button variant="outline" className="w-full gap-2 text-xs font-bold border-slate-200 dark:border-slate-800">
                 <ArrowLeft className="h-4 w-4" />
                 Kembali ke Dashboard Admin
               </Button>
             </Link>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     );
   }
@@ -303,25 +309,25 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
   if (requireAdmin && !user.isAdmin) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center p-4">
-        <Card className="max-w-md w-full text-center border-sakode-orange/40 bg-gradient-to-b from-white to-orange-50/20">
-          <CardHeader>
-            <div className="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-sakode-orange/15 text-sakode-orange">
-              <ShieldAlert className="h-7 w-7" />
-            </div>
-            <CardTitle className="text-xl">403 - Akses Ditolak</CardTitle>
-            <CardDescription className="text-xs leading-relaxed">
-              Halaman ini dibatasi secara ketat dan hanya dapat diakses oleh Administrator resmi SAKODE Academy. Akun Anda saat ini memiliki peran <strong className="font-bold text-sakode-text">{user.role}</strong>.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
+        <div className="max-w-md w-full text-center rounded-3xl border border-amber-200 dark:border-amber-800/80 bg-white dark:bg-slate-900/90 p-6 sm:p-8 shadow-xl shadow-amber-500/5 space-y-4">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 dark:bg-amber-950/80 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+            <ShieldAlert className="h-7 w-7" />
+          </div>
+          <div className="space-y-1.5">
+            <h2 className="text-xl font-black text-slate-900 dark:text-white">403 - Akses Ditolak</h2>
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Halaman ini dibatasi secara ketat dan hanya dapat diakses oleh Administrator resmi SAKODE Academy. Akun Anda saat ini memiliki peran <strong className="font-bold text-slate-900 dark:text-white">{user.role}</strong>.
+            </p>
+          </div>
+          <div className="pt-2">
             <Link href="/" className="inline-block w-full">
-              <Button variant="outline" className="w-full gap-2">
+              <Button variant="outline" className="w-full gap-2 text-xs font-bold border-slate-200 dark:border-slate-800">
                 <ArrowLeft className="h-4 w-4" />
                 Kembali ke Halaman Utama
               </Button>
             </Link>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     );
   }
@@ -332,48 +338,48 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
     if (!user.paymentAccountEncrypted) {
       return (
         <div className="min-h-[70vh] flex items-center justify-center p-4">
-          <Card className="max-w-md w-full text-center">
-            <CardHeader>
-              <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-sakode-cyan/20 text-[#09668d]">
-                <Clock className="h-6 w-6" />
-              </div>
-              <CardTitle>Lengkapi Profil Anda</CardTitle>
-              <CardDescription>
-                Anda belum melengkapi nomor kontak dan data rekening tujuan reward.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
+          <div className="max-w-md w-full text-center rounded-3xl border border-sky-200 dark:border-sky-800/80 bg-white dark:bg-slate-900/90 p-6 sm:p-8 shadow-xl shadow-sky-500/5 space-y-4">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-100 dark:bg-sky-950/80 text-sky-600 dark:text-sakode-cyan border border-sky-200 dark:border-sky-800">
+              <Clock className="h-7 w-7" />
+            </div>
+            <div className="space-y-1.5">
+              <h2 className="text-xl font-black text-slate-900 dark:text-white">Lengkapi Profil Member Anda</h2>
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Anda belum melengkapi nomor kontak WhatsApp dan data rekening tujuan transfer reward honor task.
+              </p>
+            </div>
+            <div className="pt-2">
               <Link href="/onboarding" className="inline-block w-full">
-                <Button variant="primary" className="w-full">
+                <Button variant="primary" className="w-full text-xs font-black bg-sakode-cyan text-slate-950 hover:bg-[#5dbfe9]">
                   Lengkapi Profil Sekarang
                 </Button>
               </Link>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       );
     }
 
     return (
       <div className="min-h-[70vh] flex items-center justify-center p-4">
-        <Card className="max-w-md w-full text-center">
-          <CardHeader>
-            <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-700">
-              <Clock className="h-6 w-6" />
-            </div>
-            <CardTitle>Pendaftaran Sedang Ditinjau</CardTitle>
-            <CardDescription>
-              Akun Anda sedang dalam antrean verifikasi Admin SAKODE. Fitur pengerjaan task akan aktif setelah disetujui.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
+        <div className="max-w-md w-full text-center rounded-3xl border border-amber-200 dark:border-amber-800/80 bg-white dark:bg-slate-900/90 p-6 sm:p-8 shadow-xl shadow-amber-500/5 space-y-4">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 dark:bg-amber-950/80 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+            <Clock className="h-7 w-7" />
+          </div>
+          <div className="space-y-1.5">
+            <h2 className="text-xl font-black text-slate-900 dark:text-white">Pendaftaran Sedang Ditinjau</h2>
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Akun Anda sedang dalam antrean verifikasi Admin SAKODE Academy. Fitur pengerjaan task akan aktif setelah akun disetujui.
+            </p>
+          </div>
+          <div className="pt-2">
             <Link href="/pending-approval" className="inline-block w-full">
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full text-xs font-bold border-slate-200 dark:border-slate-800">
                 Lihat Detail Status Peninjauan
               </Button>
             </Link>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     );
   }
@@ -382,24 +388,24 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
   if (requireApproved && user.approvalStatus === USER_APPROVAL_STATUS.REJECTED) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center p-4">
-        <Card className="max-w-md w-full text-center border-sakode-orange/50">
-          <CardHeader>
-            <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-rose-100 text-rose-700">
-              <AlertCircle className="h-6 w-6" />
-            </div>
-            <CardTitle>Pendaftaran Perlu Perbaikan</CardTitle>
-            <CardDescription>
-              Admin telah meninjau pendaftaran Anda dan meminta perbaikan data.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
+        <div className="max-w-md w-full text-center rounded-3xl border border-rose-200 dark:border-rose-800/80 bg-white dark:bg-slate-900/90 p-6 sm:p-8 shadow-xl shadow-rose-500/5 space-y-4">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-100 dark:bg-rose-950/80 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800">
+            <AlertCircle className="h-7 w-7" />
+          </div>
+          <div className="space-y-1.5">
+            <h2 className="text-xl font-black text-slate-900 dark:text-white">Pendaftaran Perlu Perbaikan</h2>
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Admin SAKODE telah meninjau pendaftaran Anda dan meminta perbaikan data rekening atau nomor kontak.
+            </p>
+          </div>
+          <div className="pt-2">
             <Link href="/rejected" className="inline-block w-full">
-              <Button variant="danger" className="w-full">
-                Periksa Catatan & Perbaiki Data
+              <Button variant="danger" className="w-full text-xs font-black">
+                Periksa Catatan &amp; Perbaiki Data
               </Button>
             </Link>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     );
   }

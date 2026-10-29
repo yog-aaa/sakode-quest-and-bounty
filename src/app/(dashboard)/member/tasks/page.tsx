@@ -214,7 +214,11 @@ export default function MemberTasksExplorePage() {
                 </div>
               </div>
               <Link href="/member">
-                <Button variant="outline" size="sm" className="font-bold text-xs bg-white border-amber-300 text-amber-900 whitespace-nowrap">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="font-bold text-xs bg-white dark:bg-slate-900 border-amber-300 dark:border-amber-600/40 text-amber-900 dark:text-amber-200 hover:bg-amber-50 dark:hover:bg-slate-800 whitespace-nowrap shadow-2xs"
+                >
                   <span>Lihat Task Aktif</span>
                   <ArrowRight className="h-3.5 w-3.5 ml-1" />
                 </Button>
