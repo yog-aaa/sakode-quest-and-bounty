@@ -30,6 +30,11 @@ export const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
   const isLanding = pathname === '/';
 
+  // Halaman admin memiliki layout AdminSidebar tersendiri dan tidak menggunakan top navbar publik
+  if (pathname.startsWith('/admin')) {
+    return null;
+  }
+
   const adminLinks = [
     { href: '/admin', label: 'Ringkasan', icon: Layers },
     { href: '/admin/tasks', label: 'Kelola Task', icon: Compass },
@@ -140,7 +145,7 @@ export const Navbar: React.FC = () => {
 
           {/* Desktop Nav Links: Rendered on Dashboard pages */}
           {!isLanding && (
-            <nav className="hidden lg:flex items-center gap-1.5 pl-4 border-l border-slate-200 dark:border-slate-800 overflow-x-auto">
+            <nav className="hidden lg:flex items-center gap-1 pl-4 border-l border-slate-200 dark:border-slate-800 overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {dashboardLinks.map((link) => {
                 const Icon = link.icon;
                 const isActive = pathname === link.href;
@@ -153,7 +158,7 @@ export const Navbar: React.FC = () => {
                     className={cn(
                       'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap',
                       isActive
-                        ? 'bg-sakode-cyan/15 text-[#076991] dark:text-sakode-cyan border border-sakode-cyan/40 font-bold'
+                        ? 'bg-sakode-cyan/15 text-[#076991] dark:text-sakode-cyan border border-sakode-cyan/40 font-bold shadow-2xs'
                         : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'
                     )}
                   >
@@ -220,15 +225,25 @@ export const Navbar: React.FC = () => {
                 <>
                   <div className="hidden sm:flex flex-col items-end text-right">
                     <span className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1">
-                      <UserCheck className="h-3.5 w-3.5 text-sakode-cyan" />
+                      <UserCheck className="h-3.5 w-3.5 text-sky-500 dark:text-sakode-cyan" />
                       {user.displayName || user.email.split('@')[0]}
                     </span>
                     <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                      {user.role} • {user.approvalStatus}
+                      {user.isSuperAdmin
+                        ? 'Super Administrator'
+                        : user.isAdmin
+                        ? 'Staff Administrator'
+                        : user.role}
                     </span>
                   </div>
 
-                  <StatusPill status={user.approvalStatus} size="sm" className="hidden md:inline-flex" />
+                  {user.isAdmin || user.isSuperAdmin ? (
+                    <span className="hidden md:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/80 shadow-2xs">
+                      {user.isSuperAdmin ? 'Super Admin' : 'Admin'}
+                    </span>
+                  ) : (
+                    <StatusPill status={user.approvalStatus} size="sm" className="hidden md:inline-flex" />
+                  )}
                 </>
               )}
 

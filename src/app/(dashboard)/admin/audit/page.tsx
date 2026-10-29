@@ -94,38 +94,36 @@ export default function AdminAuditTrailPage() {
 
   return (
     <AuthGuard requireAdmin>
-      <div className="min-h-screen bg-sakode-bg py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#070C14] text-slate-900 dark:text-slate-100 py-8 px-4 sm:px-6 lg:px-8 transition-colors">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-5">
             <div>
-              <div className="flex items-center gap-2">
-                <Badge variant="cyan" leftIcon={<Lock className="h-3.5 w-3.5" />}>
-                  Append-Only & Immutable
-                </Badge>
-                <span className="text-xs text-sakode-text-muted">Forensic Audit Log</span>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700">
+                  <Lock className="h-3 w-3" />
+                  <span>Append-Only & Immutable</span>
+                </span>
+                <span className="text-slate-400 dark:text-slate-600">•</span>
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  Forensic Audit Log
+                </span>
               </div>
-              <h1 className="text-2xl font-black text-sakode-text tracking-tight mt-1">
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
                 Audit Trail Platform SAKODE
               </h1>
-              <p className="text-xs text-sakode-text-muted">
-                Rekaman historis mutasi sensitif, persetujuan klaim, keputusan review, dan penjatuhan sanksi.
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-2xl">
+                Rekaman historis mutasi sensitif, persetujuan klaim dana, keputusan evaluasi review, dan penjatuhan sanksi.
               </p>
             </div>
 
             <div className="flex items-center gap-2">
-              <Link href="/admin">
-                <Button variant="outline" size="sm" className="text-xs font-bold gap-1">
-                  <ArrowLeft className="h-3.5 w-3.5" />
-                  <span>Dashboard Admin</span>
-                </Button>
-              </Link>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={loadAuditLogs}
                 disabled={isLoading}
-                className="text-xs font-bold gap-1.5"
+                className="text-xs font-bold gap-1.5 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
               >
                 <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} />
                 <span>Segarkan Log</span>

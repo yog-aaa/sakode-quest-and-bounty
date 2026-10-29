@@ -184,43 +184,48 @@ export default function AdminNotificationsPage() {
 
   return (
     <AuthGuard requireAdmin>
-      <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto space-y-6">
-        {/* Header Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-sakode-border pb-5">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
-                Pusat Notifikasi Administrator
-              </span>
-              <span className="text-xs text-sakode-text-muted">SAKODE Academy</span>
+      <div className="min-h-screen bg-slate-50 dark:bg-[#070C14] text-slate-900 dark:text-slate-100 py-8 px-4 sm:px-6 lg:px-8 transition-colors">
+        <div className="max-w-5xl mx-auto space-y-6">
+          {/* Header Bar */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-5">
+            <div>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/80">
+                  <Bell className="h-3 w-3" />
+                  <span>Pusat Notifikasi Administrator</span>
+                </span>
+                <span className="text-slate-400 dark:text-slate-600">•</span>
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  Real-Time Staff Inbound
+                </span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                Notifikasi Staf Admin
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
+                Pemberitahuan masuk: submission deliverable baru, sanggahan appeal, antrean klaim honor, dan laporan sengketa.
+              </p>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-sakode-text tracking-tight mt-1">
-              Notifikasi Staf Admin
-            </h1>
-            <p className="text-xs sm:text-sm text-sakode-text-muted mt-1">
-              Pemberitahuan masuk: submission deliverable baru, sanggahan appeal, antrean klaim honor, dan laporan sengketa.
-            </p>
-          </div>
 
-          <div className="flex items-center gap-3">
-            {unreadCount > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleMarkAllAsRead}
-                disabled={isPending}
-                className="gap-2 text-xs font-bold border-sakode-border"
-              >
-                {isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin text-sakode-cyan" />
-                ) : (
-                  <CheckCheck className="h-4 w-4 text-sakode-cyan" />
-                )}
-                <span>Tandai Semua Dibaca ({unreadCount})</span>
-              </Button>
-            )}
+            <div className="flex items-center gap-3">
+              {unreadCount > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleMarkAllAsRead}
+                  disabled={isPending}
+                  className="gap-2 text-xs font-bold border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
+                >
+                  {isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-cyan-500" />
+                  ) : (
+                    <CheckCheck className="h-4 w-4 text-cyan-500" />
+                  )}
+                  <span>Tandai Semua Dibaca ({unreadCount})</span>
+                </Button>
+              )}
+            </div>
           </div>
-        </div>
 
         {/* Filter Controls */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -382,6 +387,7 @@ export default function AdminNotificationsPage() {
             })}
           </div>
         )}
+        </div>
       </div>
     </AuthGuard>
   );

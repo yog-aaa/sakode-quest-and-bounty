@@ -179,19 +179,23 @@ export default function AdminClaimsPage() {
       <div className="min-h-screen bg-sakode-bg py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-5">
             <div>
-              <div className="flex items-center gap-2">
-                <Badge variant="cyan" leftIcon={<Wallet className="h-3.5 w-3.5" />}>
-                  Admin Keuangan
-                </Badge>
-                <span className="text-xs text-sakode-text-muted">Antrean Pencairan Dana</span>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/80">
+                  <Wallet className="h-3 w-3" />
+                  <span>Admin Keuangan & Escrow</span>
+                </span>
+                <span className="text-slate-400 dark:text-slate-600">•</span>
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  Pencairan Terverifikasi
+                </span>
               </div>
-              <h1 className="text-2xl font-black text-sakode-text tracking-tight mt-1">
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
                 Manajemen Pencairan Klaim Reward
               </h1>
-              <p className="text-xs text-sakode-text-muted">
-                Verifikasi rekening snapshot tujuan transfer, unggah bukti pembayaran bank manual, dan kelola integritas ledger.
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-2xl">
+                Verifikasi rekening snapshot tujuan transfer, unggah bukti pembayaran bank manual, dan kelola integritas ledger IDR.
               </p>
             </div>
 
@@ -200,7 +204,7 @@ export default function AdminClaimsPage() {
               size="sm"
               onClick={loadClaims}
               disabled={isLoading}
-              className="text-xs font-bold gap-1.5 self-start sm:self-auto"
+              className="text-xs font-bold gap-1.5 self-start sm:self-auto border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} />
               <span>Segarkan Antrean</span>
@@ -209,26 +213,26 @@ export default function AdminClaimsPage() {
 
           {/* Feedback Messages */}
           {errorMsg && (
-            <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm flex items-center justify-between gap-2">
+            <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-800 dark:text-rose-200 text-xs sm:text-sm flex items-center justify-between gap-2 shadow-xs">
               <div className="flex items-center gap-2">
-                <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
+                <AlertCircle className="h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
                 <span>{errorMsg}</span>
               </div>
-              <button onClick={() => setErrorMsg(null)} className="text-rose-600 hover:text-rose-900">
+              <button onClick={() => setErrorMsg(null)} className="text-rose-600 dark:text-rose-400 hover:text-rose-900 dark:hover:text-rose-200 cursor-pointer">
                 <X className="h-4 w-4" />
               </button>
             </div>
           )}
 
           {successMsg && (
-            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm flex items-center justify-between gap-2">
+            <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 text-emerald-800 dark:text-emerald-200 text-xs sm:text-sm flex items-center justify-between gap-2 shadow-xs">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
                 <span>{successMsg}</span>
               </div>
               <button
                 onClick={() => setSuccessMsg(null)}
-                className="text-emerald-600 hover:text-emerald-900"
+                className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-200 cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>

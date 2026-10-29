@@ -12,6 +12,11 @@ export const MobileNav: React.FC = () => {
   const { user } = useAuth();
   const isLanding = pathname === '/';
 
+  // Halaman admin memiliki navigasi drawer sidebar khusus
+  if (pathname.startsWith('/admin')) {
+    return null;
+  }
+
   const landingItems = [
     { href: '#pillars', label: 'Pilar', icon: Layers },
     { href: '#task-explorer', label: 'Eksplor', icon: Compass },

@@ -111,26 +111,30 @@ export default function AdminSubmissionsQueuePage() {
       <div className="min-h-screen bg-sakode-bg py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-sakode-border pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-5">
             <div>
-              <div className="flex items-center gap-2 mb-1">
-                <Badge variant="cyan" leftIcon={<Shield className="h-3 w-3" />}>
-                  Admin Panel
-                </Badge>
-                <span className="text-xs text-sakode-text-muted">Sprint 4 • Shared Review Queue</span>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/80">
+                  <ClipboardCheck className="h-3 w-3" />
+                  <span>Review & Evaluasi Kerja</span>
+                </span>
+                <span className="text-slate-400 dark:text-slate-600">•</span>
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  Shared Review Queue (Lock 15 Min)
+                </span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-black text-sakode-text tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
                 Antrean Evaluasi Deliverable
               </h1>
-              <p className="text-xs sm:text-sm text-sakode-text-muted mt-0.5">
-                Review hasil pekerjaan secara terkoordinasi antar 4 admin dengan proteksi Review Locking atomik 15 menit.
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-2xl">
+                Review hasil pekerjaan secara terkoordinasi antar staf admin dengan proteksi Review Locking atomik 15 menit.
               </p>
             </div>
 
             <div className="flex items-center gap-2">
               <Link href="/admin/tasks">
-                <Button variant="outline" size="sm" className="text-xs font-bold gap-1.5 h-10">
-                  <Layers className="h-4 w-4 text-sakode-cyan" />
+                <Button variant="outline" size="sm" className="text-xs font-bold gap-1.5 h-10 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200">
+                  <Layers className="h-4 w-4 text-cyan-500" />
                   <span>Kelola Task</span>
                 </Button>
               </Link>
@@ -139,14 +143,14 @@ export default function AdminSubmissionsQueuePage() {
 
           {/* Alert Error */}
           {errorMsg && (
-            <div className="p-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
+            <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-800 dark:text-rose-200 text-xs sm:text-sm flex items-center gap-2 shadow-xs">
+              <AlertCircle className="h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
               <span>{errorMsg}</span>
             </div>
           )}
 
           {/* Filter Bar & Tabs */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-3 rounded-xl border border-sakode-border">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white dark:bg-slate-900/80 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs">
             <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
               {[
                 { id: 'PENDING', label: 'Antrean Aktif' },

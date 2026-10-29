@@ -14,12 +14,12 @@
 
 import { getAdminFirestore, getAdminAuth } from '@/lib/firebase/admin';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
-import { USER_ROLES } from '@/lib/constants';
+import { USER_ROLES, USER_APPROVAL_STATUS } from '@/lib/constants';
 import {
   adminRoleManagementSchema,
   type AdminRoleManagementInput,
 } from '@/lib/validations/report';
-import type { UserDocument, FirestoreDate } from '@/types/database';
+import type { UserDocument, FirestoreDate, AuditEventDocument } from '@/types/database';
 
 /**
  * Helper untuk verifikasi hak akses eksklusif Super Admin
@@ -166,4 +166,159 @@ export async function getEligibleMembersForPromotion(
     ...(doc.data() as UserDocument),
     id: doc.id,
   }));
+}
+
+export interface AdminDashboardOverviewData {
+  pendingMembersCount: number;
+  tasksNeedingActionCount: number;
+  openTasksCount: number;
+  pendingSubmissionsCount: number;
+  pendingClaimsCount: number;
+  totalDisbursedBounty: number;
+  activeReportsCount: number;
+  appealedSubmissionsCount: number;
+  recentAuditEvents: AuditEventDocument[];
+}
+
+/**
+ * 4. Agregasi Metrik Operasional Real-time Dashboard Admin
+ */
+export async function getAdminDashboardOverview(
+  adminUid: string
+): Promise<AdminDashboardOverviewData> {
+  const db = getAdminFirestore();
+
+  // Verifikasi wewenang admin
+  const userSnap = await db.collection('users').doc(adminUid).get();
+  if (!userSnap.exists) {
+    throw new Error('Data admin tidak ditemukan.');
+  }
+  const userData = userSnap.data() as UserDocument;
+  if (userData.role !== USER_ROLES.ADMIN && userData.role !== USER_ROLES.SUPER_ADMIN) {
+    throw new Error('Akses ditolak: Operasi ini membutuhkan hak istimewa Admin.');
+  }
+
+  // 1. Pending members
+  let pendingMembersCount = 0;
+  try {
+    const snap = await db
+      .collection('users')
+      .where('approvalStatus', '==', USER_APPROVAL_STATUS.PENDING)
+      .count()
+      .get();
+    pendingMembersCount = snap.data().count;
+  } catch (e) {
+    console.warn('Count pending members fallback:', e);
+  }
+
+  // 2. Tasks needing action (Draft or Application Review) & Open
+  let tasksNeedingActionCount = 0;
+  let openTasksCount = 0;
+  try {
+    const draftSnap = await db.collection('tasks').where('status', '==', 'DRAFT').count().get();
+    const appSnap = await db
+      .collection('tasks')
+      .where('status', '==', 'APPLICATION_REVIEW')
+      .count()
+      .get();
+    const openSnap = await db.collection('tasks').where('status', '==', 'OPEN').count().get();
+    tasksNeedingActionCount = draftSnap.data().count + appSnap.data().count;
+    openTasksCount = openSnap.data().count;
+  } catch (e) {
+    console.warn('Count tasks fallback:', e);
+  }
+
+  // 3. Submissions needing review & Appeals
+  let pendingSubmissionsCount = 0;
+  let appealedSubmissionsCount = 0;
+  try {
+    const submittedSnap = await db
+      .collection('submissions')
+      .where('status', '==', 'SUBMITTED')
+      .count()
+      .get();
+    const underReviewSnap = await db
+      .collection('submissions')
+      .where('status', '==', 'UNDER_REVIEW')
+      .count()
+      .get();
+    const appealedSnap = await db
+      .collection('submissions')
+      .where('status', '==', 'APPEALED')
+      .count()
+      .get();
+    pendingSubmissionsCount = submittedSnap.data().count + underReviewSnap.data().count;
+    appealedSubmissionsCount = appealedSnap.data().count;
+  } catch (e) {
+    console.warn('Count submissions fallback:', e);
+  }
+
+  // 4. Pending Claims
+  let pendingClaimsCount = 0;
+  try {
+    const claimSnap = await db.collection('claims').where('status', '==', 'CLAIMED').count().get();
+    pendingClaimsCount = claimSnap.data().count;
+  } catch (e) {
+    console.warn('Count claims fallback:', e);
+  }
+
+  // 5. Total Disbursed Bounty
+  let totalDisbursedBounty = 0;
+  try {
+    const approvedClaimsSnap = await db
+      .collection('claims')
+      .where('status', '==', 'APPROVED')
+      .select('amount')
+      .get();
+    approvedClaimsSnap.forEach((doc) => {
+      const data = doc.data();
+      if (typeof data.amount === 'number') {
+        totalDisbursedBounty += data.amount;
+      }
+    });
+  } catch (e) {
+    console.warn('Sum disbursed claims fallback:', e);
+  }
+
+  // 6. Active Reports
+  let activeReportsCount = 0;
+  try {
+    const openRepSnap = await db.collection('reports').where('status', '==', 'OPEN').count().get();
+    const invRepSnap = await db
+      .collection('reports')
+      .where('status', '==', 'INVESTIGATING')
+      .count()
+      .get();
+    activeReportsCount = openRepSnap.data().count + invRepSnap.data().count;
+  } catch (e) {
+    console.warn('Count reports fallback:', e);
+  }
+
+  // 7. Recent Audit Events
+  let recentAuditEvents: AuditEventDocument[] = [];
+  try {
+    const auditSnap = await db
+      .collection('auditEvents')
+      .orderBy('timestamp', 'desc')
+      .limit(6)
+      .get();
+    recentAuditEvents = auditSnap.docs.map((doc) => ({
+      ...(doc.data() as AuditEventDocument),
+      id: doc.id,
+    }));
+  } catch (e) {
+    console.warn('Fetch recent audit events fallback:', e);
+  }
+
+  return {
+    pendingMembersCount,
+    tasksNeedingActionCount,
+    openTasksCount,
+    pendingSubmissionsCount,
+    pendingClaimsCount,
+    totalDisbursedBounty,
+    activeReportsCount,
+    appealedSubmissionsCount,
+    recentAuditEvents,
+  };
 }

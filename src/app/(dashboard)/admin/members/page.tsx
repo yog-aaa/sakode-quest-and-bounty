@@ -286,23 +286,22 @@ export default function AdminMembersPage() {
 
   return (
     <AuthGuard requireAdmin>
-      <div className="min-h-screen bg-sakode-bg py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#070C14] text-slate-900 dark:text-slate-100 py-8 px-4 sm:px-6 lg:px-8 transition-colors">
         <div className="max-w-7xl mx-auto space-y-6">
-          {/* Header & Breadcrumb */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-sakode-border pb-4">
-            <div className="space-y-1">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-5">
+            <div className="space-y-1.5">
               <div className="flex items-center gap-2">
-                <Link
-                  href="/admin"
-                  className="text-xs text-sakode-text-muted hover:text-sakode-text flex items-center gap-1 font-semibold"
-                >
-                  <ArrowLeft className="h-3.5 w-3.5" />
-                  <span>Antrean Admin</span>
-                </Link>
-                <span className="text-sakode-text-muted">/</span>
-                <span className="text-xs font-bold text-sakode-text">Verifikasi Pendaftar</span>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/80">
+                  <UserCheck className="h-3 w-3" />
+                  <span>Verifikasi Pendaftar</span>
+                </span>
+                <span className="text-slate-400 dark:text-slate-600">•</span>
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  Protokol Keamanan & Rekening AES-256
+                </span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-black text-sakode-text tracking-tight flex items-center gap-2.5">
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2.5">
                 <span>Antrean Persetujuan Member</span>
                 {pendingCount > 0 && (
                   <Badge variant="orange" className="text-xs">
@@ -310,6 +309,9 @@ export default function AdminMembersPage() {
                   </Badge>
                 )}
               </h1>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-2xl">
+                Tinjau profil talenta pendaftar, validasi kelayakan keahlian, dan verifikasi rekening penerima reward sebelum membuka akses task.
+              </p>
             </div>
 
             <div className="flex items-center gap-2">
