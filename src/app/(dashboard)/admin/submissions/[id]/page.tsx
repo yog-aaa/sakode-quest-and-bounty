@@ -802,23 +802,23 @@ function SubmissionDetailInner() {
 
         {/* Modal: Approve Confirmation */}
         {activeModal === 'APPROVE' && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-            <div className="bg-white rounded-xl shadow-2xl border border-sakode-border w-full max-w-md p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-md p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                <div className="w-9 h-9 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                   <CheckCircle2 className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-sakode-text">Setujui Hasil Pekerjaan</h3>
-                  <p className="text-xs text-sakode-text-muted">Konfirmasi evaluasi deliverable</p>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">Setujui Hasil Pekerjaan</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Konfirmasi evaluasi deliverable</p>
                 </div>
               </div>
 
-              <p className="text-xs text-slate-700 leading-relaxed">
-                Apakah Anda yakin ingin menyetujui submission ini? Status task akan diperbarui menjadi <strong>APPROVED</strong> dan membuka hak pencairan reward bagi member.
+              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                Apakah Anda yakin ingin menyetujui submission ini? Status task akan diperbarui menjadi <strong className="text-slate-900 dark:text-white">APPROVED</strong> dan membuka hak pencairan reward bagi member.
               </p>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-sakode-border">
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
                 <Button variant="ghost" size="sm" onClick={() => setActiveModal(null)} disabled={isProcessing} className="text-xs">
                   Batal
                 </Button>
@@ -827,7 +827,7 @@ function SubmissionDetailInner() {
                   size="sm"
                   disabled={isProcessing}
                   onClick={() => handleExecuteReview('APPROVE')}
-                  className="bg-emerald-600 hover:bg-emerald-700 font-bold text-xs gap-1.5"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs gap-1.5 shadow-sm"
                 >
                   {isProcessing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
                   <span>Ya, Setujui Sekarang</span>
@@ -839,21 +839,21 @@ function SubmissionDetailInner() {
 
         {/* Modal: Request Revision */}
         {activeModal === 'REVISION' && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-            <div className="bg-white rounded-xl shadow-2xl border border-sakode-border w-full max-w-lg p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
-              <div className="flex items-center justify-between border-b border-sakode-border pb-3">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
                 <div className="flex items-center gap-2">
-                  <RotateCcw className="h-5 w-5 text-amber-600" />
-                  <h3 className="text-base font-bold text-sakode-text">Minta Perbaikan / Revisi</h3>
+                  <RotateCcw className="h-5 w-5 text-amber-500" />
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">Minta Perbaikan / Revisi</h3>
                 </div>
-                <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-slate-700">
+                <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Catatan Perbaikan (Wajib, minimal 10 karakter)
                   </label>
                   <textarea
@@ -863,24 +863,24 @@ function SubmissionDetailInner() {
                     value={revisionNotes}
                     onChange={(e) => setRevisionNotes(e.target.value)}
                     placeholder="Sebutkan bagian atau kriteria yang belum terpenuhi dan apa yang perlu diperbaiki..."
-                    className="w-full text-xs p-3 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                    className="w-full text-xs p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Batas Waktu Revisi Baru (Opsional)
                   </label>
                   <input
                     type="datetime-local"
                     value={revisionDeadline}
                     onChange={(e) => setRevisionDeadline(e.target.value)}
-                    className="w-full text-xs p-2.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-sakode-border">
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
                 <Button variant="ghost" size="sm" onClick={() => setActiveModal(null)} disabled={isProcessing} className="text-xs">
                   Batal
                 </Button>
@@ -889,7 +889,7 @@ function SubmissionDetailInner() {
                   size="sm"
                   disabled={isProcessing || revisionNotes.trim().length < 10}
                   onClick={() => handleExecuteReview('REQUEST_REVISION')}
-                  className="bg-amber-600 hover:bg-amber-700 font-bold text-xs gap-1.5"
+                  className="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs gap-1.5 shadow-sm"
                 >
                   {isProcessing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RotateCcw className="h-3.5 w-3.5" />}
                   <span>Kirim Permintaan Revisi</span>
@@ -901,21 +901,21 @@ function SubmissionDetailInner() {
 
         {/* Modal: Extend Deadline */}
         {activeModal === 'EXTEND' && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-            <div className="bg-white rounded-xl shadow-2xl border border-sakode-border w-full max-w-lg p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
-              <div className="flex items-center justify-between border-b border-sakode-border pb-3">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
                 <div className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-sky-600" />
-                  <h3 className="text-base font-bold text-sakode-text">Beri Perpanjangan Waktu Task</h3>
+                  <Calendar className="h-5 w-5 text-sky-500" />
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">Beri Perpanjangan Waktu Task</h3>
                 </div>
-                <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-slate-700">
+                <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Tambahan Hari (1 - 30 Hari)
                   </label>
                   <input
@@ -924,12 +924,12 @@ function SubmissionDetailInner() {
                     max={30}
                     value={extensionDays}
                     onChange={(e) => setExtensionDays(parseInt(e.target.value) || 1)}
-                    className="w-full text-xs p-2.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-sky-500"
+                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Alasan Perpanjangan (Audit Trail, minimal 10 karakter)
                   </label>
                   <textarea
@@ -939,12 +939,12 @@ function SubmissionDetailInner() {
                     value={extensionReason}
                     onChange={(e) => setExtensionReason(e.target.value)}
                     placeholder="Contoh: Mengakomodasi kendala integrasi API eksternal yang di luar kendali member..."
-                    className="w-full text-xs p-2.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-sky-500"
+                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-sakode-border">
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
                 <Button variant="ghost" size="sm" onClick={() => setActiveModal(null)} disabled={isProcessing} className="text-xs">
                   Batal
                 </Button>
@@ -953,7 +953,7 @@ function SubmissionDetailInner() {
                   size="sm"
                   disabled={isProcessing || extensionReason.trim().length < 10 || extensionDays < 1}
                   onClick={() => handleExecuteReview('EXTEND_DEADLINE')}
-                  className="bg-sky-600 hover:bg-sky-700 font-bold text-xs gap-1.5"
+                  className="bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs gap-1.5 shadow-sm"
                 >
                   {isProcessing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Calendar className="h-3.5 w-3.5" />}
                   <span>Terapkan Perpanjangan</span>
@@ -965,24 +965,24 @@ function SubmissionDetailInner() {
 
         {/* Modal: Reject Confirmation */}
         {activeModal === 'REJECT' && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-            <div className="bg-white rounded-xl shadow-2xl border border-rose-200 w-full max-w-lg p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
-              <div className="flex items-center justify-between border-b border-sakode-border pb-3">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-rose-200 dark:border-rose-900/40 w-full max-w-lg p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
                 <div className="flex items-center gap-2">
-                  <XCircle className="h-5 w-5 text-rose-600" />
-                  <h3 className="text-base font-bold text-rose-900">Tolak Hasil Pekerjaan</h3>
+                  <XCircle className="h-5 w-5 text-rose-600 dark:text-rose-400" />
+                  <h3 className="text-base font-bold text-rose-950 dark:text-rose-200">Tolak Hasil Pekerjaan</h3>
                 </div>
-                <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-slate-700">
+                <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
-              <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-800 leading-relaxed">
+              <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 text-xs text-rose-800 dark:text-rose-300 leading-relaxed">
                 <strong>Perhatian:</strong> Penolakan submission akan menggagalkan task ini (status <strong>FAILED</strong>). Member akan mendapatkan hak mengajukan sanggah (appeal).
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                   Alasan Penolakan (Wajib, minimal 10 karakter)
                 </label>
                 <textarea
@@ -992,11 +992,11 @@ function SubmissionDetailInner() {
                   value={rejectReason}
                   onChange={(e) => setRejectReason(e.target.value)}
                   placeholder="Jelaskan secara transparan mengapa hasil pekerjaan tidak dapat diterima..."
-                  className="w-full text-xs p-3 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="w-full text-xs p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-rose-500"
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-sakode-border">
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
                 <Button variant="ghost" size="sm" onClick={() => setActiveModal(null)} disabled={isProcessing} className="text-xs">
                   Batal
                 </Button>
@@ -1005,7 +1005,7 @@ function SubmissionDetailInner() {
                   size="sm"
                   disabled={isProcessing || rejectReason.trim().length < 10}
                   onClick={() => handleExecuteReview('REJECT')}
-                  className="bg-rose-600 hover:bg-rose-700 font-bold text-xs gap-1.5"
+                  className="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs gap-1.5 shadow-sm"
                 >
                   {isProcessing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
                   <span>Tolak Hasil Sekarang</span>
@@ -1017,43 +1017,43 @@ function SubmissionDetailInner() {
 
         {/* Modal: Partial Completion */}
         {activeModal === 'PARTIAL' && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-            <div className="bg-white rounded-xl shadow-2xl border border-blue-200 w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-              <div className="p-4 border-b border-sakode-border flex items-center justify-between bg-blue-50/50">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-blue-200 dark:border-blue-900/40 w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+              <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-blue-50/50 dark:bg-blue-950/30">
                 <div className="flex items-center gap-2">
-                  <PieChart className="h-5 w-5 text-blue-600" />
+                  <PieChart className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   <div>
-                    <h3 className="text-base font-bold text-blue-950">Selesai Sebagian (Partial Completion)</h3>
-                    <p className="text-xs text-blue-800">Evaluasi parsial & pembentukan Continuation Task</p>
+                    <h3 className="text-base font-bold text-blue-950 dark:text-blue-200">Selesai Sebagian (Partial Completion)</h3>
+                    <p className="text-xs text-blue-800 dark:text-blue-300">Evaluasi parsial & pembentukan Continuation Task</p>
                   </div>
                 </div>
-                <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-slate-700">
+                <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
               <div className="p-5 overflow-y-auto space-y-4 flex-1">
                 {/* Live Reward Calculation Banner */}
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 grid grid-cols-3 gap-2 text-center text-xs">
+                <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 grid grid-cols-3 gap-2 text-center text-xs">
                   <div>
                     <span className="text-[10px] font-bold text-slate-500 uppercase block">Bounty Awal</span>
-                    <span className="font-black text-sakode-text text-sm block mt-0.5">
+                    <span className="font-black text-slate-900 dark:text-white text-sm block mt-0.5">
                       {formatCurrencyIDR(task.totalReward)}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold text-blue-600 uppercase block">Reward Parsial</span>
-                    <span className="font-black text-blue-700 text-sm block mt-0.5">
+                    <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase block">Reward Parsial</span>
+                    <span className="font-black text-blue-700 dark:text-blue-400 text-sm block mt-0.5">
                       {formatCurrencyIDR(partialRewardAmount || 0)}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold text-emerald-600 uppercase block">Sisa Task Lanjutan</span>
+                    <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase block">Sisa Task Lanjutan</span>
                     <span
                       className={`font-black text-sm block mt-0.5 ${
                         task.totalReward - partialRewardAmount <= 0
-                          ? 'text-rose-600'
-                          : 'text-emerald-700'
+                          ? 'text-rose-600 dark:text-rose-400'
+                          : 'text-emerald-700 dark:text-emerald-400'
                       }`}
                     >
                       {formatCurrencyIDR(Math.max(0, task.totalReward - partialRewardAmount))}
@@ -1062,14 +1062,14 @@ function SubmissionDetailInner() {
                 </div>
 
                 {partialRewardAmount >= task.totalReward && (
-                  <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs">
+                  <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 text-rose-800 dark:text-rose-300 text-xs">
                     <strong>Peringatan Invariant:</strong> Nilai reward parsial harus lebih kecil dari total bounty task ({formatCurrencyIDR(task.totalReward)}). Jika diterima penuh, gunakan aksi &quot;Setujui Hasil&quot;.
                   </div>
                 )}
 
                 {/* Accepted notes */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Bagian Pekerjaan yang Diterima (Accepted Deliverable) <span className="text-rose-500">*</span>
                   </label>
                   <textarea
@@ -1079,7 +1079,7 @@ function SubmissionDetailInner() {
                     value={partialAcceptedNotes}
                     onChange={(e) => setPartialAcceptedNotes(e.target.value)}
                     placeholder="Sebutkan fitur/komponen apa saja yang telah selesai dan dapat diterima kualitasnya..."
-                    className="w-full text-xs p-2.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <div className="text-right text-[10px] text-slate-400 mt-0.5">
                     {partialAcceptedNotes.length} karakter (min. 15)
@@ -1088,7 +1088,7 @@ function SubmissionDetailInner() {
 
                 {/* Remaining scope for continuation task */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Ruang Lingkup Tersisa untuk Task Lanjutan (Continuation Scope) <span className="text-rose-500">*</span>
                   </label>
                   <textarea
@@ -1098,7 +1098,7 @@ function SubmissionDetailInner() {
                     value={partialRemainingScope}
                     onChange={(e) => setPartialRemainingScope(e.target.value)}
                     placeholder="Jelaskan sisa scope pekerjaan yang belum tuntas yang akan dikerjakan pada Continuation Task..."
-                    className="w-full text-xs p-2.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <div className="text-right text-[10px] text-slate-400 mt-0.5">
                     {partialRemainingScope.length} karakter (min. 15)
@@ -1107,7 +1107,7 @@ function SubmissionDetailInner() {
 
                 {/* Partial reward input */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Nominal Reward Parsial untuk Member (Integer Rupiah) <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -1117,13 +1117,13 @@ function SubmissionDetailInner() {
                     max={task.totalReward - 1000}
                     value={partialRewardAmount}
                     onChange={(e) => setPartialRewardAmount(parseInt(e.target.value) || 0)}
-                    className="w-full text-xs font-bold p-2.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full text-xs font-bold p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
                   />
                 </div>
 
                 {/* Reason */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Alasan Evaluasi Parsial (Audit Trail) <span className="text-rose-500">*</span>
                   </label>
                   <textarea
@@ -1133,7 +1133,7 @@ function SubmissionDetailInner() {
                     value={partialReason}
                     onChange={(e) => setPartialReason(e.target.value)}
                     placeholder="Alasan mengapa diputuskan selesai sebagian..."
-                    className="w-full text-xs p-2.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
@@ -1145,13 +1145,13 @@ function SubmissionDetailInner() {
                     onChange={(e) => setPublishContinuationNow(e.target.checked)}
                     className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                   />
-                  <span className="text-xs font-semibold text-slate-800">
+                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                     Langsung terbitkan Continuation Task ke status OPEN (Terbuka untuk pelamar baru)
                   </span>
                 </label>
               </div>
 
-              <div className="p-4 border-t border-sakode-border bg-slate-50 flex justify-end gap-2">
+              <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/70 flex justify-end gap-2">
                 <Button variant="ghost" size="sm" onClick={() => setActiveModal(null)} disabled={isProcessing} className="text-xs">
                   Batal
                 </Button>
@@ -1167,7 +1167,7 @@ function SubmissionDetailInner() {
                     partialRewardAmount >= task.totalReward
                   }
                   onClick={handleExecutePartialCompletion}
-                  className="bg-blue-600 hover:bg-blue-700 font-bold text-xs gap-1.5 text-white"
+                  className="bg-blue-600 hover:bg-blue-700 font-bold text-xs gap-1.5 text-white shadow-sm"
                 >
                   {isProcessing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <PieChart className="h-3.5 w-3.5" />}
                   <span>Terapkan Selesai Sebagian</span>
@@ -1179,24 +1179,24 @@ function SubmissionDetailInner() {
 
         {/* Modal: Decide Appeal (APPROVE) */}
         {activeModal === 'DECIDE_APPEAL_APPROVE' && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-            <div className="bg-white rounded-xl shadow-2xl border border-sakode-border w-full max-w-lg p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
-              <div className="flex items-center gap-2.5 border-b border-sakode-border pb-3">
-                <div className="w-9 h-9 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-center gap-2.5 border-b border-slate-200 dark:border-slate-800 pb-3">
+                <div className="w-9 h-9 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                   <CheckCircle2 className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-sakode-text">Terima Sanggahan Member (Approve)</h3>
-                  <p className="text-xs text-sakode-text-muted">Keputusan peninjauan independen</p>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">Terima Sanggahan Member (Approve)</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Keputusan peninjauan independen</p>
                 </div>
               </div>
 
-              <p className="text-xs text-slate-700 leading-relaxed">
-                Menerima sanggahan ini akan membatalkan penolakan sebelumnya dan mengubah status task &amp; submission menjadi <strong>APPROVED</strong>.
+              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                Menerima sanggahan ini akan membatalkan penolakan sebelumnya dan mengubah status task &amp; submission menjadi <strong className="text-slate-900 dark:text-white">APPROVED</strong>.
               </p>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                   Catatan Resolusi Banding (Wajib, minimal 15 karakter)
                 </label>
                 <textarea
@@ -1206,11 +1206,11 @@ function SubmissionDetailInner() {
                   value={appealResolutionNotes}
                   onChange={(e) => setAppealResolutionNotes(e.target.value)}
                   placeholder="Jelaskan pertimbangan mengapa bukti atau penjelasan tambahan member dapat diterima..."
-                  className="w-full text-xs p-3 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  className="w-full text-xs p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-sakode-border">
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
                 <Button variant="ghost" size="sm" onClick={() => setActiveModal(null)} disabled={isProcessing} className="text-xs">
                   Batal
                 </Button>
@@ -1219,7 +1219,7 @@ function SubmissionDetailInner() {
                   size="sm"
                   disabled={isProcessing || appealResolutionNotes.trim().length < 15}
                   onClick={() => handleExecuteAppealDecision('APPROVE')}
-                  className="bg-emerald-600 hover:bg-emerald-700 font-bold text-xs gap-1.5 text-white"
+                  className="bg-emerald-600 hover:bg-emerald-700 font-bold text-xs gap-1.5 text-white shadow-sm"
                 >
                   {isProcessing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
                   <span>Terima Sanggahan Sekarang</span>
@@ -1231,24 +1231,24 @@ function SubmissionDetailInner() {
 
         {/* Modal: Decide Appeal (REJECT) */}
         {activeModal === 'DECIDE_APPEAL_REJECT' && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-            <div className="bg-white rounded-xl shadow-2xl border border-rose-200 w-full max-w-lg p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
-              <div className="flex items-center gap-2.5 border-b border-sakode-border pb-3">
-                <div className="w-9 h-9 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-rose-200 dark:border-rose-900/40 w-full max-w-lg p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-center gap-2.5 border-b border-slate-200 dark:border-slate-800 pb-3">
+                <div className="w-9 h-9 rounded-full bg-rose-100 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
                   <XCircle className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-rose-900">Tolak Sanggahan Member (Final Reject)</h3>
-                  <p className="text-xs text-rose-700">Keputusan akhir yang tidak dapat diajukan banding lagi</p>
+                  <h3 className="text-base font-bold text-rose-950 dark:text-rose-200">Tolak Sanggahan Member (Final Reject)</h3>
+                  <p className="text-xs text-rose-700 dark:text-rose-400">Keputusan akhir yang tidak dapat diajukan banding lagi</p>
                 </div>
               </div>
 
-              <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-800 leading-relaxed">
+              <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 text-xs text-rose-800 dark:text-rose-300 leading-relaxed">
                 Penolakan ini bersifat final. Status task akan tetap <strong>FAILED</strong> atau <strong>PARTIAL</strong> dan hak sanggah 1-time appeal untuk submission ini ditutup secara permanen.
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                   Catatan Alasan Penolakan Banding (Wajib, minimal 15 karakter)
                 </label>
                 <textarea
@@ -1258,11 +1258,11 @@ function SubmissionDetailInner() {
                   value={appealResolutionNotes}
                   onChange={(e) => setAppealResolutionNotes(e.target.value)}
                   placeholder="Jelaskan secara transparan pertimbangan objektif mengapa sanggahan ini tidak dapat diterima..."
-                  className="w-full text-xs p-3 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="w-full text-xs p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-rose-500"
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-sakode-border">
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
                 <Button variant="ghost" size="sm" onClick={() => setActiveModal(null)} disabled={isProcessing} className="text-xs">
                   Batal
                 </Button>
@@ -1271,7 +1271,7 @@ function SubmissionDetailInner() {
                   size="sm"
                   disabled={isProcessing || appealResolutionNotes.trim().length < 15}
                   onClick={() => handleExecuteAppealDecision('REJECT')}
-                  className="bg-rose-600 hover:bg-rose-700 font-bold text-xs gap-1.5 text-white"
+                  className="bg-rose-600 hover:bg-rose-700 font-bold text-xs gap-1.5 text-white shadow-sm"
                 >
                   {isProcessing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
                   <span>Tolak Sanggahan Secara Final</span>

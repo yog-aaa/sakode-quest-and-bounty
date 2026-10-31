@@ -271,39 +271,39 @@ export function TeamDistributionModal({
 
       {/* CASE 1: PROPOSAL BELUM DIBUAT ATAU DITOLAK (DELIBERATION_REJECTED) */}
       {(!distribution || distribution.status === 'DELIBERATION_REJECTED') && isTeamLead && (
-        <Card className="p-5 border-l-4 border-l-sakode-purple space-y-4">
+        <Card className="p-5 border-l-4 border-l-purple-500 space-y-4 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
           <div className="flex items-center justify-between">
             <div>
               <Badge variant="purple" leftIcon={<Coins className="h-3.5 w-3.5" />}>
                 Musyawarah Pembagian Bounty
               </Badge>
-              <h3 className="text-base font-extrabold text-sakode-text mt-1">
+              <h3 className="text-base font-extrabold text-slate-900 dark:text-white mt-1">
                 Formulir Alokasi Reward: {taskTitle}
               </h3>
             </div>
             <div className="text-right">
-              <span className="text-[11px] text-sakode-text-muted font-medium block">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium block">
                 Total Bounty Task
               </span>
-              <strong className="text-base font-black text-sakode-text">
+              <strong className="text-base font-black text-slate-900 dark:text-white">
                 {formatCurrencyIDR(totalReward)}
               </strong>
             </div>
           </div>
 
           {distribution?.status === 'DELIBERATION_REJECTED' && (
-            <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-xs space-y-1">
+            <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 text-amber-900 dark:text-amber-200 text-xs space-y-1">
               <div className="flex items-center gap-1.5 font-bold">
-                <AlertCircle className="h-4 w-4 text-amber-600" />
+                <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                 <span>Proposal Sebelumnya Membutuhkan Revisi</span>
               </div>
-              <p className="text-slate-700">
+              <p className="text-slate-700 dark:text-slate-300">
                 Catatan Musyawarah: &quot;{distribution.rejectionNotes || 'Perlu penyesuaian nominal alokasi.'}&quot;
               </p>
             </div>
           )}
 
-          <p className="text-xs text-sakode-text-muted leading-relaxed">
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
             Sebagai Team Lead, tentukan nominal final Rupiah untuk setiap anggota tim. Seluruh nominal harus bulat (Integer Rupiah) dan total alokasi harus persis 100% sama dengan total bounty task.
           </p>
 
@@ -314,36 +314,36 @@ export function TeamDistributionModal({
               return (
                 <div
                   key={item.userId}
-                  className="p-3.5 rounded-lg border border-sakode-border bg-sakode-bg/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                  className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                 >
                   <div className="flex items-center gap-2.5">
-                    <div className="h-8 w-8 rounded-full bg-sakode-purple/20 text-sakode-purple font-bold text-xs flex items-center justify-center">
+                    <div className="h-8 w-8 rounded-full bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 font-bold text-xs flex items-center justify-center">
                       {(memberInfo?.userDisplayName || 'M')[0]}
                     </div>
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-bold text-sakode-text">
+                        <span className="text-xs font-bold text-slate-900 dark:text-white">
                           {memberInfo?.userDisplayName || memberInfo?.userEmail || item.userId}
                         </span>
                         {isLead && (
-                          <span className="text-[10px] bg-sakode-purple/20 text-purple-800 px-1.5 py-0.2 rounded font-bold">
+                          <span className="text-[10px] bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 px-1.5 py-0.2 rounded font-bold">
                             Lead
                           </span>
                         )}
                       </div>
-                      <span className="text-[11px] text-slate-500">{memberInfo?.userEmail}</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">{memberInfo?.userEmail}</span>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-slate-500">Rp</span>
+                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Rp</span>
                     <input
                       type="text"
                       inputMode="numeric"
                       value={item.amount ? item.amount.toLocaleString('id-ID') : ''}
                       onChange={(e) => handleAllocationChange(item.userId, e.target.value)}
                       placeholder="0"
-                      className="w-36 px-3 py-1.5 text-xs font-bold rounded-lg border border-sakode-border bg-white text-right focus:outline-none focus:ring-1 focus:ring-sakode-purple"
+                      className="w-36 px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-right focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono"
                     />
                   </div>
                 </div>
@@ -352,13 +352,13 @@ export function TeamDistributionModal({
           </div>
 
           {/* Validation Status Tracker */}
-          <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between text-xs font-bold">
-            <span className="text-slate-600">Total Dialokasikan: {formatCurrencyIDR(totalAllocated)}</span>
+          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs font-bold">
+            <span className="text-slate-600 dark:text-slate-400">Total Dialokasikan: {formatCurrencyIDR(totalAllocated)}</span>
             <span
               className={
                 remainingReward === 0
-                  ? 'text-emerald-700 flex items-center gap-1'
-                  : 'text-rose-700 flex items-center gap-1'
+                  ? 'text-emerald-700 dark:text-emerald-400 flex items-center gap-1'
+                  : 'text-rose-700 dark:text-rose-400 flex items-center gap-1'
               }
             >
               {remainingReward === 0 ? (
@@ -382,7 +382,7 @@ export function TeamDistributionModal({
             variant="team"
             disabled={!isAllocationValid || isSubmitting}
             onClick={handleProposeSplit}
-            className="w-full font-bold gap-2 h-11"
+            className="w-full font-bold gap-2 h-11 shadow-sm"
           >
             {isSubmitting ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -396,54 +396,54 @@ export function TeamDistributionModal({
 
       {/* CASE 2: SEDANG DALAM TAHAP MUSYAWARAH / VOTING (DELIBERATION) */}
       {distribution && distribution.status === 'DELIBERATION' && (
-        <Card className="p-5 border-l-4 border-l-amber-500 space-y-4">
+        <Card className="p-5 border-l-4 border-l-amber-500 space-y-4 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <Badge variant="orange" leftIcon={<Clock className="h-3.5 w-3.5" />}>
                 Voting Konsensus 100% Berjalan
               </Badge>
-              <h3 className="text-base font-extrabold text-sakode-text mt-1">
+              <h3 className="text-base font-extrabold text-slate-900 dark:text-white mt-1">
                 Proposal Pembagian Honor Sedang Dimusyawarahkan
               </h3>
             </div>
-            <span className="text-xs font-bold text-slate-500">
+            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
               Total Bounty: {formatCurrencyIDR(distribution.totalReward)}
             </span>
           </div>
 
-          <p className="text-xs text-sakode-text-muted">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             Setiap anggota wajib menyatakan persetujuan. Jika ada 1 anggota yang menolak, proposal akan dikembalikan ke Team Lead untuk direvisi.
           </p>
 
           {/* Allocation Table */}
-          <div className="divide-y divide-slate-100 border border-slate-200 rounded-lg overflow-hidden">
+          <div className="divide-y divide-slate-100 dark:divide-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
             {distribution.allocations.map((a) => (
               <div
                 key={a.userId}
-                className="p-3.5 flex items-center justify-between bg-white text-xs"
+                className="p-3.5 flex items-center justify-between bg-white dark:bg-slate-900 text-xs"
               >
-                <div className="flex items-center gap-2">
-                  <div className="h-7 w-7 rounded-full bg-slate-100 text-slate-700 font-bold flex items-center justify-center text-xs">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-7 w-7 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold flex items-center justify-center text-xs">
                     {(a.userDisplayName || 'M')[0]}
                   </div>
                   <div>
-                    <span className="font-bold text-sakode-text block">
+                    <span className="font-bold text-slate-900 dark:text-white block">
                       {a.userDisplayName || a.userId}
                     </span>
-                    <span className="text-[11px] text-slate-500">
-                      Alokasi: <strong className="text-slate-800">{formatCurrencyIDR(a.amount)}</strong>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                      Alokasi: <strong className="text-slate-800 dark:text-slate-200">{formatCurrencyIDR(a.amount)}</strong>
                     </span>
                   </div>
                 </div>
 
                 <div>
                   {a.agreed ? (
-                    <span className="inline-flex items-center gap-1 text-emerald-700 font-bold bg-emerald-50 px-2.5 py-1 rounded-full text-[11px] border border-emerald-200">
+                    <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full text-[11px] border border-emerald-200 dark:border-emerald-800">
                       <CheckCircle2 className="h-3.5 w-3.5" />
                       <span>Setuju</span>
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 text-amber-700 font-bold bg-amber-50 px-2.5 py-1 rounded-full text-[11px] border border-amber-200">
+                    <span className="inline-flex items-center gap-1 text-amber-700 dark:text-amber-400 font-bold bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1 rounded-full text-[11px] border border-amber-200 dark:border-amber-800">
                       <Clock className="h-3.5 w-3.5" />
                       <span>Menunggu Suara</span>
                     </span>
@@ -455,15 +455,15 @@ export function TeamDistributionModal({
 
           {/* Member Voting Action Banner */}
           {userAllocation && !userAllocation.agreed && (
-            <div className="p-4 rounded-xl bg-purple-50/70 border border-sakode-purple/40 space-y-3">
+            <div className="p-4 rounded-xl bg-purple-50/70 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-900/40 space-y-3">
               <div className="flex items-center gap-2">
-                <Shield className="h-4 w-4 text-sakode-purple" />
-                <h4 className="text-xs font-bold text-sakode-purple uppercase tracking-wider">
+                <Shield className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                <h4 className="text-xs font-bold text-purple-700 dark:text-purple-300 uppercase tracking-wider">
                   Keputusan Persetujuan Anda
                 </h4>
               </div>
 
-              <p className="text-xs text-slate-700 leading-relaxed">
+              <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
                 Anda dialokasikan nominal <strong>{formatCurrencyIDR(userAllocation.amount)}</strong>. Apakah Anda menyetujui nominal ini?
               </p>
 
@@ -474,7 +474,7 @@ export function TeamDistributionModal({
                     size="sm"
                     disabled={isSubmitting}
                     onClick={() => handleVote(true)}
-                    className="font-bold text-xs gap-1.5"
+                    className="font-bold text-xs gap-1.5 shadow-sm"
                   >
                     <CheckCircle2 className="h-4 w-4" />
                     <span>Saya Setuju (100% Konsensus)</span>
@@ -485,7 +485,7 @@ export function TeamDistributionModal({
                     size="sm"
                     disabled={isSubmitting}
                     onClick={() => setIsRejecting(true)}
-                    className="text-xs text-rose-600 hover:text-rose-700 border-rose-200 hover:bg-rose-50"
+                    className="text-xs text-rose-600 hover:text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-900/50 hover:bg-rose-50 dark:hover:bg-rose-950/40"
                   >
                     <XCircle className="h-4 w-4" />
                     <span>Tolak & Ajukan Musyawarah</span>
@@ -498,7 +498,7 @@ export function TeamDistributionModal({
                     value={rejectionReason}
                     onChange={(e) => setRejectionReason(e.target.value)}
                     placeholder="Tuliskan alasan musyawarah penolakan pembagian (minimal 10 karakter)..."
-                    className="w-full p-2.5 text-xs rounded-lg border border-rose-300 focus:outline-none focus:ring-1 focus:ring-rose-500 bg-white"
+                    className="w-full p-2.5 text-xs rounded-xl border border-rose-300 dark:border-rose-900/50 focus:outline-none focus:ring-2 focus:ring-rose-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
                   />
                   <div className="flex items-center gap-2">
                     <Button
@@ -506,7 +506,7 @@ export function TeamDistributionModal({
                       size="sm"
                       disabled={isSubmitting || rejectionReason.trim().length < 10}
                       onClick={() => handleVote(false)}
-                      className="font-bold text-xs"
+                      className="font-bold text-xs shadow-sm"
                     >
                       Kirim Penolakan
                     </Button>
@@ -533,22 +533,22 @@ export function TeamDistributionModal({
       {distribution &&
         (distribution.status === 'CONSENSUS_REACHED' ||
           distribution.status === 'COMPLETED') && (
-          <Card className="p-5 border-l-4 border-l-emerald-500 space-y-4">
+          <Card className="p-5 border-l-4 border-l-emerald-500 space-y-4 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
                 <Badge variant="cyan" leftIcon={<CheckCircle2 className="h-3.5 w-3.5" />}>
                   Konsensus 100% Tercapai
                 </Badge>
-                <h3 className="text-base font-extrabold text-sakode-text mt-1">
+                <h3 className="text-base font-extrabold text-slate-900 dark:text-white mt-1">
                   Penyaluran Honor Anggota Tim
                 </h3>
               </div>
-              <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+              <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
                 {distribution.status === 'COMPLETED' ? 'Distribusi Selesai' : 'Tahap Pencairan'}
               </span>
             </div>
 
-            <p className="text-xs text-sakode-text-muted leading-relaxed">
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
               Seluruh anggota tim telah menyetujui nominal alokasi reward. Dana penuh dicairkan oleh Team Lead dari Admin, lalu Team Lead mentransfer ke masing-masing anggota dan melampirkan bukti transfer.
             </p>
 
@@ -564,30 +564,30 @@ export function TeamDistributionModal({
                 return (
                   <div
                     key={a.userId}
-                    className="p-4 rounded-xl border border-slate-200 bg-white space-y-3"
+                    className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-3"
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="h-8 w-8 rounded-full bg-sakode-purple/15 text-sakode-purple font-bold text-xs flex items-center justify-center">
+                      <div className="flex items-center gap-2.5">
+                        <div className="h-8 w-8 rounded-full bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 font-bold text-xs flex items-center justify-center">
                           {(a.userDisplayName || 'M')[0]}
                         </div>
                         <div>
                           <div className="flex items-center gap-1.5">
-                            <span className="text-xs font-bold text-sakode-text">
+                            <span className="text-xs font-bold text-slate-900 dark:text-white">
                               {a.userDisplayName || a.userId}
                             </span>
                             {isLeadPerson && (
-                              <span className="text-[10px] bg-slate-100 text-slate-700 font-bold px-1.5 py-0.2 rounded">
+                              <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold px-1.5 py-0.2 rounded">
                                 Lead
                               </span>
                             )}
                             {isMe && (
-                              <span className="text-[10px] bg-sakode-cyan/30 text-sakode-text font-bold px-1.5 py-0.2 rounded">
+                              <span className="text-[10px] bg-sky-100 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 font-bold px-1.5 py-0.2 rounded">
                                 Anda
                               </span>
                             )}
                           </div>
-                          <span className="text-xs font-black text-sakode-text">
+                          <span className="text-xs font-black text-slate-900 dark:text-white">
                             {formatCurrencyIDR(a.amount)}
                           </span>
                         </div>
@@ -595,21 +595,21 @@ export function TeamDistributionModal({
 
                       <div>
                         {isLeadPerson ? (
-                          <span className="text-[11px] font-bold text-slate-500 bg-slate-50 px-2 py-0.5 rounded border">
+                          <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                             Transfer Admin
                           </span>
                         ) : proof?.confirmedByMember ? (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
                             <CheckCircle2 className="h-3.5 w-3.5" />
                             <span>Honor Dikonfirmasi</span>
                           </span>
                         ) : proof ? (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-cyan-800 bg-cyan-50 px-2.5 py-1 rounded-full border border-cyan-200">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-cyan-800 dark:text-cyan-300 bg-cyan-50 dark:bg-cyan-950/40 px-2.5 py-1 rounded-full border border-cyan-200 dark:border-cyan-800">
                             <Clock className="h-3.5 w-3.5" />
                             <span>Menunggu Konfirmasi</span>
                           </span>
                         ) : (
-                          <span className="text-[11px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded border">
+                          <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                             Menunggu Transfer Lead
                           </span>
                         )}
@@ -618,22 +618,22 @@ export function TeamDistributionModal({
 
                     {/* Proof Details or Upload Button for Team Lead */}
                     {!isLeadPerson && (
-                      <div className="border-t border-slate-100 pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div className="border-t border-slate-100 dark:border-slate-800 pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         {proof ? (
                           <div className="flex items-center gap-2">
-                            <FileText className="h-4 w-4 text-emerald-600 shrink-0" />
+                            <FileText className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                             <a
                               href={proof.proofUrl}
                               target="_blank"
                               rel="noreferrer"
-                              className="text-xs text-sakode-cyan underline hover:text-[#076991] font-bold flex items-center gap-1"
+                              className="text-xs text-sky-600 dark:text-sky-400 underline hover:text-sky-700 font-bold flex items-center gap-1"
                             >
                               <span>Lihat Bukti Transfer Lead</span>
                               <ExternalLink className="h-3 w-3" />
                             </a>
                           </div>
                         ) : (
-                          <span className="text-[11px] text-slate-400">
+                          <span className="text-[11px] text-slate-400 dark:text-slate-500">
                             Belum ada bukti transfer yang diunggah oleh Team Lead.
                           </span>
                         )}
@@ -677,7 +677,7 @@ export function TeamDistributionModal({
                             size="sm"
                             disabled={isSubmitting}
                             onClick={handleConfirmReceipt}
-                            className="font-bold text-xs gap-1.5"
+                            className="font-bold text-xs gap-1.5 shadow-sm"
                           >
                             <CheckCircle2 className="h-4 w-4" />
                             <span>Konfirmasi Telah Menerima Honor</span>

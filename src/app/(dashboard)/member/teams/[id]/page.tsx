@@ -472,19 +472,19 @@ function TeamDetailPageContent() {
 
         {/* Modal: Member Consent & Split Voting */}
         {showConsentModal && task && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-            <div className="bg-white rounded-xl shadow-2xl border border-sakode-border w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
               {/* Header */}
-              <div className="p-4 sm:p-5 border-b border-sakode-border bg-sakode-bg flex items-start justify-between">
+              <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/50 flex items-start justify-between">
                 <div>
                   <Badge variant="purple" leftIcon={<Shield className="h-3 w-3" />}>
                     Konsensus Anggota Tim
                   </Badge>
-                  <h2 className="text-base sm:text-lg font-black text-sakode-text mt-1">
+                  <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white mt-1">
                     Persetujuan Terms & Voting Pembagian Bounty
                   </h2>
                 </div>
-                <button onClick={() => setShowConsentModal(false)} className="p-1 text-slate-400 hover:text-slate-700">
+                <button onClick={() => setShowConsentModal(false)} className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                   <X className="h-5 w-5" />
                 </button>
               </div>
@@ -493,67 +493,67 @@ function TeamDetailPageContent() {
               <div className="p-4 sm:p-5 space-y-4 overflow-y-auto">
                 {/* Terms Box */}
                 <div>
-                  <h4 className="text-xs font-bold text-sakode-text uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                    <FileText className="h-3.5 w-3.5 text-sakode-purple" />
+                  <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                    <FileText className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
                     <span>Syarat & Ketentuan Task (Snapshot v{task.termsSnapshot?.version || 1}):</span>
                   </h4>
-                  <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs font-mono text-slate-700 whitespace-pre-line leading-relaxed max-h-36 overflow-y-auto">
+                  <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 text-xs font-mono text-slate-700 dark:text-slate-300 whitespace-pre-line leading-relaxed max-h-36 overflow-y-auto">
                     {task.termsSnapshot?.content}
                   </div>
                 </div>
 
                 {/* Split Principle Voting */}
                 <div>
-                  <label className="block text-xs font-bold text-sakode-text uppercase tracking-wider mb-2">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
                     Prinsip Pembagian Reward Awal yang Disetujui:
                   </label>
                   <div className="space-y-2">
                     <label
                       onClick={() => setSelectedSplit(INITIAL_SPLIT_PRINCIPLES.EQUAL)}
-                      className={`p-3 rounded-lg border block cursor-pointer transition-all ${
+                      className={`p-3.5 rounded-xl border block cursor-pointer transition-all ${
                         selectedSplit === INITIAL_SPLIT_PRINCIPLES.EQUAL
-                          ? 'border-sakode-purple bg-purple-50/50 ring-1 ring-sakode-purple'
-                          : 'border-sakode-border bg-white hover:bg-slate-50'
+                          ? 'border-purple-500 bg-purple-50/70 dark:bg-purple-950/30 ring-1 ring-purple-500'
+                          : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 hover:bg-slate-100 dark:hover:bg-slate-800/50'
                       }`}
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2.5">
                         <input
                           type="radio"
                           name="splitPrinciple"
                           checked={selectedSplit === INITIAL_SPLIT_PRINCIPLES.EQUAL}
                           onChange={() => setSelectedSplit(INITIAL_SPLIT_PRINCIPLES.EQUAL)}
-                          className="h-4 w-4 text-sakode-purple focus:ring-sakode-purple"
+                          className="h-4 w-4 text-purple-600 focus:ring-purple-500"
                         />
-                        <span className="text-xs font-bold text-sakode-text">
+                        <span className="text-xs font-bold text-slate-900 dark:text-white">
                           Sama Rata (Equal Distribution)
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-600 mt-1 pl-6 leading-relaxed">
+                      <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1 pl-6 leading-relaxed">
                         Seluruh anggota tim yang menyelesaikan task memperoleh bagian nominal Rupiah yang sama secara merata.
                       </p>
                     </label>
 
                     <label
                       onClick={() => setSelectedSplit(INITIAL_SPLIT_PRINCIPLES.CONTRIBUTION_BASED)}
-                      className={`p-3 rounded-lg border block cursor-pointer transition-all ${
+                      className={`p-3.5 rounded-xl border block cursor-pointer transition-all ${
                         selectedSplit === INITIAL_SPLIT_PRINCIPLES.CONTRIBUTION_BASED
-                          ? 'border-sakode-purple bg-purple-50/50 ring-1 ring-sakode-purple'
-                          : 'border-sakode-border bg-white hover:bg-slate-50'
+                          ? 'border-purple-500 bg-purple-50/70 dark:bg-purple-950/30 ring-1 ring-purple-500'
+                          : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 hover:bg-slate-100 dark:hover:bg-slate-800/50'
                       }`}
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2.5">
                         <input
                           type="radio"
                           name="splitPrinciple"
                           checked={selectedSplit === INITIAL_SPLIT_PRINCIPLES.CONTRIBUTION_BASED}
                           onChange={() => setSelectedSplit(INITIAL_SPLIT_PRINCIPLES.CONTRIBUTION_BASED)}
-                          className="h-4 w-4 text-sakode-purple focus:ring-sakode-purple"
+                          className="h-4 w-4 text-purple-600 focus:ring-purple-500"
                         />
-                        <span className="text-xs font-bold text-sakode-text">
+                        <span className="text-xs font-bold text-slate-900 dark:text-white">
                           Berbasis Kontribusi (Contribution-Based)
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-600 mt-1 pl-6 leading-relaxed">
+                      <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1 pl-6 leading-relaxed">
                         Pembagian akhir akan disepakati berdasarkan porsi kontribusi kode, arsitektur, dan deliverable masing-masing anggota.
                       </p>
                     </label>
@@ -561,21 +561,21 @@ function TeamDetailPageContent() {
                 </div>
 
                 {/* Consent Checkbox */}
-                <label className="flex items-start gap-2 pt-1 cursor-pointer select-none">
+                <label className="flex items-start gap-2.5 pt-1 cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={agreedTerms}
                     onChange={(e) => setAgreedTerms(e.target.checked)}
-                    className="mt-1 h-4 w-4 rounded border-sakode-border text-sakode-purple focus:ring-sakode-purple"
+                    className="mt-0.5 h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-purple-600 focus:ring-purple-500"
                   />
-                  <span className="text-xs text-sakode-text leading-snug">
+                  <span className="text-xs text-slate-700 dark:text-slate-300 leading-snug">
                     Saya menyetujui seluruh syarat & ketentuan task di atas dan berkomitmen berkolaborasi menyelesaikan kriteria penerimaan bersama tim.
                   </span>
                 </label>
               </div>
 
               {/* Footer */}
-              <div className="p-4 border-t border-sakode-border bg-sakode-bg flex items-center justify-between">
+              <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/50 flex items-center justify-between">
                 <Button variant="outline" size="sm" onClick={() => setShowConsentModal(false)} className="text-xs">
                   Batal
                 </Button>
@@ -584,7 +584,7 @@ function TeamDetailPageContent() {
                   size="sm"
                   disabled={!agreedTerms || isSubmittingConsent}
                   onClick={handleConfirmConsent}
-                  className="font-bold text-xs gap-1.5 h-10 px-4"
+                  className="font-bold text-xs gap-1.5 h-10 px-4 shadow-sm"
                 >
                   {isSubmittingConsent ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
                   <span>Kirim Persetujuan & Voting</span>

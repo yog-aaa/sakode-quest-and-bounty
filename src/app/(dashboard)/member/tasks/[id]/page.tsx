@@ -689,23 +689,23 @@ function TaskDetailContent() {
 
         {/* Modal: Instant Take Terms Confirmation */}
         {showInstantModal && task && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-            <div className="bg-white rounded-xl shadow-2xl border border-sakode-border w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
-              <div className="p-4 sm:p-5 border-b border-sakode-border bg-sakode-bg flex items-start justify-between">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
+              <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/50 flex items-start justify-between">
                 <div>
                   <Badge variant="cyan" leftIcon={<Zap className="h-3 w-3 text-amber-500" />}>
                     Instant Take Confirmation
                   </Badge>
-                  <h2 className="text-base sm:text-lg font-black text-sakode-text mt-1">{task.title}</h2>
+                  <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white mt-1">{task.title}</h2>
                 </div>
-                <button onClick={() => setShowInstantModal(false)} className="p-1 text-slate-400 hover:text-slate-700">
+                <button onClick={() => setShowInstantModal(false)} className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
               <div className="p-4 sm:p-5 space-y-4 overflow-y-auto">
-                <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
-                  <ShieldAlert className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2.5">
+                  <ShieldAlert className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                   <div>
                     {isSolo ? (
                       <span>
@@ -720,28 +720,28 @@ function TaskDetailContent() {
                 </div>
 
                 <div>
-                  <h4 className="text-xs font-bold text-sakode-text uppercase tracking-wider mb-1">
+                  <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                     Syarat & Ketentuan:
                   </h4>
-                  <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs font-mono text-slate-700 whitespace-pre-line leading-relaxed max-h-48 overflow-y-auto">
+                  <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 text-xs font-mono text-slate-700 dark:text-slate-300 whitespace-pre-line leading-relaxed max-h-48 overflow-y-auto">
                     {task.termsSnapshot.content}
                   </div>
                 </div>
 
-                <label className="flex items-start gap-2 pt-2 cursor-pointer select-none">
+                <label className="flex items-start gap-2.5 pt-2 cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={agreedTerms}
                     onChange={(e) => setAgreedTerms(e.target.checked)}
-                    className="mt-1 h-4 w-4 rounded border-sakode-border text-sakode-cyan focus:ring-sakode-cyan"
+                    className="mt-0.5 h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-sky-600 focus:ring-sky-500"
                   />
-                  <span className="text-xs text-sakode-text leading-snug">
+                  <span className="text-xs text-slate-700 dark:text-slate-300 leading-snug">
                     Saya telah membaca, memahami, dan menyetujui seluruh syarat & ketentuan pengerjaan task ini.
                   </span>
                 </label>
               </div>
 
-              <div className="p-4 border-t border-sakode-border bg-sakode-bg flex items-center justify-between">
+              <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/50 flex items-center justify-between">
                 <Button variant="outline" size="sm" onClick={() => setShowInstantModal(false)} className="text-xs">
                   Batal
                 </Button>
@@ -750,7 +750,7 @@ function TaskDetailContent() {
                   size="sm"
                   disabled={!agreedTerms || isTakingTask}
                   onClick={handleInstantTake}
-                  className="font-bold text-xs gap-1.5 h-10 px-4"
+                  className="font-bold text-xs gap-1.5 h-10 px-4 shadow-sm"
                 >
                   {isTakingTask ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
                   <span>Konfirmasi & Mulai Bekerja</span>
@@ -762,23 +762,23 @@ function TaskDetailContent() {
 
         {/* Modal: Application Submission */}
         {showApplyModal && task && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-            <div className="bg-white rounded-xl shadow-2xl border border-sakode-border w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
-              <div className="p-4 sm:p-5 border-b border-sakode-border bg-sakode-bg flex items-start justify-between">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
+              <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/50 flex items-start justify-between">
                 <div>
                   <Badge variant="purple" leftIcon={<Send className="h-3 w-3" />}>
                     Pengajuan Aplikasi
                   </Badge>
-                  <h2 className="text-base sm:text-lg font-black text-sakode-text mt-1">{task.title}</h2>
+                  <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white mt-1">{task.title}</h2>
                 </div>
-                <button onClick={() => setShowApplyModal(false)} className="p-1 text-slate-400 hover:text-slate-700">
+                <button onClick={() => setShowApplyModal(false)} className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
               <div className="p-4 sm:p-5 space-y-4 overflow-y-auto">
                 <div>
-                  <label className="block text-xs font-bold text-sakode-text uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                     Pesan Motivasi & Pengalaman Relevan <span className="text-rose-500">*</span>
                   </label>
                   <textarea
@@ -786,13 +786,13 @@ function TaskDetailContent() {
                     placeholder="Tuliskan pengalaman atau portofolio Anda yang relevan dengan kebutuhan task ini..."
                     value={motivationMessage}
                     onChange={(e) => setMotivationMessage(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-sakode-border focus:outline-none focus:ring-2 focus:ring-sakode-cyan leading-relaxed"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 leading-relaxed"
                   />
-                  <p className="text-[10px] text-sakode-text-muted mt-1">Minimal 10 karakter.</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Minimal 10 karakter.</p>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-sakode-text uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                     Tautan Portofolio / GitHub
                   </label>
                   <textarea
@@ -800,24 +800,24 @@ function TaskDetailContent() {
                     placeholder="Satu tautan per baris..."
                     value={portfolioInput}
                     onChange={(e) => setPortfolioInput(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-sakode-border focus:outline-none focus:ring-2 focus:ring-sakode-cyan font-mono"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono"
                   />
                 </div>
 
-                <label className="flex items-start gap-2 pt-1 cursor-pointer select-none">
+                <label className="flex items-start gap-2.5 pt-1 cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={agreedCommitment}
                     onChange={(e) => setAgreedCommitment(e.target.checked)}
-                    className="mt-1 h-4 w-4 rounded border-sakode-border text-sakode-cyan focus:ring-sakode-cyan"
+                    className="mt-0.5 h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-purple-600 focus:ring-purple-500"
                   />
-                  <span className="text-xs text-sakode-text leading-snug">
+                  <span className="text-xs text-slate-700 dark:text-slate-300 leading-snug">
                     Saya berkomitmen menyelesaikan seluruh kriteria penerimaan tepat waktu jika terpilih.
                   </span>
                 </label>
               </div>
 
-              <div className="p-4 border-t border-sakode-border bg-sakode-bg flex items-center justify-between">
+              <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/50 flex items-center justify-between">
                 <Button variant="outline" size="sm" onClick={() => setShowApplyModal(false)} className="text-xs">
                   Batal
                 </Button>
@@ -826,7 +826,7 @@ function TaskDetailContent() {
                   size="sm"
                   disabled={!agreedCommitment || motivationMessage.trim().length < 10 || isSubmittingApp}
                   onClick={handleApply}
-                  className="font-bold text-xs gap-1.5 h-10 px-4"
+                  className="font-bold text-xs gap-1.5 h-10 px-4 shadow-sm"
                 >
                   {isSubmittingApp ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
                   <span>Kirim Permohonan</span>
@@ -838,33 +838,33 @@ function TaskDetailContent() {
 
         {/* Modal: Submit Appeal (One-Time Appeal Engine) */}
         {showAppealModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-            <div className="bg-white rounded-xl shadow-2xl border border-violet-200 w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-              <div className="p-4 border-b border-sakode-border flex items-center justify-between bg-violet-50/50">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-violet-200 dark:border-violet-900/40 w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+              <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-violet-50/50 dark:bg-violet-950/30">
                 <div className="flex items-center gap-2">
-                  <Scale className="h-5 w-5 text-violet-600" />
+                  <Scale className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                   <div>
-                    <h3 className="text-base font-bold text-violet-950">
+                    <h3 className="text-base font-bold text-violet-950 dark:text-violet-200">
                       Pengajuan Sanggahan (One-Time Appeal Engine)
                     </h3>
-                    <p className="text-xs text-violet-700">1 kali kesempatan banding per submission</p>
+                    <p className="text-xs text-violet-700 dark:text-violet-300">1 kali kesempatan banding per submission</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setShowAppealModal(false)}
-                  className="text-slate-400 hover:text-slate-700"
+                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                 >
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
               <form onSubmit={handleFileAppeal} className="p-5 overflow-y-auto space-y-4 flex-1">
-                <div className="p-3.5 rounded-lg bg-violet-50 border border-violet-200 text-xs text-violet-900 leading-relaxed space-y-1">
+                <div className="p-3.5 rounded-xl bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-900/40 text-xs text-violet-900 dark:text-violet-200 leading-relaxed space-y-1">
                   <strong>Regulasi Sistem SAKODE:</strong> Sanggahan Anda akan diteruskan kepada <strong>Admin lain yang independen</strong> (bukan admin yang memberikan keputusan awal). Sertakan penjelasan kronologis yang objektif dan bukti tambahan.
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Alasan & Kronologi Sanggahan (Wajib, minimal 20 karakter) <span className="text-rose-500">*</span>
                   </label>
                   <textarea
@@ -874,7 +874,7 @@ function TaskDetailContent() {
                     value={appealReason}
                     onChange={(e) => setAppealReason(e.target.value)}
                     placeholder="Jelaskan secara rinci mengapa hasil pekerjaan Anda memenuhi kriteria dan tanggapan Anda terhadap catatan evaluator awal..."
-                    className="w-full text-xs p-3 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-violet-500"
+                    className="w-full text-xs p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500"
                   />
                   <div className="text-right text-[10px] text-slate-400 mt-0.5">
                     {appealReason.length} karakter (min. 20)
@@ -882,7 +882,7 @@ function TaskDetailContent() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Berkas Bukti Sanggahan Tambahan (Opsional, maks. 5 berkas)
                   </label>
                   <FileUploadDropzone
@@ -893,7 +893,7 @@ function TaskDetailContent() {
                   />
                 </div>
 
-                <div className="p-4 border-t border-sakode-border bg-slate-50 flex justify-end gap-2 -mx-5 -mb-5 mt-4">
+                <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/70 flex justify-end gap-2 -mx-5 -mb-5 mt-4">
                   <Button
                     type="button"
                     variant="ghost"
@@ -909,7 +909,7 @@ function TaskDetailContent() {
                     variant="primary"
                     size="sm"
                     disabled={isSubmittingAppeal || appealReason.trim().length < 20}
-                    className="bg-violet-600 hover:bg-violet-700 font-bold text-xs gap-1.5 text-white"
+                    className="bg-violet-600 hover:bg-violet-700 font-bold text-xs gap-1.5 text-white shadow-sm"
                   >
                     {isSubmittingAppeal ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
