@@ -79,7 +79,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       items: [
         {
           href: '/admin/members',
-          label: 'Verifikasi Member',
+          label: 'Manajemen User',
           icon: Users,
         },
         {

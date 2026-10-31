@@ -37,7 +37,7 @@ function getRouteMetadata(pathname: string): { title: string; icon: React.Elemen
     return { title: 'Katalog & Pelamar Task', icon: Compass };
   }
   if (pathname.startsWith('/admin/members')) {
-    return { title: 'Verifikasi Member', icon: Users };
+    return { title: 'Manajemen User', icon: Users };
   }
   if (pathname.startsWith('/admin/submissions')) {
     return { title: 'Review & Penilaian Submission', icon: ClipboardCheck };

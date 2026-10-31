@@ -34,7 +34,13 @@ import {
   Mail,
   Phone,
   Lock,
+  LayoutGrid,
+  List,
+  Table,
+  Users,
 } from 'lucide-react';
+
+type ViewMode = 'grid' | 'list' | 'table';
 
 const REJECT_PRESETS = [
   'Nomor WhatsApp/kontak tidak dapat dihubungi.',
@@ -57,6 +63,29 @@ export default function AdminMembersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+
+  // View Mode: 'grid' (Card Besar), 'list' (Memanjang), 'table' (Format Tabel)
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('sakode_admin_members_view_mode') as ViewMode | null;
+      if (saved && (saved === 'grid' || saved === 'list' || saved === 'table')) {
+        setViewMode(saved);
+      }
+    } catch {
+      // Ignore
+    }
+  }, []);
+
+  const handleSelectViewMode = (mode: ViewMode) => {
+    setViewMode(mode);
+    try {
+      localStorage.setItem('sakode_admin_members_view_mode', mode);
+    } catch {
+      // Ignore
+    }
+  };
 
   // State untuk unmask data rekening sensitif
   const [revealedPayments, setRevealedPayments] = useState<Record<string, BankAccountDetails>>({});
@@ -306,24 +335,24 @@ export default function AdminMembersPage() {
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/80">
-                  <UserCheck className="h-3 w-3" />
-                  <span>Verifikasi Pendaftar</span>
+                  <Users className="h-3 w-3" />
+                  <span>Manajemen User Platform</span>
                 </span>
                 <span className="text-slate-400 dark:text-slate-600">•</span>
                 <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                  Protokol Keamanan & Rekening AES-256
+                  Kurasi Akun & Rekening AES-256
                 </span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2.5">
-                <span>Antrean Persetujuan Member</span>
+                <span>Manajemen User & Kurasi Member</span>
                 {pendingCount > 0 && (
                   <Badge variant="orange" className="text-xs">
-                    {pendingCount} Menunggu
+                    {pendingCount} Menunggu Kurasi
                   </Badge>
                 )}
               </h1>
               <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-2xl">
-                Tinjau profil talenta pendaftar, validasi kelayakan keahlian, dan verifikasi rekening penerima reward sebelum membuka akses task.
+                Kelola data pengguna terdaftar, validasi kualifikasi skill pendaftar, dan verifikasi rekening penerima reward sebelum membuka akses task.
               </p>
             </div>
 
@@ -336,10 +365,10 @@ export default function AdminMembersPage() {
                   setRefreshTrigger((prev) => prev + 1);
                 }}
                 isLoading={isLoading}
-                className="gap-1.5 text-xs"
+                className="gap-1.5 text-xs font-bold border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
               >
                 <RefreshCw className="h-3.5 w-3.5" />
-                <span>Segarkan Antrean</span>
+                <span>Segarkan Data</span>
               </Button>
             </div>
           </div>
@@ -347,17 +376,17 @@ export default function AdminMembersPage() {
           {/* Feedback Toast */}
           {feedbackMessage && (
             <div
-              className={`p-3.5 rounded-lg border text-xs flex items-center justify-between shadow-xs transition-all ${
+              className={`p-3.5 rounded-xl border text-xs flex items-center justify-between shadow-2xs transition-all ${
                 feedbackMessage.type === 'success'
-                  ? 'bg-emerald-50 text-emerald-900 border-emerald-300'
-                  : 'bg-rose-50 text-rose-900 border-rose-300'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 border-emerald-300 dark:border-emerald-800'
+                  : 'bg-rose-50 dark:bg-rose-950/40 text-rose-900 dark:text-rose-200 border-rose-300 dark:border-rose-800'
               }`}
             >
               <div className="flex items-center gap-2 font-medium">
                 {feedbackMessage.type === 'success' ? (
-                  <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 ) : (
-                  <AlertTriangle className="h-4 w-4 text-rose-600 shrink-0" />
+                  <AlertTriangle className="h-4 w-4 text-rose-600 dark:text-rose-400 shrink-0" />
                 )}
                 <span>{feedbackMessage.text}</span>
               </div>
@@ -370,10 +399,10 @@ export default function AdminMembersPage() {
             </div>
           )}
 
-          {/* Filter Bar & Search */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white dark:bg-slate-900/80 p-2 sm:p-2.5 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-2xs">
+          {/* Filter Bar & Controls */}
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 bg-white dark:bg-slate-900/80 p-2 sm:p-2.5 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-2xs">
             {/* Filter Tabs */}
-            <div className="flex items-center gap-1 w-full sm:w-auto overflow-x-auto scrollbar-none">
+            <div className="flex items-center gap-1 overflow-x-auto scrollbar-none pb-1 lg:pb-0">
               {(
                 [
                   { id: 'PENDING', label: 'Menunggu', count: pendingCount },
@@ -389,7 +418,7 @@ export default function AdminMembersPage() {
                     onClick={() => setFilterStatus(tab.id)}
                     className={`px-3 py-1.5 text-xs font-bold rounded-xl whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
                       isActive
-                        ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xs'
+                        ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-2xs'
                         : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                     }`}
                   >
@@ -408,25 +437,71 @@ export default function AdminMembersPage() {
               })}
             </div>
 
-            {/* Search Input */}
-            <div className="relative w-full sm:w-72 shrink-0">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Cari nama, email, kontak..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-8 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500"
-              />
-              {searchQuery && (
+            {/* Right: Search & View Mode Switcher */}
+            <div className="flex items-center gap-2 w-full lg:w-auto shrink-0 justify-between lg:justify-end">
+              {/* Search Input */}
+              <div className="relative flex-1 sm:w-64 lg:w-60">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Cari nama, email, kontak..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-8 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+
+              {/* View Mode Switcher */}
+              <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/80 dark:border-slate-700/80 shrink-0">
                 <button
                   type="button"
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs cursor-pointer"
+                  onClick={() => handleSelectViewMode('grid')}
+                  title="Tampilan Card Besar"
+                  className={`p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    viewMode === 'grid'
+                      ? 'bg-white dark:bg-slate-900 text-sky-600 dark:text-cyan-400 shadow-2xs'
+                      : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+                  }`}
                 >
-                  ✕
+                  <LayoutGrid className="h-4 w-4" />
+                  <span className="hidden xl:inline text-[11px]">Card</span>
                 </button>
-              )}
+                <button
+                  type="button"
+                  onClick={() => handleSelectViewMode('list')}
+                  title="Tampilan Memanjang (List)"
+                  className={`p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    viewMode === 'list'
+                      ? 'bg-white dark:bg-slate-900 text-sky-600 dark:text-cyan-400 shadow-2xs'
+                      : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+                  }`}
+                >
+                  <List className="h-4 w-4" />
+                  <span className="hidden xl:inline text-[11px]">List</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSelectViewMode('table')}
+                  title="Tampilan Format Tabel"
+                  className={`p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    viewMode === 'table'
+                      ? 'bg-white dark:bg-slate-900 text-sky-600 dark:text-cyan-400 shadow-2xs'
+                      : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+                  }`}
+                >
+                  <Table className="h-4 w-4" />
+                  <span className="hidden xl:inline text-[11px]">Tabel</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -446,7 +521,10 @@ export default function AdminMembersPage() {
                 Tidak ada data member yang cocok dengan filter status atau pencarian saat ini.
               </CardDescription>
             </Card>
-          ) : (
+          ) : viewMode === 'grid' ? (
+            /* =============================================================== */
+            /* VIEW MODE A: CARD BESAR (GRID)                                  */
+            /* =============================================================== */
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filteredMembers.map((member) => {
                 const isRevealed = !!revealedPayments[member.id];
@@ -566,7 +644,7 @@ export default function AdminMembersPage() {
                           <Button
                             size="sm"
                             variant="outline"
-                            className="text-xs text-slate-700 dark:text-slate-300 h-8.5"
+                            className="text-xs text-slate-700 dark:text-slate-300 h-8.5 cursor-pointer"
                             onClick={() => openActionDialog(member, 'REVISION')}
                             disabled={actionLoadingId === member.id}
                           >
@@ -576,7 +654,7 @@ export default function AdminMembersPage() {
                           <Button
                             size="sm"
                             variant="danger"
-                            className="text-xs h-8.5 gap-1"
+                            className="text-xs h-8.5 gap-1 cursor-pointer"
                             onClick={() => openActionDialog(member, 'REJECT')}
                             disabled={actionLoadingId === member.id}
                           >
@@ -587,7 +665,7 @@ export default function AdminMembersPage() {
                           <Button
                             size="sm"
                             variant="primary"
-                            className="text-xs font-bold h-8.5 gap-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white"
+                            className="text-xs font-bold h-8.5 gap-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white cursor-pointer"
                             onClick={() => handleApprove(member)}
                             isLoading={actionLoadingId === member.id}
                           >
@@ -608,7 +686,7 @@ export default function AdminMembersPage() {
                         <Button
                           size="sm"
                           variant="outline"
-                          className="text-xs h-8"
+                          className="text-xs h-8 cursor-pointer"
                           onClick={() => handleApprove(member)}
                         >
                           Tinjau Ulang & Setujui
@@ -618,6 +696,299 @@ export default function AdminMembersPage() {
                   </Card>
                 );
               })}
+            </div>
+          ) : viewMode === 'list' ? (
+            /* =============================================================== */
+            /* VIEW MODE B: MEMANJANG / HORIZONTAL LIST                        */
+            /* =============================================================== */
+            <div className="space-y-3">
+              {filteredMembers.map((member) => {
+                const isRevealed = !!revealedPayments[member.id];
+                const paymentInfo = revealedPayments[member.id];
+
+                return (
+                  <div
+                    key={member.id}
+                    className="p-4 sm:p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80 shadow-2xs hover:shadow-md hover:border-sky-500/40 dark:hover:border-sky-500/40 transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-4"
+                  >
+                    {/* Left: Avatar initial + Name + Role + Contacts */}
+                    <div className="flex items-start gap-3.5 min-w-0 flex-1">
+                      <div className="h-11 w-11 rounded-2xl bg-gradient-to-tr from-sky-400 via-cyan-500 to-purple-600 text-white font-black text-sm flex items-center justify-center shrink-0 shadow-xs">
+                        {(member.displayName || member.email || 'U')[0].toUpperCase()}
+                      </div>
+                      <div className="space-y-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white truncate">
+                            {member.displayName || 'Nama Belum Diisi'}
+                          </span>
+                          <Badge variant="outline" className="text-[10px]">
+                            {member.role}
+                          </Badge>
+                          <StatusPill status={member.approvalStatus} size="sm" />
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
+                          <span className="flex items-center gap-1.5 truncate">
+                            <Mail className="h-3.5 w-3.5 text-sky-500 shrink-0" />
+                            <span className="truncate">{member.email}</span>
+                          </span>
+                          <span className="flex items-center gap-1.5">
+                            <Phone className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                            <span>{member.contactNumber || 'Belum ada kontak'}</span>
+                          </span>
+                          <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono">
+                            Daftar: {formatDateWIB(member.createdAt)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Center: Skills & Rekening */}
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 lg:border-l lg:border-r border-slate-100 dark:border-slate-800 lg:px-4 shrink-0">
+                      {member.skills && member.skills.length > 0 ? (
+                        <div className="flex flex-wrap gap-1 max-w-xs">
+                          {member.skills.slice(0, 3).map((s) => (
+                            <Badge key={s} variant="purple" className="text-[10px] py-0 px-2">
+                              {s}
+                            </Badge>
+                          ))}
+                          {member.skills.length > 3 && (
+                            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 self-center">
+                              +{member.skills.length - 3} lagi
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-[11px] text-slate-400 dark:text-slate-500 italic">Belum ada skill</span>
+                      )}
+
+                      {/* Rekening Compact */}
+                      <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 text-xs">
+                        <Lock className="h-3 w-3 text-amber-500 shrink-0" />
+                        <span className="font-mono text-[11px] font-semibold text-slate-800 dark:text-slate-200">
+                          {isRevealed && paymentInfo
+                            ? `${paymentInfo.bankName} ${paymentInfo.accountNumber}`
+                            : member.paymentAccountMasked || 'No Rekening'}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleToggleRevealPayment(member)}
+                          disabled={revealingId === member.id}
+                          className="text-[10px] font-bold text-sky-600 dark:text-cyan-400 hover:underline cursor-pointer ml-1"
+                          title="Buka / Sembunyikan Rekening"
+                        >
+                          {isRevealed ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Right: Actions */}
+                    <div className="flex items-center justify-end gap-2 shrink-0">
+                      {member.approvalStatus === 'PENDING' && (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-xs text-slate-700 dark:text-slate-300 h-8 cursor-pointer"
+                            onClick={() => openActionDialog(member, 'REVISION')}
+                            disabled={actionLoadingId === member.id}
+                          >
+                            Revisi
+                          </Button>
+
+                          <Button
+                            size="sm"
+                            variant="danger"
+                            className="text-xs h-8 gap-1 cursor-pointer"
+                            onClick={() => openActionDialog(member, 'REJECT')}
+                            disabled={actionLoadingId === member.id}
+                          >
+                            <XCircle className="h-3.5 w-3.5" />
+                            <span>Tolak</span>
+                          </Button>
+
+                          <Button
+                            size="sm"
+                            variant="primary"
+                            className="text-xs font-bold h-8 gap-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white cursor-pointer"
+                            onClick={() => handleApprove(member)}
+                            isLoading={actionLoadingId === member.id}
+                          >
+                            <UserCheck className="h-3.5 w-3.5" />
+                            <span>Setujui</span>
+                          </Button>
+                        </>
+                      )}
+
+                      {member.approvalStatus === 'APPROVED' && (
+                        <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5 py-1">
+                          <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                          <span className="hidden sm:inline">Terverifikasi</span>
+                        </span>
+                      )}
+
+                      {member.approvalStatus === 'REJECTED' && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-xs h-8 cursor-pointer"
+                          onClick={() => handleApprove(member)}
+                        >
+                          Tinjau & Setujui
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            /* =============================================================== */
+            /* VIEW MODE C: FORMAT TABEL DATA PADAT (TABLE)                    */
+            /* =============================================================== */
+            <div className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80 overflow-hidden shadow-2xs">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead className="bg-slate-50 dark:bg-slate-950/70 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 font-bold uppercase text-[10px] tracking-wider">
+                    <tr>
+                      <th className="p-3.5 pl-4">Pengguna</th>
+                      <th className="p-3.5">Kontak</th>
+                      <th className="p-3.5">Status Akun</th>
+                      <th className="p-3.5">Keahlian</th>
+                      <th className="p-3.5">Rekening Reward</th>
+                      <th className="p-3.5">Terdaftar</th>
+                      <th className="p-3.5 pr-4 text-right">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                    {filteredMembers.map((member) => {
+                      const isRevealed = !!revealedPayments[member.id];
+                      const paymentInfo = revealedPayments[member.id];
+
+                      return (
+                        <tr key={member.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
+                          <td className="p-3.5 pl-4 whitespace-nowrap">
+                            <div className="flex items-center gap-2.5">
+                              <div className="h-8 w-8 rounded-xl bg-gradient-to-tr from-sky-400 via-cyan-500 to-purple-600 text-white font-black text-xs flex items-center justify-center shrink-0">
+                                {(member.displayName || member.email || 'U')[0].toUpperCase()}
+                              </div>
+                              <div>
+                                <span className="font-bold text-slate-900 dark:text-white block text-xs">
+                                  {member.displayName || 'Nama Belum Diisi'}
+                                </span>
+                                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">
+                                  {member.role}
+                                </span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="p-3.5 whitespace-nowrap">
+                            <span className="block text-slate-700 dark:text-slate-300 font-medium text-xs">
+                              {member.email}
+                            </span>
+                            <span className="text-[11px] text-slate-500 dark:text-slate-400 block font-mono">
+                              {member.contactNumber || '-'}
+                            </span>
+                          </td>
+                          <td className="p-3.5 whitespace-nowrap">
+                            <StatusPill status={member.approvalStatus} size="sm" />
+                          </td>
+                          <td className="p-3.5 max-w-[180px]">
+                            {member.skills && member.skills.length > 0 ? (
+                              <div className="flex flex-wrap gap-1">
+                                {member.skills.slice(0, 2).map((s) => (
+                                  <Badge key={s} variant="purple" className="text-[9px] py-0 px-1.5">
+                                    {s}
+                                  </Badge>
+                                ))}
+                                {member.skills.length > 2 && (
+                                  <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold self-center">
+                                    +{member.skills.length - 2}
+                                  </span>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-slate-400 dark:text-slate-500 italic text-[11px]">-</span>
+                            )}
+                          </td>
+                          <td className="p-3.5 whitespace-nowrap">
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-mono text-[11px] text-slate-800 dark:text-slate-200">
+                                {isRevealed && paymentInfo
+                                  ? `${paymentInfo.bankName} ${paymentInfo.accountNumber}`
+                                  : member.paymentAccountMasked || 'Belum ada'}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleToggleRevealPayment(member)}
+                                disabled={revealingId === member.id}
+                                className="p-1 text-slate-400 hover:text-sky-600 dark:hover:text-cyan-400 cursor-pointer"
+                                title={isRevealed ? 'Sembunyikan' : 'Buka Rekening'}
+                              >
+                                {isRevealed ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                              </button>
+                            </div>
+                          </td>
+                          <td className="p-3.5 whitespace-nowrap text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                            {formatDateWIB(member.createdAt)}
+                          </td>
+                          <td className="p-3.5 pr-4 text-right whitespace-nowrap">
+                            {member.approvalStatus === 'PENDING' && (
+                              <div className="inline-flex items-center gap-1">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-[11px] h-7 px-2 cursor-pointer"
+                                  onClick={() => openActionDialog(member, 'REVISION')}
+                                  disabled={actionLoadingId === member.id}
+                                >
+                                  Revisi
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="danger"
+                                  className="text-[11px] h-7 px-2 cursor-pointer"
+                                  onClick={() => openActionDialog(member, 'REJECT')}
+                                  disabled={actionLoadingId === member.id}
+                                >
+                                  Tolak
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="primary"
+                                  className="text-[11px] font-bold h-7 px-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white cursor-pointer"
+                                  onClick={() => handleApprove(member)}
+                                  isLoading={actionLoadingId === member.id}
+                                >
+                                  Setujui
+                                </Button>
+                              </div>
+                            )}
+
+                            {member.approvalStatus === 'APPROVED' && (
+                              <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center justify-end gap-1">
+                                <CheckCircle2 className="h-3.5 w-3.5" />
+                                <span>Terverifikasi</span>
+                              </span>
+                            )}
+
+                            {member.approvalStatus === 'REJECTED' && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-[11px] h-7 px-2 cursor-pointer"
+                                onClick={() => handleApprove(member)}
+                              >
+                                Tinjau & Setujui
+                              </Button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 

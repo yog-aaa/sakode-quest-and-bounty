@@ -184,14 +184,14 @@ export default function AdminDashboardPage() {
           {/* 2. 4 KEY PERFORMANCE METRICS: CALM, BIG NUMBERS, LOW CLUTTER */}
           {/* =============================================================== */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
-            {/* Card 1: Verifikasi Member */}
+            {/* Card 1: Manajemen User */}
             <Link
               href="/admin/members"
               className="group p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 hover:border-sky-400 dark:hover:border-cyan-500/50 shadow-2xs hover:shadow-md transition-all duration-200 flex flex-col justify-between"
             >
               <div className="flex items-center justify-between pb-2">
                 <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                  Verifikasi Member
+                  Manajemen User
                 </span>
                 <div className="p-2 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-[#076991] dark:text-sakode-cyan border border-sky-200/60 dark:border-sky-800/60">
                   <Users className="h-4 w-4" />
