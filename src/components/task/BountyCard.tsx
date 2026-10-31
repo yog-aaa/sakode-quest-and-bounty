@@ -80,18 +80,18 @@ export const BountyCard: React.FC<BountyCardProps> = ({
           </div>
 
           {/* Bounty Reward Big Display */}
-          <div className="p-3 rounded-lg bg-sakode-bg border border-sakode-border flex items-baseline justify-between">
-            <span className="text-[11px] font-bold text-sakode-text-muted uppercase tracking-wider">
+          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 flex items-baseline justify-between transition-colors">
+            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Bounty Reward:
             </span>
-            <div className="text-xl sm:text-2xl font-black text-sakode-text tracking-tight">
+            <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight font-mono">
               {formatCurrencyIDR(task.totalReward)}
             </div>
           </div>
 
           {/* Title & Description */}
           <Link href={`/member/tasks/${task.id}`} className="group">
-            <CardTitle className="text-lg group-hover:text-sakode-cyan transition-colors line-clamp-2">
+            <CardTitle className="text-lg group-hover:text-cyan-500 dark:group-hover:text-cyan-400 transition-colors line-clamp-2">
               {task.title}
             </CardTitle>
           </Link>
@@ -103,11 +103,11 @@ export const BountyCard: React.FC<BountyCardProps> = ({
 
         <CardContent className="space-y-3 pt-0">
           {/* Skill Tags */}
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-1.5">
             {task.requiredSkills.map((skill) => (
               <span
                 key={skill}
-                className="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200"
+                className="px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700"
               >
                 {skill}
               </span>
@@ -115,27 +115,27 @@ export const BountyCard: React.FC<BountyCardProps> = ({
           </div>
 
           {/* Deadline or Duration Hint */}
-          <div className="pt-2 border-t border-sakode-border/50 text-xs flex items-center justify-between">
-            <span className="text-sakode-text-muted text-[11px]">Batas Waktu:</span>
+          <div className="pt-2.5 border-t border-slate-100 dark:border-slate-800 text-xs flex items-center justify-between">
+            <span className="text-slate-500 dark:text-slate-400 text-[11px]">Batas Waktu:</span>
             {task.deadlineAt ? (
               <CountdownTimer deadline={task.deadlineAt} />
             ) : task.durationMinutes ? (
-              <span className="font-semibold text-sakode-text flex items-center gap-1 text-xs">
-                <Clock className="h-3.5 w-3.5 text-sakode-cyan" />
+              <span className="font-semibold text-slate-900 dark:text-slate-200 flex items-center gap-1 text-xs">
+                <Clock className="h-3.5 w-3.5 text-cyan-500" />
                 <span>{Math.round(task.durationMinutes / 60)} Jam ({task.durationMinutes} Menit)</span>
               </span>
             ) : task.fixedDeadlineAt ? (
-              <span className="font-semibold text-sakode-text text-xs">
+              <span className="font-semibold text-slate-900 dark:text-slate-200 text-xs">
                 {formatDateWIB(task.fixedDeadlineAt)}
               </span>
             ) : (
-              <span className="text-sakode-text-muted text-xs">Fleksibel</span>
+              <span className="text-slate-400 dark:text-slate-500 text-xs">Fleksibel</span>
             )}
           </div>
         </CardContent>
       </div>
 
-      <CardFooter className="pt-3 border-t border-sakode-border/50 flex flex-col gap-2">
+      <CardFooter className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-2">
         {/* Disabled Warning Tooltip */}
         {isActionDisabled && task.status === TASK_STATUS.OPEN && (
           <div className="w-full text-center py-1 px-2 rounded bg-amber-50 border border-amber-200 text-[10px] font-bold text-amber-800 flex items-center justify-center gap-1">

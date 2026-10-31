@@ -176,7 +176,7 @@ export default function AdminClaimsPage() {
 
   return (
     <AuthGuard requireAdmin>
-      <div className="min-h-screen bg-sakode-bg py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#070A10] text-slate-900 dark:text-slate-100 py-6 px-4 sm:px-6 lg:px-8 transition-colors">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-5">
@@ -241,39 +241,39 @@ export default function AdminClaimsPage() {
 
           {/* 2 Summary KPI Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Card className="p-5 border-l-4 border-l-amber-500 bg-white">
+            <Card className="p-5 border-l-4 border-l-amber-500 bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-sakode-text-muted uppercase tracking-wider">
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   Total Menunggu Pembayaran
                 </span>
-                <div className="h-8 w-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
+                <div className="h-8 w-8 rounded-lg bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 flex items-center justify-center">
                   <Clock className="h-4 w-4" />
                 </div>
               </div>
               <div className="mt-2">
-                <div className="text-2xl font-black text-amber-950">
+                <div className="text-2xl font-black text-amber-700 dark:text-amber-300 font-mono">
                   {formatCurrencyIDR(totalPendingPayout)}
                 </div>
-                <span className="text-[11px] text-slate-500 font-medium">
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                   Perlu ditransfer manual ke rekening member
                 </span>
               </div>
             </Card>
 
-            <Card className="p-5 border-l-4 border-l-emerald-500 bg-white">
+            <Card className="p-5 border-l-4 border-l-emerald-500 bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-sakode-text-muted uppercase tracking-wider">
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   Total Telah Ditransfer
                 </span>
-                <div className="h-8 w-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                <div className="h-8 w-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 flex items-center justify-center">
                   <CheckCircle2 className="h-4 w-4" />
                 </div>
               </div>
               <div className="mt-2">
-                <div className="text-2xl font-black text-emerald-950">
+                <div className="text-2xl font-black text-emerald-700 dark:text-emerald-300 font-mono">
                   {formatCurrencyIDR(totalPaidOut)}
                 </div>
-                <span className="text-[11px] text-slate-500 font-medium">
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                   Honor berhasil disalurkan ke member
                 </span>
               </div>
@@ -281,7 +281,7 @@ export default function AdminClaimsPage() {
           </div>
 
           {/* Status Filter Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-sakode-border">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-slate-200 dark:border-slate-800">
             {[
               { id: 'ALL', label: 'Semua Status' },
               { id: 'CLAIMED', label: 'Menunggu Verifikasi' },
@@ -292,10 +292,10 @@ export default function AdminClaimsPage() {
               <button
                 key={tab.id}
                 onClick={() => setFilterStatus(tab.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-colors ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
                   filterStatus === tab.id
-                    ? 'bg-sakode-text text-white shadow-xs'
-                    : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                    ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xs'
+                    : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'
                 }`}
               >
                 {tab.label}
@@ -305,12 +305,12 @@ export default function AdminClaimsPage() {
 
           {/* Claims List */}
           {claims.length === 0 ? (
-            <Card className="p-12 text-center bg-white space-y-3">
-              <Wallet className="h-12 w-12 text-slate-300 mx-auto" />
-              <h3 className="text-base font-extrabold text-sakode-text">
+            <Card className="p-12 text-center bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-3 rounded-2xl">
+              <Wallet className="h-12 w-12 text-slate-300 dark:text-slate-600 mx-auto" />
+              <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
                 Tidak Ada Antrean Klaim
               </h3>
-              <p className="text-xs text-sakode-text-muted">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Tidak ada permohonan pencairan dana yang cocok dengan filter yang dipilih.
               </p>
             </Card>
@@ -326,25 +326,25 @@ export default function AdminClaimsPage() {
                   : accountNumber;
 
                 return (
-                  <Card key={claim.id} className="p-5 border-sakode-border bg-white space-y-4">
+                  <Card key={claim.id} className="p-5 border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80 space-y-4 rounded-2xl shadow-2xs">
                     {/* Top Row */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-mono font-bold text-slate-500">
-                            #{claim.id}
+                          <span className="text-xs font-mono font-bold text-slate-400 dark:text-slate-500">
+                            #{claim.id.slice(0, 8)}
                           </span>
-                          <span className="text-xs text-slate-400">•</span>
-                          <span className="text-xs font-semibold text-slate-700">
+                          <span className="text-xs text-slate-300 dark:text-slate-600">•</span>
+                          <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                             {claim.userDisplayName || claim.userId}
                           </span>
-                          <span className="text-xs text-slate-400">({claim.userEmail})</span>
+                          <span className="text-xs text-slate-400 dark:text-slate-500">({claim.userEmail})</span>
                         </div>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xl font-black text-sakode-text">
+                          <span className="text-xl font-black text-slate-900 dark:text-white font-mono">
                             {formatCurrencyIDR(claim.totalAmount)}
                           </span>
-                          <span className="text-xs text-slate-400">
+                          <span className="text-xs text-slate-400 dark:text-slate-500">
                             ({claim.rewardLedgerIds?.length || 1} task item)
                           </span>
                         </div>
@@ -379,23 +379,23 @@ export default function AdminClaimsPage() {
                     </div>
 
                     {/* Snapshot Rekening Tujuan Transfer */}
-                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 flex flex-col md:flex-row md:items-center justify-between gap-3">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <Building className="h-4 w-4 text-slate-500" />
-                          <span className="text-xs font-bold text-slate-800">
+                          <Building className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+                          <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
                             {claim.bankAccountSnapshot?.bankName}
                           </span>
                         </div>
                         <div className="flex items-center gap-2 text-xs">
                           <CreditCard className="h-4 w-4 text-slate-400" />
-                          <span className="font-mono font-bold text-slate-900">
+                          <span className="font-mono font-bold text-slate-900 dark:text-white">
                             {displayAccountNum}
                           </span>
                           <button
                             type="button"
                             onClick={() => toggleUnmaskAccount(claim.id)}
-                            className="p-1 text-slate-400 hover:text-slate-700 rounded transition-colors"
+                            className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded transition-colors cursor-pointer"
                             title={isUnmasked ? 'Sembunyikan Nomor' : 'Buka Nomor Rekening Lengkap'}
                           >
                             {isUnmasked ? (
@@ -404,19 +404,19 @@ export default function AdminClaimsPage() {
                               <Eye className="h-3.5 w-3.5" />
                             )}
                           </button>
-                          <span className="text-slate-400">•</span>
-                          <span className="text-slate-700">
-                            a.n. <strong>{claim.bankAccountSnapshot?.accountHolderName}</strong>
+                          <span className="text-slate-400 dark:text-slate-600">•</span>
+                          <span className="text-slate-700 dark:text-slate-300">
+                            a.n. <strong className="text-slate-900 dark:text-white">{claim.bankAccountSnapshot?.accountHolderName}</strong>
                           </span>
                         </div>
                       </div>
 
                       <div className="text-left md:text-right">
-                        <span className="text-[11px] text-slate-400 font-mono block">
+                        <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono block">
                           Idempotency: {claim.idempotencyKey}
                         </span>
                         {claim.adminNotes && (
-                          <span className="text-[11px] text-slate-600 italic block mt-0.5">
+                          <span className="text-[11px] text-slate-600 dark:text-slate-400 italic block mt-0.5">
                             Catatan: {claim.adminNotes}
                           </span>
                         )}
@@ -479,17 +479,17 @@ export default function AdminClaimsPage() {
           {/* PAYMENT CONFIRMATION & UPLOAD MODAL */}
           {activePaymentClaim && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-              <div className="bg-white rounded-2xl shadow-2xl border border-sakode-border w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
-                <div className="p-4 sm:p-5 border-b border-sakode-border bg-sakode-bg flex items-center justify-between">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
+                <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/90 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Wallet className="h-5 w-5 text-sakode-cyan" />
-                    <h3 className="text-base font-extrabold text-sakode-text">
+                    <Wallet className="h-5 w-5 text-sky-500" />
+                    <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
                       Konfirmasi Transfer Pembayaran
                     </h3>
                   </div>
                   <button
                     onClick={() => setActivePaymentClaim(null)}
-                    className="p-1 text-slate-400 hover:text-slate-700"
+                    className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
                   >
                     <X className="h-5 w-5" />
                   </button>
@@ -497,32 +497,32 @@ export default function AdminClaimsPage() {
 
                 <form onSubmit={handleSubmitPayment} className="p-5 space-y-4 overflow-y-auto">
                   {/* Rekening Target Snapshot */}
-                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
-                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+                  <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2 text-xs">
+                    <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
                       Target Rekening Snapshot:
                     </span>
                     <div className="space-y-1">
                       <div className="flex items-center justify-between">
-                        <span className="text-slate-600">Bank / Channel:</span>
-                        <strong className="text-slate-900">
+                        <span className="text-slate-600 dark:text-slate-400">Bank / Channel:</span>
+                        <strong className="text-slate-900 dark:text-white">
                           {activePaymentClaim.bankAccountSnapshot?.bankName}
                         </strong>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-slate-600">Nomor Rekening:</span>
-                        <strong className="font-mono text-slate-900 text-sm">
+                        <span className="text-slate-600 dark:text-slate-400">Nomor Rekening:</span>
+                        <strong className="font-mono text-slate-900 dark:text-white text-sm">
                           {activePaymentClaim.bankAccountSnapshot?.accountNumber}
                         </strong>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-slate-600">Nama Penerima:</span>
-                        <strong className="text-slate-900">
+                        <span className="text-slate-600 dark:text-slate-400">Nama Penerima:</span>
+                        <strong className="text-slate-900 dark:text-white">
                           {activePaymentClaim.bankAccountSnapshot?.accountHolderName}
                         </strong>
                       </div>
-                      <div className="flex items-center justify-between pt-1 border-t border-slate-200">
-                        <span className="text-slate-600 font-bold">Nominal Transfer:</span>
-                        <strong className="text-base font-black text-sakode-text">
+                      <div className="flex items-center justify-between pt-1 border-t border-slate-200 dark:border-slate-700">
+                        <span className="text-slate-600 dark:text-slate-400 font-bold">Nominal Transfer:</span>
+                        <strong className="text-base font-black text-slate-900 dark:text-white font-mono">
                           {formatCurrencyIDR(activePaymentClaim.totalAmount)}
                         </strong>
                       </div>
@@ -531,7 +531,7 @@ export default function AdminClaimsPage() {
 
                   {/* Transfer Proof Upload */}
                   <div>
-                    <label className="block text-xs font-bold text-sakode-text uppercase tracking-wider mb-1.5">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                       Unggah Bukti Struk Transfer Bank (Wajib)
                     </label>
                     <TransferProofUploader
@@ -544,7 +544,7 @@ export default function AdminClaimsPage() {
 
                   {/* Optional Admin Notes */}
                   <div>
-                    <label className="block text-xs font-bold text-sakode-text uppercase tracking-wider mb-1">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                       Catatan Referensi Transfer (Opsional)
                     </label>
                     <input
@@ -552,11 +552,11 @@ export default function AdminClaimsPage() {
                       value={adminNotes}
                       onChange={(e) => setAdminNotes(e.target.value)}
                       placeholder="Contoh: No. Ref BCA 892348234 / Transfer Berhasil"
-                      className="w-full px-3 py-2 text-xs rounded-lg border border-sakode-border bg-white focus:outline-none focus:ring-1 focus:ring-sakode-cyan"
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-sky-500"
                     />
                   </div>
 
-                  <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+                  <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100 dark:border-slate-800">
                     <Button
                       type="button"
                       variant="ghost"
@@ -589,15 +589,15 @@ export default function AdminClaimsPage() {
           {/* TRANSFER PROOF VIEWER MODAL */}
           {activeProofUrl && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-              <div className="bg-white rounded-2xl shadow-2xl border border-sakode-border w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
-                <div className="p-4 border-b border-sakode-border flex items-center justify-between bg-sakode-bg">
-                  <h4 className="text-sm font-bold text-sakode-text flex items-center gap-1.5">
-                    <FileText className="h-4 w-4 text-sakode-cyan" />
+              <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+                <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-900/90">
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                    <FileText className="h-4 w-4 text-sky-500" />
                     <span>Bukti Transfer Pembayaran</span>
                   </h4>
                   <button
                     onClick={() => setActiveProofUrl(null)}
-                    className="p-1 text-slate-400 hover:text-slate-700"
+                    className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
                   >
                     <X className="h-5 w-5" />
                   </button>

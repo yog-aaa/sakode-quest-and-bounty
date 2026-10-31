@@ -5,8 +5,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { AuthGuard } from '@/components/auth/AuthGuard';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
 import { BountyCard } from '@/components/task/BountyCard';
 import { createTaskAction } from '@/server/actions/task.actions';
 import { createTaskSchema, type CreateTaskInput } from '@/lib/validations/task';
@@ -27,9 +25,21 @@ import {
   AlertCircle,
   CheckCircle2,
   Loader2,
-  FileText,
   Shield,
+  ChevronDown,
+  ChevronUp,
+  ChevronRight,
+  ChevronLeft,
+  Check,
 } from 'lucide-react';
+
+const STEPS = [
+  { id: 1, title: 'Informasi Pokok', subtitle: 'Judul, deskripsi, & ruang lingkup' },
+  { id: 2, title: 'Kriteria Penerimaan', subtitle: 'Syarat lolos review deliverable' },
+  { id: 3, title: 'Mode & Kualifikasi', subtitle: 'Solo/tim & kebutuhan skill' },
+  { id: 4, title: 'Bounty & Waktu', subtitle: 'Alokasi Rupiah & batas deadline' },
+  { id: 5, title: 'Syarat & Pratinjau', subtitle: 'Review kartu & persetujuan terms' },
+];
 
 const PRESET_SKILLS = [
   'React',
@@ -60,33 +70,132 @@ export default function AdminCreateTaskPage() {
   const [description, setDescription] = useState('');
   const [scope, setScope] = useState('');
   const [deliverableGuidelines, setDeliverableGuidelines] = useState('');
-  const [acceptanceCriteria, setAcceptanceCriteria] = useState<string[]>([
-    'Mengimplementasikan fitur sesuai panduan teknis',
-    'Memastikan kode bersih, teruji, dan bebas error',
-  ]);
+  const [acceptanceCriteria, setAcceptanceCriteria] = useState<string[]>([]);
   const [newCriterion, setNewCriterion] = useState('');
   const [mode, setMode] = useState<'SOLO' | 'TEAM'>('SOLO');
   const [minTeamSize, setMinTeamSize] = useState(2);
   const [maxTeamSize, setMaxTeamSize] = useState(4);
   const [assignmentType, setAssignmentType] = useState<'INSTANT_TAKE' | 'APPLICATION'>('INSTANT_TAKE');
-  const [requiredSkills, setRequiredSkills] = useState<string[]>(['React', 'TypeScript']);
+  const [requiredSkills, setRequiredSkills] = useState<string[]>([]);
   const [customSkillInput, setCustomSkillInput] = useState('');
-  const [totalReward, setTotalReward] = useState<number>(500000);
+  const [totalReward, setTotalReward] = useState<number | ''>('');
   const [deadlineType, setDeadlineType] = useState<'FIXED' | 'DURATION'>('DURATION');
-  const [durationMinutes, setDurationMinutes] = useState<number>(2880); // 48 jam default
+  const [durationMinutes, setDurationMinutes] = useState<number | ''>('');
   const [fixedDeadline, setFixedDeadline] = useState<string>('');
   const [termsContent, setTermsContent] = useState<string>(DEFAULT_TERMS);
+  const [isTermsExpanded, setIsTermsExpanded] = useState<boolean>(false);
+  const [currentStep, setCurrentStep] = useState<number>(1);
 
   // Submission State
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [serverError, setServerError] = useState<string | null>(null);
 
+  // Helper hapus inline error saat user mengetik
+  const clearFieldError = (field: string) => {
+    if (validationErrors[field]) {
+      setValidationErrors((prev) => {
+        const copy = { ...prev };
+        delete copy[field];
+        return copy;
+      });
+    }
+  };
+
+  // Real Validation Checks for Stepper Completion
+  const isStep1Complete = () => {
+    return (
+      title.trim().length >= 5 &&
+      title.trim().length <= 120 &&
+      description.trim().length >= 20 &&
+      scope.trim().length >= 10 &&
+      deliverableGuidelines.trim().length >= 10
+    );
+  };
+
+  const isStep2Complete = () => {
+    return (
+      acceptanceCriteria.length >= 1 &&
+      acceptanceCriteria.every((c) => c.trim().length >= 3)
+    );
+  };
+
+  const isStep3Complete = () => {
+    if (mode === 'TEAM') {
+      if (!minTeamSize || !maxTeamSize || minTeamSize < 2 || maxTeamSize < minTeamSize) {
+        return false;
+      }
+    }
+    return requiredSkills.length >= 1;
+  };
+
+  const isStep4Complete = () => {
+    const rewardVal = Number(totalReward);
+    const rewardValid =
+      typeof rewardVal === 'number' &&
+      !isNaN(rewardVal) &&
+      rewardVal >= 10000 &&
+      rewardVal % 1000 === 0;
+    if (!rewardValid) return false;
+
+    if (deadlineType === 'DURATION') {
+      const durVal = Number(durationMinutes);
+      return typeof durVal === 'number' && !isNaN(durVal) && durVal > 0;
+    }
+    if (deadlineType === 'FIXED') {
+      return !!fixedDeadline && !isNaN(new Date(fixedDeadline).getTime());
+    }
+    return false;
+  };
+
+  const isStep5Complete = () => {
+    return (
+      isStep1Complete() &&
+      isStep2Complete() &&
+      isStep3Complete() &&
+      isStep4Complete() &&
+      termsContent.trim().length >= 10
+    );
+  };
+
+  const isStepCompleted = (stepId: number) => {
+    switch (stepId) {
+      case 1:
+        return isStep1Complete();
+      case 2:
+        return isStep2Complete();
+      case 3:
+        return isStep3Complete();
+      case 4:
+        return isStep4Complete();
+      case 5:
+        return isStep5Complete();
+      default:
+        return false;
+    }
+  };
+
+  // Stepper Navigation Helpers (Fleksibel & Bebas Navigasi)
+  const handleNextStep = () => {
+    if (currentStep < STEPS.length) {
+      setCurrentStep((prev) => prev + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handlePrevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep((prev) => prev - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   // Criteria Management
   const handleAddCriterion = () => {
     if (!newCriterion.trim()) return;
     setAcceptanceCriteria((prev) => [...prev, newCriterion.trim()]);
     setNewCriterion('');
+    clearFieldError('acceptanceCriteria');
   };
 
   const handleRemoveCriterion = (index: number) => {
@@ -98,6 +207,7 @@ export default function AdminCreateTaskPage() {
     setRequiredSkills((prev) =>
       prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill]
     );
+    clearFieldError('requiredSkills');
   };
 
   const handleAddCustomSkill = () => {
@@ -105,6 +215,7 @@ export default function AdminCreateTaskPage() {
     const trimmed = customSkillInput.trim();
     if (!requiredSkills.includes(trimmed)) {
       setRequiredSkills((prev) => [...prev, trimmed]);
+      clearFieldError('requiredSkills');
     }
     setCustomSkillInput('');
   };
@@ -143,7 +254,20 @@ export default function AdminCreateTaskPage() {
         fieldErrors[field] = err.message;
       });
       setValidationErrors(fieldErrors);
-      // Scroll to top
+
+      // Arahkan stepper ke tab dengan error pertama
+      if (fieldErrors.title || fieldErrors.description || fieldErrors.scope || fieldErrors.deliverableGuidelines) {
+        setCurrentStep(1);
+      } else if (fieldErrors.acceptanceCriteria) {
+        setCurrentStep(2);
+      } else if (fieldErrors.mode || fieldErrors.minTeamSize || fieldErrors.maxTeamSize || fieldErrors.requiredSkills) {
+        setCurrentStep(3);
+      } else if (fieldErrors.totalReward || fieldErrors.durationMinutes || fieldErrors.fixedDeadline) {
+        setCurrentStep(4);
+      } else if (fieldErrors.termsContent) {
+        setCurrentStep(5);
+      }
+
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
@@ -201,533 +325,826 @@ export default function AdminCreateTaskPage() {
 
   return (
     <AuthGuard requireAdmin>
-      <div className="min-h-screen bg-sakode-bg py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-slate-50/50 dark:bg-[#0B0F19] py-8 px-4 sm:px-6 lg:px-8 transition-colors">
         <div className="max-w-7xl mx-auto space-y-6">
-          {/* Top Bar */}
-          <div className="flex items-center justify-between border-b border-sakode-border pb-4">
+          {/* Top Bar Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-200/80 dark:border-slate-800">
             <div className="flex items-center gap-3">
               <Link href="/admin/tasks">
-                <Button variant="outline" size="sm" className="h-9 px-2.5">
+                <button
+                  type="button"
+                  className="h-10 w-10 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-xs"
+                  title="Kembali ke Katalog Task"
+                >
                   <ArrowLeft className="h-4 w-4" />
-                </Button>
+                </button>
               </Link>
               <div>
-                <h1 className="text-xl sm:text-2xl font-black text-sakode-text tracking-tight">
-                  Buat Task & Bounty Baru
+                <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                  Terbitkan Task & Bounty Baru
                 </h1>
-                <p className="text-xs text-sakode-text-muted">
-                  Konfigurasikan spesifikasi, mode penugasan, batas waktu, dan snapshot terms.
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Lengkapi spesifikasi task secara bertahap melalui panduan formulir di bawah ini.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
                 disabled={isSubmitting}
                 onClick={() => handleSubmit('DRAFT')}
-                className="font-bold text-xs h-10 px-4"
+                className="h-10 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center gap-1.5 disabled:opacity-50"
               >
-                {isSubmitting ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : null}
+                {isSubmitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                 <span>Simpan Draf</span>
-              </Button>
+              </button>
 
-              <Button
-                variant="primary"
-                size="sm"
-                disabled={isSubmitting}
+              <button
+                type="button"
+                disabled={isSubmitting || !isStep5Complete()}
                 onClick={() => handleSubmit('OPEN')}
-                className="font-bold text-xs h-10 px-4 shadow-sm"
+                className={`h-10 px-5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all ${
+                  !isStep5Complete()
+                    ? 'bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-500 cursor-not-allowed opacity-60'
+                    : 'bg-gradient-to-r from-cyan-500 to-sky-600 hover:from-cyan-400 hover:to-sky-500 text-white shadow-md shadow-cyan-500/20 active:scale-[0.98]'
+                }`}
+                title={!isStep5Complete() ? 'Lengkapi semua langkah formulir terlebih dahulu' : 'Terbitkan Sekarang'}
               >
-                {isSubmitting ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Zap className="h-3.5 w-3.5 mr-1" />}
+                {isSubmitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5 fill-current" />}
                 <span>Terbitkan Sekarang</span>
-              </Button>
+              </button>
             </div>
           </div>
 
           {/* Server Error Alert */}
           {serverError && (
-            <div className="p-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
+            <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 text-rose-800 dark:text-rose-300 text-xs sm:text-sm flex items-center gap-2.5">
+              <AlertCircle className="h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
               <span>{serverError}</span>
             </div>
           )}
 
-          {/* Form + Live Preview Grid */}
+          {/* Grid Layout: Left Stepper Side (4 cols) & Right Form Body Panel (8 cols) */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Left 7 cols: Form Wizard */}
-            <div className="lg:col-span-7 space-y-6">
-              {/* Section 1: Basic Info */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-sakode-cyan" />
-                    <span>1. Informasi Pokok Task</span>
-                  </CardTitle>
-                  <CardDescription className="text-xs">
-                    Judul dan ringkasan task yang menarik, jelas, dan akurat.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Title */}
-                  <div>
-                    <label className="block text-xs font-bold text-sakode-text uppercase tracking-wider mb-1">
-                      Judul Task <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Contoh: Implementasi Komponen Responsive Navbar SAKODE"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      className="w-full px-3 py-2 text-sm rounded-lg border border-sakode-border focus:outline-none focus:ring-2 focus:ring-sakode-cyan"
-                    />
-                    {validationErrors.title && (
-                      <p className="text-[11px] text-rose-600 font-semibold mt-1">{validationErrors.title}</p>
-                    )}
-                  </div>
+            {/* Left 4 cols: Side Stepper Navigation (Wireframe Aligned) */}
+            <div className="lg:col-span-4 space-y-4 lg:sticky lg:top-20">
+              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-4 sm:p-5 shadow-xs space-y-3">
+                <div className="px-2 pt-1 pb-2 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+                  <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                    Tahapan Formulir
+                  </span>
+                  <span className="text-xs font-mono font-bold text-cyan-600 dark:text-cyan-400">
+                    {currentStep} / {STEPS.length}
+                  </span>
+                </div>
 
-                  {/* Description */}
-                  <div>
-                    <label className="block text-xs font-bold text-sakode-text uppercase tracking-wider mb-1">
-                      Deskripsi Ringkas <span className="text-rose-500">*</span>
-                    </label>
-                    <textarea
-                      rows={3}
-                      placeholder="Jelaskan gambaran umum kebutuhan dan tujuan dari task ini..."
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      className="w-full px-3 py-2 text-sm rounded-lg border border-sakode-border focus:outline-none focus:ring-2 focus:ring-sakode-cyan"
-                    />
-                    {validationErrors.description && (
-                      <p className="text-[11px] text-rose-600 font-semibold mt-1">{validationErrors.description}</p>
-                    )}
-                  </div>
+                <nav className="space-y-2">
+                  {STEPS.map((step) => {
+                    const isActive = currentStep === step.id;
+                    const isCompleted = isStepCompleted(step.id);
 
-                  {/* Scope & Deliverable */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    return (
+                      <button
+                        key={step.id}
+                        type="button"
+                        onClick={() => setCurrentStep(step.id)}
+                        className={`w-full text-left p-3.5 rounded-2xl transition-all flex items-center gap-3.5 border ${
+                          isActive
+                            ? 'bg-slate-900 text-white border-slate-900 shadow-sm dark:bg-slate-800 dark:border-slate-700 dark:ring-2 dark:ring-cyan-500/20'
+                            : isCompleted
+                            ? 'bg-emerald-50/70 text-slate-900 border-emerald-200/80 hover:bg-emerald-100/50 dark:bg-emerald-950/20 dark:text-slate-100 dark:border-emerald-900/50 dark:hover:bg-emerald-950/30'
+                            : 'bg-slate-50/80 text-slate-700 border-slate-200/70 hover:bg-slate-100 dark:bg-slate-950/40 dark:text-slate-300 dark:border-slate-800 dark:hover:bg-slate-800/40'
+                        }`}
+                      >
+                        {/* Number / Status Circle */}
+                        <div
+                          className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 transition-all ${
+                            isActive
+                              ? 'bg-cyan-500 text-white shadow-xs'
+                              : isCompleted
+                              ? 'bg-emerald-600 text-white shadow-xs'
+                              : 'bg-white text-slate-600 border border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
+                          }`}
+                        >
+                          {isCompleted ? <Check className="h-4 w-4" /> : step.id}
+                        </div>
+
+                        {/* Text */}
+                        <div className="flex-1 min-w-0">
+                          <p
+                            className={`text-xs font-bold truncate ${
+                              isActive
+                                ? 'text-white'
+                                : isCompleted
+                                ? 'text-slate-900 dark:text-slate-100'
+                                : 'text-slate-700 dark:text-slate-300'
+                            }`}
+                          >
+                            {step.title}
+                          </p>
+                          <p
+                            className={`text-[11px] truncate mt-0.5 ${
+                              isActive ? 'text-slate-300' : 'text-slate-400 dark:text-slate-500'
+                            }`}
+                          >
+                            {step.subtitle}
+                          </p>
+                        </div>
+
+                        {isActive && <ChevronRight className="h-4 w-4 text-cyan-400 shrink-0" />}
+                      </button>
+                    );
+                  })}
+                </nav>
+              </div>
+
+              {/* Mini Quick Summary Card */}
+              <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 space-y-2 text-xs shadow-xs">
+                <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-[11px]">
+                  <span>Total Bounty:</span>
+                  <span className="font-mono font-bold text-cyan-600 dark:text-cyan-400">
+                    {formatCurrencyIDR(Number(totalReward) || 0)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-[11px]">
+                  <span>Mode Pengerjaan:</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">
+                    {mode === 'SOLO' ? 'Solo' : `Team (${minTeamSize}-${maxTeamSize})`} • {assignmentType === 'INSTANT_TAKE' ? 'Instant' : 'Seleksi'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-[11px]">
+                  <span>Kriteria Syarat:</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">
+                    {acceptanceCriteria.length} butir
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right 8 cols: Single Focus Form Body Panel */}
+            <div className="lg:col-span-8 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden flex flex-col min-h-[560px]">
+              {/* Header Panel (Sesuai Wireframe: Header Bar Bagian Aktif) */}
+              <div className="p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-900 text-white flex items-center justify-between gap-4">
+                <div>
+                  <span className="text-[10px] font-bold tracking-wider uppercase text-cyan-400">
+                    Langkah {currentStep} dari {STEPS.length}
+                  </span>
+                  <h2 className="text-lg font-bold text-white mt-0.5">
+                    {STEPS[currentStep - 1].title}
+                  </h2>
+                  <p className="text-xs text-slate-300 mt-0.5">
+                    {STEPS[currentStep - 1].subtitle}
+                  </p>
+                </div>
+                <div className="hidden sm:flex items-center gap-1.5 bg-slate-800 px-3 py-1 rounded-full text-xs font-mono font-semibold text-cyan-300 border border-slate-700">
+                  {Math.round((currentStep / STEPS.length) * 100)}% Selesai
+                </div>
+              </div>
+
+              {/* Progress Line */}
+              <div className="h-1 w-full bg-slate-100 dark:bg-slate-800">
+                <div
+                  className="h-full bg-gradient-to-r from-cyan-500 to-sky-500 transition-all duration-300"
+                  style={{ width: `${(currentStep / STEPS.length) * 100}%` }}
+                />
+              </div>
+
+              {/* Body Content - Form A, B, C untuk Step Aktif Saja */}
+              <div className="p-6 sm:p-8 space-y-6 flex-1">
+                {/* STEP 1: INFORMASI POKOK */}
+                {currentStep === 1 && (
+                  <div className="space-y-5 animate-in fade-in-50 duration-200">
                     <div>
-                      <label className="block text-xs font-bold text-sakode-text uppercase tracking-wider mb-1">
-                        Ruang Lingkup (Scope) <span className="text-rose-500">*</span>
+                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                        Judul Task <span className="text-rose-500">*</span>
                       </label>
-                      <textarea
-                        rows={3}
-                        placeholder="Batasan dan cakupan kode..."
-                        value={scope}
-                        onChange={(e) => setScope(e.target.value)}
-                        className="w-full px-3 py-2 text-xs rounded-lg border border-sakode-border focus:outline-none focus:ring-2 focus:ring-sakode-cyan"
+                      <input
+                        type="text"
+                        placeholder="Contoh: Implementasi Komponen Responsive Navbar SAKODE"
+                        value={title}
+                        onChange={(e) => {
+                          setTitle(e.target.value);
+                          clearFieldError('title');
+                        }}
+                        className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-950/40 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 focus:bg-white dark:focus:bg-slate-900 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
                       />
-                      {validationErrors.scope && (
-                        <p className="text-[11px] text-rose-600 font-semibold mt-1">{validationErrors.scope}</p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-sakode-text uppercase tracking-wider mb-1">
-                        Panduan Deliverable <span className="text-rose-500">*</span>
-                      </label>
-                      <textarea
-                        rows={3}
-                        placeholder="Format branch, pull request, file..."
-                        value={deliverableGuidelines}
-                        onChange={(e) => setDeliverableGuidelines(e.target.value)}
-                        className="w-full px-3 py-2 text-xs rounded-lg border border-sakode-border focus:outline-none focus:ring-2 focus:ring-sakode-cyan"
-                      />
-                      {validationErrors.deliverableGuidelines && (
-                        <p className="text-[11px] text-rose-600 font-semibold mt-1">
-                          {validationErrors.deliverableGuidelines}
+                      {validationErrors.title && (
+                        <p className="text-[11px] text-rose-600 dark:text-rose-400 font-semibold mt-1.5 flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" /> {validationErrors.title}
                         </p>
                       )}
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
 
-              {/* Section 2: Acceptance Criteria */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                    <span>2. Kriteria Penerimaan (Acceptance Criteria)</span>
-                  </CardTitle>
-                  <CardDescription className="text-xs">
-                    Daftar syarat konkret yang harus dipenuhi oleh penerima task untuk lolos review.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="space-y-2">
-                    {acceptanceCriteria.map((criterion, idx) => (
-                      <div key={idx} className="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-                        <span className="text-xs font-bold text-slate-400 w-5">{idx + 1}.</span>
-                        <span className="text-xs text-sakode-text flex-1 font-medium">{criterion}</span>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveCriterion(idx)}
-                          className="text-slate-400 hover:text-rose-600 p-1 transition-colors"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex gap-2 pt-2">
-                    <input
-                      type="text"
-                      placeholder="Tambah kriteria baru..."
-                      value={newCriterion}
-                      onChange={(e) => setNewCriterion(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleAddCriterion();
-                        }
-                      }}
-                      className="flex-1 px-3 py-2 text-xs rounded-lg border border-sakode-border focus:outline-none focus:ring-2 focus:ring-sakode-cyan"
-                    />
-                    <Button type="button" variant="outline" size="sm" onClick={handleAddCriterion} className="text-xs font-bold">
-                      <Plus className="h-3.5 w-3.5 mr-1" />
-                      <span>Tambah</span>
-                    </Button>
-                  </div>
-                  {validationErrors.acceptanceCriteria && (
-                    <p className="text-[11px] text-rose-600 font-semibold">{validationErrors.acceptanceCriteria}</p>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Section 3: Mode, Assignment & Skills */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Users className="h-4 w-4 text-sakode-purple" />
-                    <span>3. Mode Penugasan & Kualifikasi</span>
-                  </CardTitle>
-                  <CardDescription className="text-xs">
-                    Tentukan apakah task ini dikerjakan individu (Solo) atau tim, serta metode pengambilannya.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Mode & Assignment Type */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Mode */}
                     <div>
-                      <label className="block text-xs font-bold text-sakode-text uppercase tracking-wider mb-2">
-                        Mode Pengerjaan
+                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                        Deskripsi Ringkas <span className="text-rose-500">*</span>
                       </label>
-                      <div className="grid grid-cols-2 gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setMode('SOLO')}
-                          className={`p-2.5 rounded-lg border text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
-                            mode === 'SOLO'
-                              ? 'border-sakode-cyan bg-sakode-cyan/15 text-sakode-text shadow-xs ring-1 ring-sakode-cyan'
-                              : 'border-sakode-border bg-white text-sakode-text-muted hover:bg-slate-50'
-                          }`}
-                        >
-                          <User className="h-3.5 w-3.5" />
-                          <span>Solo (Individu)</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setMode('TEAM')}
-                          className={`p-2.5 rounded-lg border text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
-                            mode === 'TEAM'
-                              ? 'border-sakode-purple bg-purple-50 text-purple-900 shadow-xs ring-1 ring-sakode-purple'
-                              : 'border-sakode-border bg-white text-sakode-text-muted hover:bg-slate-50'
-                          }`}
-                        >
-                          <Users className="h-3.5 w-3.5" />
-                          <span>Team (Grup)</span>
-                        </button>
-                      </div>
-
-                      {mode === 'TEAM' && (
-                        <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-slate-100">
-                          <div>
-                            <label className="block text-[10px] font-bold text-slate-500 uppercase">Min Member</label>
-                            <input
-                              type="number"
-                              min={2}
-                              value={minTeamSize}
-                              onChange={(e) => setMinTeamSize(Number(e.target.value))}
-                              className="w-full px-2 py-1 text-xs rounded border border-sakode-border font-mono"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-[10px] font-bold text-slate-500 uppercase">Max Member</label>
-                            <input
-                              type="number"
-                              min={2}
-                              value={maxTeamSize}
-                              onChange={(e) => setMaxTeamSize(Number(e.target.value))}
-                              className="w-full px-2 py-1 text-xs rounded border border-sakode-border font-mono"
-                            />
-                          </div>
-                        </div>
+                      <textarea
+                        rows={3}
+                        placeholder="Jelaskan gambaran umum kebutuhan dan tujuan dari task ini..."
+                        value={description}
+                        onChange={(e) => {
+                          setDescription(e.target.value);
+                          clearFieldError('description');
+                        }}
+                        className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-950/40 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 focus:bg-white dark:focus:bg-slate-900 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 leading-relaxed"
+                      />
+                      {validationErrors.description && (
+                        <p className="text-[11px] text-rose-600 dark:text-rose-400 font-semibold mt-1.5 flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" /> {validationErrors.description}
+                        </p>
                       )}
                     </div>
 
-                    {/* Assignment Type */}
-                    <div>
-                      <label className="block text-xs font-bold text-sakode-text uppercase tracking-wider mb-2">
-                        Metode Penugasan
-                      </label>
-                      <div className="grid grid-cols-2 gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setAssignmentType('INSTANT_TAKE')}
-                          className={`p-2.5 rounded-lg border text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
-                            assignmentType === 'INSTANT_TAKE'
-                              ? 'border-amber-400 bg-amber-50 text-amber-900 shadow-xs ring-1 ring-amber-400'
-                              : 'border-sakode-border bg-white text-sakode-text-muted hover:bg-slate-50'
-                          }`}
-                        >
-                          <Zap className="h-3.5 w-3.5 text-amber-500" />
-                          <span>Instant Take</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setAssignmentType('APPLICATION')}
-                          className={`p-2.5 rounded-lg border text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
-                            assignmentType === 'APPLICATION'
-                              ? 'border-sky-400 bg-sky-50 text-sky-900 shadow-xs ring-1 ring-sky-400'
-                              : 'border-sakode-border bg-white text-sakode-text-muted hover:bg-slate-50'
-                          }`}
-                        >
-                          <Send className="h-3.5 w-3.5 text-sky-500" />
-                          <span>Application</span>
-                        </button>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                          Ruang Lingkup (Scope) <span className="text-rose-500">*</span>
+                        </label>
+                        <textarea
+                          rows={4}
+                          placeholder="Batasan dan cakupan kode..."
+                          value={scope}
+                          onChange={(e) => {
+                            setScope(e.target.value);
+                            clearFieldError('scope');
+                          }}
+                          className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-950/40 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 focus:bg-white dark:focus:bg-slate-900 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 leading-relaxed"
+                        />
+                        {validationErrors.scope && (
+                          <p className="text-[11px] text-rose-600 dark:text-rose-400 font-semibold mt-1.5 flex items-center gap-1">
+                            <AlertCircle className="h-3 w-3" /> {validationErrors.scope}
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                          Panduan Deliverable <span className="text-rose-500">*</span>
+                        </label>
+                        <textarea
+                          rows={4}
+                          placeholder="Format branch, pull request, file output..."
+                          value={deliverableGuidelines}
+                          onChange={(e) => {
+                            setDeliverableGuidelines(e.target.value);
+                            clearFieldError('deliverableGuidelines');
+                          }}
+                          className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-950/40 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 focus:bg-white dark:focus:bg-slate-900 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 leading-relaxed"
+                        />
+                        {validationErrors.deliverableGuidelines && (
+                          <p className="text-[11px] text-rose-600 dark:text-rose-400 font-semibold mt-1.5 flex items-center gap-1">
+                            <AlertCircle className="h-3 w-3" /> {validationErrors.deliverableGuidelines}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
+                )}
 
-                  {/* Skills Tag Selector */}
-                  <div>
-                    <label className="block text-xs font-bold text-sakode-text uppercase tracking-wider mb-1.5">
-                      Skill yang Dibutuhkan
-                    </label>
-                    <div className="flex flex-wrap gap-1.5 mb-2">
-                      {PRESET_SKILLS.map((skill) => {
-                        const isSelected = requiredSkills.includes(skill);
-                        return (
-                          <button
-                            key={skill}
-                            type="button"
-                            onClick={() => toggleSkill(skill)}
-                            className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-all ${
-                              isSelected
-                                ? 'bg-sakode-text text-white shadow-xs'
-                                : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
-                            }`}
-                          >
-                            {skill} {isSelected ? '✓' : '+'}
-                          </button>
-                        );
-                      })}
+                {/* STEP 2: KRITERIA PENERIMAAN */}
+                {currentStep === 2 && (
+                  <div className="space-y-4 animate-in fade-in-50 duration-200">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                        Daftar kriteria konkret yang harus dipenuhi oleh pendaftar task untuk dinyatakan lolos penilaian.
+                      </p>
+                      {acceptanceCriteria.length === 0 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAcceptanceCriteria([
+                              'Mengimplementasikan fitur sesuai panduan teknis',
+                              'Memastikan kode bersih, teruji, dan bebas error',
+                            ]);
+                            clearFieldError('acceptanceCriteria');
+                          }}
+                          className="text-[11px] text-cyan-600 dark:text-cyan-400 font-bold hover:underline shrink-0"
+                        >
+                          + Pakai Kriteria Standar
+                        </button>
+                      )}
                     </div>
 
-                    <div className="flex gap-2">
+                    {acceptanceCriteria.length === 0 ? (
+                      <div className="p-6 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-center space-y-2.5 bg-slate-50/50 dark:bg-slate-950/20">
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          Belum ada kriteria penerimaan yang ditambahkan.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAcceptanceCriteria([
+                              'Mengimplementasikan fitur sesuai panduan teknis',
+                              'Memastikan kode bersih, teruji, dan bebas error',
+                            ]);
+                            clearFieldError('acceptanceCriteria');
+                          }}
+                          className="text-xs font-bold text-cyan-600 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-950/40 px-3 py-1.5 rounded-xl border border-cyan-200 dark:border-cyan-800 hover:bg-cyan-100 transition-colors inline-block"
+                        >
+                          + Muat 2 Kriteria Rekomendasi SAKODE
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-2.5">
+                        {acceptanceCriteria.map((criterion, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/50 px-3.5 py-2.5 rounded-xl border border-slate-200/60 dark:border-slate-700/60"
+                          >
+                            <span className="w-5 h-5 rounded-full bg-cyan-100 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-400 text-[11px] font-bold flex items-center justify-center shrink-0">
+                              {idx + 1}
+                            </span>
+                            <span className="text-xs text-slate-800 dark:text-slate-200 flex-1 font-medium leading-relaxed">
+                              {criterion}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveCriterion(idx)}
+                              className="text-slate-400 hover:text-rose-500 p-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+                              title="Hapus kriteria"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="flex gap-2 pt-2">
                       <input
                         type="text"
-                        placeholder="Tambah skill kustom..."
-                        value={customSkillInput}
-                        onChange={(e) => setCustomSkillInput(e.target.value)}
+                        placeholder="Tulis butir kriteria pengujian baru..."
+                        value={newCriterion}
+                        onChange={(e) => setNewCriterion(e.target.value)}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
                             e.preventDefault();
-                            handleAddCustomSkill();
+                            handleAddCriterion();
                           }
                         }}
-                        className="flex-1 px-3 py-1.5 text-xs rounded-lg border border-sakode-border focus:outline-none focus:ring-1 focus:ring-sakode-cyan"
+                        className="flex-1 px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-950/40 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 focus:bg-white dark:focus:bg-slate-900 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
                       />
-                      <Button type="button" variant="outline" size="sm" onClick={handleAddCustomSkill} className="text-xs">
-                        Tambah
-                      </Button>
+                      <button
+                        type="button"
+                        onClick={handleAddCriterion}
+                        className="h-10 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold transition-colors flex items-center gap-1.5 shrink-0"
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                        <span>Tambah</span>
+                      </button>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Section 4: Reward & Deadline */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-sakode-orange" />
-                    <span>4. Reward & Batas Waktu (Zero-Cron Invariant)</span>
-                  </CardTitle>
-                  <CardDescription className="text-xs">
-                    Nominal bounty integer Rupiah dan aturan deadline (Fixed ISO atau Durasi jam).
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Total Reward */}
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="text-xs font-bold text-sakode-text uppercase tracking-wider">
-                        Total Reward Bounty (IDR) <span className="text-rose-500">*</span>
-                      </label>
-                      <span className="text-sm font-black text-sakode-text">
-                        {formatCurrencyIDR(Number(totalReward) || 0)}
-                      </span>
-                    </div>
-                    <input
-                      type="number"
-                      step={10000}
-                      min={10000}
-                      value={totalReward}
-                      onChange={(e) => setTotalReward(Number(e.target.value))}
-                      className="w-full px-3 py-2 text-sm rounded-lg border border-sakode-border focus:outline-none focus:ring-2 focus:ring-sakode-cyan font-mono"
-                    />
-                    <p className="text-[11px] text-sakode-text-muted mt-1">
-                      Harus berupa bilangan bulat positif (min Rp 10.000, kelipatan 1.000).
-                    </p>
-                    {validationErrors.totalReward && (
-                      <p className="text-[11px] text-rose-600 font-semibold mt-1">{validationErrors.totalReward}</p>
+                    {validationErrors.acceptanceCriteria && (
+                      <p className="text-[11px] text-rose-600 dark:text-rose-400 font-semibold flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" /> {validationErrors.acceptanceCriteria}
+                      </p>
                     )}
                   </div>
+                )}
 
-                  {/* Deadline Type */}
-                  <div className="space-y-2">
-                    <label className="block text-xs font-bold text-sakode-text uppercase tracking-wider">
-                      Tipe Batas Waktu (Deadline)
-                    </label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setDeadlineType('DURATION')}
-                        className={`p-2.5 rounded-lg border text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
-                          deadlineType === 'DURATION'
-                            ? 'border-sakode-cyan bg-sakode-cyan/15 text-sakode-text shadow-xs ring-1 ring-sakode-cyan'
-                            : 'border-sakode-border bg-white text-sakode-text-muted hover:bg-slate-50'
-                        }`}
-                      >
-                        <Clock className="h-3.5 w-3.5" />
-                        <span>Durasi (Mulai saat diambil)</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setDeadlineType('FIXED')}
-                        className={`p-2.5 rounded-lg border text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
-                          deadlineType === 'FIXED'
-                            ? 'border-sakode-cyan bg-sakode-cyan/15 text-sakode-text shadow-xs ring-1 ring-sakode-cyan'
-                            : 'border-sakode-border bg-white text-sakode-text-muted hover:bg-slate-50'
-                        }`}
-                      >
-                        <Calendar className="h-3.5 w-3.5" />
-                        <span>Tanggal Tetap (Fixed Date)</span>
-                      </button>
+                {/* STEP 3: MODE & KUALIFIKASI */}
+                {currentStep === 3 && (
+                  <div className="space-y-6 animate-in fade-in-50 duration-200">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      {/* Mode Partisipasi */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                          Mode Partisipasi
+                        </label>
+                        <div className="grid grid-cols-2 gap-2.5">
+                          <button
+                            type="button"
+                            onClick={() => setMode('SOLO')}
+                            className={`p-3.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+                              mode === 'SOLO'
+                                ? 'border-cyan-500 bg-cyan-50 dark:bg-cyan-950/40 text-cyan-900 dark:text-cyan-300 ring-2 ring-cyan-500/20 shadow-xs'
+                                : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/60'
+                            }`}
+                          >
+                            <User className="h-3.5 w-3.5" />
+                            <span>Solo (Individu)</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setMode('TEAM')}
+                            className={`p-3.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+                              mode === 'TEAM'
+                                ? 'border-purple-500 bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 ring-2 ring-purple-500/20 shadow-xs'
+                                : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/60'
+                            }`}
+                          >
+                            <Users className="h-3.5 w-3.5" />
+                            <span>Team (Grup)</span>
+                          </button>
+                        </div>
+
+                        {mode === 'TEAM' && (
+                          <div className="grid grid-cols-2 gap-3 mt-3 p-3.5 rounded-xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/40">
+                            <div>
+                              <label className="block text-[10px] font-bold text-purple-800 dark:text-purple-300 uppercase">Min Member</label>
+                              <input
+                                type="number"
+                                min={2}
+                                value={minTeamSize}
+                                onChange={(e) => setMinTeamSize(Number(e.target.value))}
+                                className="w-full mt-1 px-2.5 py-1 text-xs rounded-lg border border-purple-200 dark:border-purple-800 bg-white dark:bg-slate-900 font-mono text-slate-900 dark:text-white"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-bold text-purple-800 dark:text-purple-300 uppercase">Max Member</label>
+                              <input
+                                type="number"
+                                min={2}
+                                value={maxTeamSize}
+                                onChange={(e) => setMaxTeamSize(Number(e.target.value))}
+                                className="w-full mt-1 px-2.5 py-1 text-xs rounded-lg border border-purple-200 dark:border-purple-800 bg-white dark:bg-slate-900 font-mono text-slate-900 dark:text-white"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Assignment Type */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                          Metode Penugasan
+                        </label>
+                        <div className="grid grid-cols-2 gap-2.5">
+                          <button
+                            type="button"
+                            onClick={() => setAssignmentType('INSTANT_TAKE')}
+                            className={`p-3.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                              assignmentType === 'INSTANT_TAKE'
+                                ? 'border-amber-500 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300 ring-2 ring-amber-500/20 shadow-xs'
+                                : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/60'
+                            }`}
+                          >
+                            <Zap className="h-3.5 w-3.5 text-amber-500 fill-current" />
+                            <span>Instant Take</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setAssignmentType('APPLICATION')}
+                            className={`p-3.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                              assignmentType === 'APPLICATION'
+                                ? 'border-sky-500 bg-sky-50 dark:bg-sky-950/40 text-sky-900 dark:text-sky-300 ring-2 ring-sky-500/20 shadow-xs'
+                                : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/60'
+                            }`}
+                          >
+                            <Send className="h-3.5 w-3.5 text-sky-500" />
+                            <span>Seleksi Pelamar</span>
+                          </button>
+                        </div>
+                      </div>
                     </div>
 
-                    {deadlineType === 'DURATION' ? (
-                      <div className="pt-2">
-                        <label className="block text-xs font-semibold text-sakode-text-muted mb-1">
-                          Pilih Presets Durasi Pengerjaan:
-                        </label>
-                        <div className="grid grid-cols-4 gap-2 mb-2">
-                          {[
-                            { label: '24 Jam', minutes: 1440 },
-                            { label: '48 Jam (2 Hari)', minutes: 2880 },
-                            { label: '3 Hari', minutes: 4320 },
-                            { label: '7 Hari', minutes: 10080 },
-                          ].map((d) => (
+                    {/* Skill Tags */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                        Skill yang Dibutuhkan
+                      </label>
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {PRESET_SKILLS.map((skill) => {
+                          const isSelected = requiredSkills.includes(skill);
+                          return (
                             <button
-                              key={d.label}
+                              key={skill}
                               type="button"
-                              onClick={() => setDurationMinutes(d.minutes)}
-                              className={`py-2 px-1 text-center rounded border text-xs font-semibold transition-all ${
-                                durationMinutes === d.minutes
-                                  ? 'bg-sakode-text text-white border-sakode-text'
-                                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                              onClick={() => toggleSkill(skill)}
+                              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                                isSelected
+                                  ? 'bg-cyan-600 dark:bg-cyan-500 text-white shadow-xs font-semibold'
+                                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/60 dark:border-slate-700/60'
                               }`}
                             >
-                              {d.label}
+                              {skill} {isSelected ? '✓' : '+'}
                             </button>
-                          ))}
+                          );
+                        })}
+                      </div>
+
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="Tambah skill kustom..."
+                          value={customSkillInput}
+                          onChange={(e) => setCustomSkillInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleAddCustomSkill();
+                            }
+                          }}
+                          className="flex-1 px-3.5 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-950/40 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 focus:bg-white dark:focus:bg-slate-900 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleAddCustomSkill}
+                          className="h-9 px-3.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold transition-colors"
+                        >
+                          Tambah
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* STEP 4: ALOKASI BOUNTY & BATAS WAKTU */}
+                {currentStep === 4 && (
+                  <div className="space-y-6 animate-in fade-in-50 duration-200">
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                          Total Reward Bounty (IDR) <span className="text-rose-500">*</span>
+                        </label>
+                        <span className="text-base font-black text-cyan-600 dark:text-cyan-400 font-mono">
+                          {formatCurrencyIDR(Number(totalReward) || 0)}
+                        </span>
+                      </div>
+                      <input
+                        type="number"
+                        step={10000}
+                        min={10000}
+                        placeholder="Contoh: 500000"
+                        value={totalReward}
+                        onChange={(e) => {
+                          setTotalReward(e.target.value === '' ? '' : Number(e.target.value));
+                          clearFieldError('totalReward');
+                        }}
+                        className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-950/40 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 focus:bg-white dark:focus:bg-slate-900 font-mono"
+                      />
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5">
+                        Harus berupa nominal Rupiah positif bulat (minimal Rp 10.000).
+                      </p>
+                      {validationErrors.totalReward && (
+                        <p className="text-[11px] text-rose-600 dark:text-rose-400 font-semibold mt-1 flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" /> {validationErrors.totalReward}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                        Tipe Batas Waktu (Deadline)
+                      </label>
+                      <div className="grid grid-cols-2 gap-2.5">
+                        <button
+                          type="button"
+                          onClick={() => setDeadlineType('DURATION')}
+                          className={`p-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+                            deadlineType === 'DURATION'
+                              ? 'border-cyan-500 bg-cyan-50 dark:bg-cyan-950/40 text-cyan-900 dark:text-cyan-300 ring-2 ring-cyan-500/20 shadow-xs'
+                              : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/60'
+                          }`}
+                        >
+                          <Clock className="h-3.5 w-3.5" />
+                          <span>Durasi (Mulai saat diambil)</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setDeadlineType('FIXED')}
+                          className={`p-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+                            deadlineType === 'FIXED'
+                              ? 'border-cyan-500 bg-cyan-50 dark:bg-cyan-950/40 text-cyan-900 dark:text-cyan-300 ring-2 ring-cyan-500/20 shadow-xs'
+                              : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/60'
+                          }`}
+                        >
+                          <Calendar className="h-3.5 w-3.5" />
+                          <span>Tanggal Tetap (Fixed Date)</span>
+                        </button>
+                      </div>
+
+                      {deadlineType === 'DURATION' ? (
+                        <div className="pt-2 space-y-3">
+                          <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400">
+                            Preset Durasi Pengerjaan:
+                          </label>
+                          <div className="grid grid-cols-4 gap-2">
+                            {[
+                              { label: '24 Jam', minutes: 1440 },
+                              { label: '48 Jam (2 Hari)', minutes: 2880 },
+                              { label: '3 Hari', minutes: 4320 },
+                              { label: '7 Hari', minutes: 10080 },
+                            ].map((d) => (
+                              <button
+                                key={d.label}
+                                type="button"
+                                onClick={() => {
+                                  setDurationMinutes(d.minutes);
+                                  clearFieldError('durationMinutes');
+                                }}
+                                className={`py-2 px-2 text-center rounded-xl border text-xs font-semibold transition-all ${
+                                  durationMinutes === d.minutes
+                                    ? 'bg-cyan-600 dark:bg-cyan-500 text-white border-transparent shadow-xs'
+                                    : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
+                                }`}
+                              >
+                                {d.label}
+                              </button>
+                            ))}
+                          </div>
+                          <div className="flex items-center gap-3 pt-1">
+                            <span className="text-xs text-slate-500 dark:text-slate-400">Atau kustom (menit):</span>
+                            <input
+                              type="number"
+                              min={60}
+                              step={60}
+                              placeholder="1440"
+                              value={durationMinutes}
+                              onChange={(e) => {
+                                setDurationMinutes(e.target.value === '' ? '' : Number(e.target.value));
+                                clearFieldError('durationMinutes');
+                              }}
+                              className="w-32 px-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 font-mono text-slate-900 dark:text-white"
+                            />
+                            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                              ({durationMinutes ? Math.round(Number(durationMinutes) / 60) : 0} Jam pengerjaan)
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-sakode-text-muted">Atau kustom (menit):</span>
+                      ) : (
+                        <div className="pt-2">
+                          <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">
+                            Tentukan Batas Tanggal & Waktu (WIB):
+                          </label>
                           <input
-                            type="number"
-                            min={60}
-                            step={60}
-                            value={durationMinutes}
-                            onChange={(e) => setDurationMinutes(Number(e.target.value))}
-                            className="w-32 px-2 py-1 text-xs rounded border border-sakode-border font-mono"
+                            type="datetime-local"
+                            value={fixedDeadline}
+                            onChange={(e) => {
+                              setFixedDeadline(e.target.value);
+                              clearFieldError('fixedDeadline');
+                            }}
+                            className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 font-mono text-slate-900 dark:text-white"
                           />
-                          <span className="text-xs text-sakode-text-muted">
-                            ({Math.round(durationMinutes / 60)} Jam)
-                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* STEP 5: SYARAT & PRATINJAU TERAKHIR */}
+                {currentStep === 5 && (
+                  <div className="space-y-6 animate-in fade-in-50 duration-200">
+                    <div>
+                      <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <Sparkles className="h-4 w-4 text-cyan-500" />
+                        <span>Pratinjau Kartu Bounty (Live Sync)</span>
+                      </h3>
+                      <div className="max-w-md">
+                        <BountyCard task={previewTask} userIsApproved={true} />
+                      </div>
+                    </div>
+
+                    {/* Status Kelengkapan Form Sebelum Terbit */}
+                    {!isStep5Complete() ? (
+                      <div className="p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 text-xs space-y-2.5">
+                        <div className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-200">
+                          <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                          <span>Formulir Belum Lengkap</span>
+                        </div>
+                        <p className="text-[11px] text-amber-800 dark:text-amber-300">
+                          Task belum dapat diterbitkan. Mohon lengkapi bagian-bagian berikut terlebih dahulu:
+                        </p>
+                        <div className="flex flex-wrap items-center gap-2 pt-1">
+                          {!isStep1Complete() && (
+                            <button
+                              type="button"
+                              onClick={() => setCurrentStep(1)}
+                              className="px-3 py-1 rounded-lg bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 font-bold text-[11px] hover:bg-amber-200 dark:hover:bg-amber-900 transition-colors flex items-center gap-1"
+                            >
+                              <span>Langkah 1: Informasi Pokok</span>
+                              <ChevronRight className="h-3 w-3" />
+                            </button>
+                          )}
+                          {!isStep2Complete() && (
+                            <button
+                              type="button"
+                              onClick={() => setCurrentStep(2)}
+                              className="px-3 py-1 rounded-lg bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 font-bold text-[11px] hover:bg-amber-200 dark:hover:bg-amber-900 transition-colors flex items-center gap-1"
+                            >
+                              <span>Langkah 2: Kriteria Penerimaan</span>
+                              <ChevronRight className="h-3 w-3" />
+                            </button>
+                          )}
+                          {!isStep3Complete() && (
+                            <button
+                              type="button"
+                              onClick={() => setCurrentStep(3)}
+                              className="px-3 py-1 rounded-lg bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 font-bold text-[11px] hover:bg-amber-200 dark:hover:bg-amber-900 transition-colors flex items-center gap-1"
+                            >
+                              <span>Langkah 3: Mode & Skill</span>
+                              <ChevronRight className="h-3 w-3" />
+                            </button>
+                          )}
+                          {!isStep4Complete() && (
+                            <button
+                              type="button"
+                              onClick={() => setCurrentStep(4)}
+                              className="px-3 py-1 rounded-lg bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 font-bold text-[11px] hover:bg-amber-200 dark:hover:bg-amber-900 transition-colors flex items-center gap-1"
+                            >
+                              <span>Langkah 4: Bounty & Waktu</span>
+                              <ChevronRight className="h-3 w-3" />
+                            </button>
+                          )}
                         </div>
                       </div>
                     ) : (
-                      <div className="pt-2">
-                        <label className="block text-xs font-semibold text-sakode-text-muted mb-1">
-                          Tentukan Batas Tanggal & Waktu (WIB):
-                        </label>
-                        <input
-                          type="datetime-local"
-                          value={fixedDeadline}
-                          onChange={(e) => setFixedDeadline(e.target.value)}
-                          className="w-full px-3 py-2 text-xs rounded-lg border border-sakode-border font-mono"
-                        />
+                      <div className="p-4 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/40 text-xs flex items-center gap-2.5 text-emerald-900 dark:text-emerald-200">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        <span className="font-semibold">Seluruh tahapan formulir telah terisi lengkap. Task siap diterbitkan!</span>
                       </div>
                     )}
+
+                    {/* Collapsible Terms */}
+                    <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden bg-slate-50/50 dark:bg-slate-950/30">
+                      <button
+                        type="button"
+                        onClick={() => setIsTermsExpanded(!isTermsExpanded)}
+                        className="w-full p-4 text-left flex items-center justify-between gap-3 hover:bg-slate-100/50 dark:hover:bg-slate-800/40 transition-colors"
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <Shield className="h-4 w-4 text-sky-500" />
+                          <div>
+                            <span className="text-xs font-bold text-slate-900 dark:text-white">
+                              Syarat & Ketentuan Task (Snapshot v1)
+                            </span>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                              {isTermsExpanded ? 'Tutup rincian klausa' : 'Klik untuk melihat atau mengubah klausa syarat baku'}
+                            </p>
+                          </div>
+                        </div>
+                        {isTermsExpanded ? <ChevronUp className="h-4 w-4 text-slate-400" /> : <ChevronDown className="h-4 w-4 text-slate-400" />}
+                      </button>
+
+                      {isTermsExpanded && (
+                        <div className="p-4 pt-0 border-t border-slate-200/60 dark:border-slate-800">
+                          <textarea
+                            rows={5}
+                            value={termsContent}
+                            onChange={(e) => setTermsContent(e.target.value)}
+                            className="w-full mt-2 p-3 text-xs font-mono rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 leading-relaxed"
+                          />
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-
-              {/* Section 5: Terms & Conditions Snapshot */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Shield className="h-4 w-4 text-sky-600" />
-                    <span>5. Syarat & Ketentuan Task (Terms Snapshot)</span>
-                  </CardTitle>
-                  <CardDescription className="text-xs">
-                    Teks syarat ini akan dibekukan (snapshot version 1) saat task dibuat dan wajib disetujui pendaftar.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <textarea
-                    rows={6}
-                    value={termsContent}
-                    onChange={(e) => setTermsContent(e.target.value)}
-                    className="w-full px-3 py-2 text-xs font-mono rounded-lg border border-sakode-border focus:outline-none focus:ring-1 focus:ring-sakode-cyan leading-relaxed"
-                  />
-                  {validationErrors.termsContent && (
-                    <p className="text-[11px] text-rose-600 font-semibold mt-1">{validationErrors.termsContent}</p>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Right 5 cols: Sticky Live Preview */}
-            <div className="lg:col-span-5 sticky top-20 space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-bold text-sakode-text-muted uppercase tracking-wider flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5 text-sakode-cyan" />
-                  <span>Pratinjau Kartu Bounty (Real-Time)</span>
-                </h3>
-                <span className="text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-semibold border border-emerald-200">
-                  Live Sync
-                </span>
+                )}
               </div>
 
-              {/* Bounty Card Preview */}
-              <BountyCard task={previewTask} userIsApproved={true} />
+              {/* Footer Navigation Bar (Persis seperti wireframe: Tombol Kembali di kiri & Lanjut/Submit di kanan) */}
+              <div className="p-4 sm:p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex items-center justify-between gap-4 mt-auto">
+                <button
+                  type="button"
+                  disabled={currentStep === 1}
+                  onClick={handlePrevStep}
+                  className={`h-11 px-5 rounded-xl border border-slate-200 dark:border-slate-700 font-bold text-xs flex items-center gap-2 transition-all ${
+                    currentStep === 1
+                      ? 'opacity-30 cursor-not-allowed bg-transparent text-slate-400'
+                      : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-xs active:scale-[0.98]'
+                  }`}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  <span>Sebelumnya</span>
+                </button>
 
-              <div className="p-4 rounded-lg bg-white border border-sakode-border space-y-2 text-xs text-sakode-text-muted">
-                <div className="font-bold text-sakode-text flex items-center gap-1.5">
-                  <Shield className="h-4 w-4 text-sakode-cyan" />
-                  <span>Jaminan Invariant SAKODE</span>
-                </div>
-                <ul className="list-disc pl-4 space-y-1 text-[11px] leading-relaxed">
-                  <li>Reward tersimpan sebagai integer Rupiah (bebas floating point bug).</li>
-                  <li>Batas waktu dihitung di server saat task diambil/dimulai (Zero-Cron).</li>
-                  <li>Instant Take diisolasi dalam transaksi atomik Firestore.</li>
-                  <li>Snapshot syarat dan ketentuan terkunci secara permanen.</li>
-                </ul>
+                {currentStep < STEPS.length ? (
+                  <button
+                    type="button"
+                    onClick={handleNextStep}
+                    className="h-11 px-6 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-cyan-500 dark:hover:bg-cyan-400 text-white font-bold text-xs shadow-md shadow-slate-900/10 active:scale-[0.98] transition-all flex items-center gap-2"
+                  >
+                    <span>Lanjut: {STEPS[currentStep].title}</span>
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-2.5">
+                    <button
+                      type="button"
+                      disabled={isSubmitting}
+                      onClick={() => handleSubmit('DRAFT')}
+                      className="h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center gap-1.5"
+                    >
+                      {isSubmitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                      <span>Simpan Draf</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={isSubmitting || !isStep5Complete()}
+                      onClick={() => handleSubmit('OPEN')}
+                      className={`h-11 px-6 rounded-xl font-bold text-xs shadow-md active:scale-[0.98] transition-all flex items-center gap-2 ${
+                        !isStep5Complete()
+                          ? 'bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-500 cursor-not-allowed opacity-60 shadow-none'
+                          : 'bg-gradient-to-r from-cyan-500 to-sky-600 hover:from-cyan-400 hover:to-sky-500 text-white shadow-cyan-500/20'
+                      }`}
+                      title={!isStep5Complete() ? 'Lengkapi semua langkah formulir terlebih dahulu' : 'Terbitkan Task Sekarang'}
+                    >
+                      {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4 fill-current" />}
+                      <span>Terbitkan Task Sekarang</span>
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>

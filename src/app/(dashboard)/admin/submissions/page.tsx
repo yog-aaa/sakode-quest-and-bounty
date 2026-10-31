@@ -108,7 +108,7 @@ export default function AdminSubmissionsQueuePage() {
 
   return (
     <AuthGuard requireAdmin>
-      <div className="min-h-screen bg-sakode-bg py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#070A10] text-slate-900 dark:text-slate-100 py-6 px-4 sm:px-6 lg:px-8 transition-colors">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-5">
@@ -134,7 +134,7 @@ export default function AdminSubmissionsQueuePage() {
             <div className="flex items-center gap-2">
               <Link href="/admin/tasks">
                 <Button variant="outline" size="sm" className="text-xs font-bold gap-1.5 h-10 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200">
-                  <Layers className="h-4 w-4 text-cyan-500" />
+                  <Layers className="h-4 w-4 text-sky-500" />
                   <span>Kelola Task</span>
                 </Button>
               </Link>
@@ -150,7 +150,7 @@ export default function AdminSubmissionsQueuePage() {
           )}
 
           {/* Filter Bar & Tabs */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white dark:bg-slate-900/80 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white dark:bg-slate-900/80 p-2.5 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-2xs">
             <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
               {[
                 { id: 'PENDING', label: 'Antrean Aktif' },
@@ -163,10 +163,10 @@ export default function AdminSubmissionsQueuePage() {
                 <button
                   key={tab.id}
                   onClick={() => setFilterTab(tab.id as typeof filterTab)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     filterTab === tab.id
-                      ? 'bg-sakode-text text-white shadow-xs'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xs'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-750'
                   }`}
                 >
                   {tab.label}
@@ -181,7 +181,7 @@ export default function AdminSubmissionsQueuePage() {
                 placeholder="Cari task, pengirim, atau catatan..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-sakode-border focus:outline-none focus:ring-1 focus:ring-sakode-cyan"
+                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500"
               />
             </div>
           </div>
@@ -189,15 +189,15 @@ export default function AdminSubmissionsQueuePage() {
           {/* Submissions List */}
           {isLoading ? (
             <div className="py-24 text-center">
-              <Loader2 className="h-8 w-8 animate-spin mx-auto text-sakode-cyan" />
-              <p className="text-xs text-sakode-text-muted mt-2 font-medium">Memuat antrean evaluasi...</p>
+              <Loader2 className="h-8 w-8 animate-spin mx-auto text-sky-500" />
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">Memuat antrean evaluasi...</p>
             </div>
           ) : filteredSubmissions.length === 0 ? (
-            <Card className="py-16 text-center border-dashed">
+            <Card className="py-16 text-center border-dashed border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/40 rounded-2xl">
               <CardContent className="space-y-3">
-                <ClipboardCheck className="h-10 w-10 text-slate-300 mx-auto" />
-                <h3 className="text-base font-bold text-sakode-text">Tidak ada submission ditemukan</h3>
-                <p className="text-xs text-sakode-text-muted max-w-sm mx-auto">
+                <ClipboardCheck className="h-10 w-10 text-slate-300 dark:text-slate-600 mx-auto" />
+                <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">Tidak ada submission ditemukan</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
                   {searchQuery
                     ? `Tidak ada hasil yang sesuai dengan kata kunci "${searchQuery}".`
                     : filterTab === 'PENDING'
@@ -225,12 +225,12 @@ export default function AdminSubmissionsQueuePage() {
                   <Card
                     key={sub.id}
                     hoverable
-                    className={`p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all ${
+                    className={`p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all rounded-2xl ${
                       isLockedByOther
-                        ? 'border-amber-300 bg-amber-50/20'
+                        ? 'border-amber-300 dark:border-amber-700 bg-amber-50/20 dark:bg-amber-950/20'
                         : isLockedBySelf
-                        ? 'border-emerald-300 bg-emerald-50/20 ring-1 ring-emerald-300'
-                        : 'border-sakode-border bg-white'
+                        ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50/20 dark:bg-emerald-950/20 ring-1 ring-emerald-300'
+                        : 'border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80 shadow-2xs'
                     }`}
                   >
                     <div className="space-y-2 flex-1">

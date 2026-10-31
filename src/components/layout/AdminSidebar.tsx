@@ -124,10 +124,22 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
   // Helper untuk menentukan apakah link rute sedang aktif
   const isItemActive = (href: string) => {
-    if (href === '/admin') {
-      return pathname === '/admin';
+    if (pathname === href) {
+      return true;
     }
-    return pathname.startsWith(href);
+    if (href === '/admin') {
+      return false;
+    }
+    // Jika rutenya sub-path (misal: /admin/submissions/[id]), tapi bukan menu lain yang punya link sendiri di navigasi
+    if (pathname.startsWith(href + '/')) {
+      const isMoreSpecificMenu = navSections.some((section) =>
+        section.items.some(
+          (item) => item.href !== href && (pathname === item.href || pathname.startsWith(item.href + '/'))
+        )
+      );
+      return !isMoreSpecificMenu;
+    }
+    return false;
   };
 
   // Konten navigasi untuk Desktop dan Mobile Drawer
