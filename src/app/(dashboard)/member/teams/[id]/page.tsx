@@ -249,20 +249,20 @@ function TeamDetailPageContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-sakode-bg py-20 text-center">
-        <Loader2 className="h-8 w-8 animate-spin mx-auto text-sakode-purple" />
-        <p className="text-xs text-sakode-text-muted mt-2 font-medium">Memuat ruang tim...</p>
+      <div className="min-h-screen bg-slate-50 dark:bg-[#070A10] py-20 text-center">
+        <Loader2 className="h-8 w-8 animate-spin mx-auto text-purple-500" />
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">Memuat ruang tim...</p>
       </div>
     );
   }
 
   if (!team) {
     return (
-      <div className="min-h-screen bg-sakode-bg py-16 px-4">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#070A10] py-16 px-4">
         <div className="max-w-xl mx-auto text-center space-y-4">
-          <Users className="h-12 w-12 text-slate-300 mx-auto" />
-          <h2 className="text-xl font-bold text-sakode-text">Tim Tidak Ditemukan</h2>
-          <p className="text-xs text-sakode-text-muted">
+          <Users className="h-12 w-12 text-slate-300 dark:text-slate-600 mx-auto" />
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">Tim Tidak Ditemukan</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             {errorMsg || 'Data tim yang Anda tuju mungkin tidak ada atau telah dibubarkan.'}
           </p>
           <Link href="/member/tasks">
@@ -281,13 +281,13 @@ function TeamDetailPageContent() {
 
   return (
     <AuthGuard requireApproved>
-      <div className="min-h-screen bg-sakode-bg py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#070A10] py-8 px-4 sm:px-6 lg:px-8 text-slate-900 dark:text-slate-100 transition-colors">
         <div className="max-w-5xl mx-auto space-y-6">
           {/* Back Navigation */}
           <div className="flex items-center justify-between">
             <Link
               href={team.taskId ? `/member/tasks/${team.taskId}` : '/member/tasks'}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-sakode-text-muted hover:text-sakode-text transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
               <span>Kembali ke Detail Task</span>

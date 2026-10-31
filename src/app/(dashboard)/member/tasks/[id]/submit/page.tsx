@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/Badge';
 import { StatusPill } from '@/components/ui/StatusPill';
 import { CountdownTimer } from '@/components/ui/CountdownTimer';
 import { FileUploadDropzone } from '@/components/submission/FileUploadDropzone';
-import { formatCurrencyIDR, formatDateWIB } from '@/lib/utils';
+import { formatCurrencyIDR, formatDateWIB, toDateSafe } from '@/lib/utils';
 import { getTaskDetailAction } from '@/server/actions/task.actions';
 import { getTeamDetailAction } from '@/server/actions/team.actions';
 import { submitTaskWorkAction } from '@/server/actions/submission.actions';
@@ -194,18 +194,18 @@ function TaskSubmitInner() {
 
   if (isLoading) {
     return (
-      <div className="py-24 text-center">
-        <Loader2 className="h-8 w-8 animate-spin mx-auto text-sakode-cyan" />
-        <p className="text-xs text-sakode-text-muted mt-2 font-medium">Memuat data task...</p>
+      <div className="py-24 text-center min-h-screen bg-slate-50 dark:bg-[#070A10]">
+        <Loader2 className="h-8 w-8 animate-spin mx-auto text-sky-500" />
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">Memuat data task...</p>
       </div>
     );
   }
 
   if (!task) {
     return (
-      <div className="max-w-2xl mx-auto py-12 px-4 text-center">
+      <div className="max-w-2xl mx-auto py-12 px-4 text-center min-h-screen bg-slate-50 dark:bg-[#070A10]">
         <AlertCircle className="h-10 w-10 text-rose-500 mx-auto" />
-        <h2 className="text-base font-bold text-sakode-text mt-3">Task Tidak Ditemukan</h2>
+        <h2 className="text-base font-bold text-slate-900 dark:text-white mt-3">Task Tidak Ditemukan</h2>
         <Link href="/member/tasks" className="mt-4 inline-block">
           <Button variant="outline" size="sm">Kembali ke Daftar Task</Button>
         </Link>
@@ -223,21 +223,17 @@ function TaskSubmitInner() {
     task.status === TASK_STATUS.ACTIVE || task.status === TASK_STATUS.REVISION;
 
   // Zero-Cron Expiration Check
-  const deadlineDate = task.deadlineAt
-    ? typeof (task.deadlineAt as { toDate?: () => Date }).toDate === 'function'
-      ? (task.deadlineAt as { toDate: () => Date }).toDate()
-      : new Date(task.deadlineAt as unknown as string)
-    : null;
-  const isExpired = deadlineDate ? new Date() > deadlineDate : false;
+  const deadlineDate = toDateSafe(task.deadlineAt);
+  const isExpired = deadlineDate ? Date.now() > deadlineDate.getTime() : false;
 
   return (
-    <div className="min-h-screen bg-sakode-bg py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#070A10] py-8 px-4 sm:px-6 lg:px-8 text-slate-900 dark:text-slate-100 transition-colors">
       <div className="max-w-3xl mx-auto space-y-6">
         {/* Navigation Breadcrumb */}
         <div className="flex items-center justify-between">
           <Link
             href={`/member/tasks/${task.id}`}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-sakode-text-muted hover:text-sakode-text transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             <span>Kembali ke Detail Task</span>
