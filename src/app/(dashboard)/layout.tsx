@@ -1,5 +1,6 @@
 import React, { Suspense } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
+import { MobileNav } from '@/components/layout/MobileNav';
 import { PushPermissionBanner } from '@/components/notification/PushPermissionBanner';
 
 export default function DashboardLayout({
@@ -13,7 +14,10 @@ export default function DashboardLayout({
         <Navbar />
       </Suspense>
       <PushPermissionBanner />
-      <div className="flex-1">{children}</div>
+      <div className="flex-1 pb-16 md:pb-0">{children}</div>
+      <Suspense fallback={null}>
+        <MobileNav />
+      </Suspense>
     </div>
   );
 }

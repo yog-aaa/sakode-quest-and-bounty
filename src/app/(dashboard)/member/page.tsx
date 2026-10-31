@@ -27,6 +27,8 @@ import {
   ArrowRight,
   Loader2,
   X,
+  Clock,
+  Sparkles,
 } from 'lucide-react';
 
 export default function MemberDashboardPage() {
@@ -117,28 +119,28 @@ export default function MemberDashboardPage() {
 
   return (
     <AuthGuard requireApproved>
-      <div className="min-h-screen bg-sakode-bg py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-6 px-4 sm:px-6 lg:px-8 text-slate-900 dark:text-slate-100 transition-colors">
         <div className="max-w-6xl mx-auto space-y-6">
           {/* Welcome Banner */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-sakode-border pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/90 dark:border-slate-800/80 pb-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <Badge variant="success" leftIcon={<ShieldCheck className="h-3 w-3" />}>
                   Member Terverifikasi
                 </Badge>
-                <span className="text-xs text-sakode-text-muted">SAKODE Academy</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">SAKODE Academy</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-black text-sakode-text tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
                 Halo, {user?.displayName || 'Member SAKODE'}!
               </h1>
-              <p className="text-xs sm:text-sm text-sakode-text-muted">
-                Status akun Anda: <strong className="text-emerald-700">APPROVED</strong>. Anda memiliki akses penuh untuk mengambil task dan berkolaborasi dalam tim.
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                Status akun Anda: <strong className="text-emerald-600 dark:text-emerald-400">APPROVED</strong>. Anda memiliki akses penuh untuk mengambil task dan berkolaborasi dalam tim.
               </p>
             </div>
 
             <div className="flex items-center gap-2">
               <Link href="/member/tasks">
-                <Button variant="primary" className="font-bold gap-2 h-11 px-5 shadow-sm">
+                <Button variant="primary" className="font-bold gap-2 h-9 px-4 text-xs shadow-xs cursor-pointer">
                   <Compass className="h-4 w-4" />
                   <span>Jelajahi Task Tersedia</span>
                 </Button>
@@ -148,100 +150,100 @@ export default function MemberDashboardPage() {
 
           {/* Action Notifications */}
           {actionSuccessMsg && (
-            <div className="p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm flex items-center justify-between gap-2">
+            <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-200 text-xs sm:text-sm flex items-center justify-between gap-2 shadow-2xs">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
                 <span>{actionSuccessMsg}</span>
               </div>
-              <button onClick={() => setActionSuccessMsg(null)} className="text-emerald-600 hover:text-emerald-900">
+              <button onClick={() => setActionSuccessMsg(null)} className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 p-1 cursor-pointer">
                 <X className="h-4 w-4" />
               </button>
             </div>
           )}
 
           {actionErrorMsg && (
-            <div className="p-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm flex items-center justify-between gap-2">
+            <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 text-rose-800 dark:text-rose-200 text-xs sm:text-sm flex items-center justify-between gap-2 shadow-2xs">
               <div className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600" />
+                <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
                 <span>{actionErrorMsg}</span>
               </div>
-              <button onClick={() => setActionErrorMsg(null)} className="text-rose-600 hover:text-rose-900">
+              <button onClick={() => setActionErrorMsg(null)} className="text-rose-600 dark:text-rose-400 hover:text-rose-800 p-1 cursor-pointer">
                 <X className="h-4 w-4" />
               </button>
             </div>
           )}
 
           {/* Quick Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Card className="p-4">
-              <div className="text-xs font-semibold text-sakode-text-muted uppercase">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+            <Card className="p-4 bg-white dark:bg-slate-900/80 border-slate-200/90 dark:border-slate-800 shadow-2xs">
+              <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 Task Aktif Saat Ini
               </div>
-              <div className="text-xl sm:text-2xl font-black text-sakode-text mt-1">
-                {activeTask ? '1 Task (Sedang Dikerjakan)' : 'Belum Ada Task Aktif'}
+              <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-1">
+                {activeTask ? '1 Task (Aktif)' : '0 Task Aktif'}
               </div>
-              <span className="text-[11px] text-sakode-text-muted mt-1 block">
+              <span className="text-[11px] text-slate-400 dark:text-slate-500 mt-1 block">
                 Batas Invariant: Maksimal 1 Active Task
               </span>
             </Card>
 
-            <Card className="p-4">
-              <div className="text-xs font-semibold text-sakode-text-muted uppercase">
+            <Card className="p-4 bg-white dark:bg-slate-900/80 border-slate-200/90 dark:border-slate-800 shadow-2xs">
+              <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 Aplikasi Pending
               </div>
-              <div className="text-xl sm:text-2xl font-black text-sakode-text mt-1">
+              <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-1">
                 {pendingAppsCount} / 3 Kuota
               </div>
-              <span className="text-[11px] text-sakode-text-muted mt-1 block">
+              <span className="text-[11px] text-slate-400 dark:text-slate-500 mt-1 block">
                 Batas Invariant: Maksimal 3 pending application
               </span>
             </Card>
 
-            <Card className="p-4 flex flex-col justify-between">
+            <Card className="p-4 bg-white dark:bg-slate-900/80 border-slate-200/90 dark:border-slate-800 shadow-2xs flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-sakode-text-muted uppercase">
+                  <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     Rekening & Klaim
                   </span>
                   <Link href="/member/rewards">
-                    <span className="text-[11px] font-bold text-sakode-cyan hover:underline flex items-center gap-0.5">
+                    <span className="text-[11px] font-bold text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-0.5 cursor-pointer">
                       Buka Dompet <ArrowRight className="h-3 w-3" />
                     </span>
                   </Link>
                 </div>
-                <div className="text-sm font-mono font-bold text-sakode-text mt-1 truncate">
+                <div className="text-sm font-mono font-bold text-slate-900 dark:text-white mt-1 truncate">
                   {user?.paymentAccountMasked || 'Belum terdaftar'}
                 </div>
               </div>
-              <span className="text-[11px] text-emerald-700 font-semibold mt-1 block">
+              <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1 block">
                 Terenkripsi AES-256 • Siap Pencairan
               </span>
             </Card>
           </div>
 
           {/* Tab Navigation */}
-          <div className="flex items-center gap-2 border-b border-sakode-border pb-1">
+          <div className="flex items-center gap-2 border-b border-slate-200/90 dark:border-slate-800/80 pb-1">
             <button
               onClick={() => setActiveTab('overview')}
-              className={`px-4 py-2 text-xs sm:text-sm font-bold border-b-2 transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 text-xs sm:text-sm font-bold border-b-2 transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'overview'
-                  ? 'border-sakode-cyan text-sakode-text'
-                  : 'border-transparent text-sakode-text-muted hover:text-sakode-text'
+                  ? 'border-sky-500 text-sky-600 dark:text-sky-400'
+                  : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              <Zap className="h-4 w-4 text-sakode-cyan" />
+              <Zap className="h-4 w-4" />
               <span>Task Aktif & Profil</span>
             </button>
 
             <button
               onClick={() => setActiveTab('applications')}
-              className={`px-4 py-2 text-xs sm:text-sm font-bold border-b-2 transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 text-xs sm:text-sm font-bold border-b-2 transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'applications'
-                  ? 'border-sakode-purple text-sakode-text'
-                  : 'border-transparent text-sakode-text-muted hover:text-sakode-text'
+                  ? 'border-purple-500 text-purple-600 dark:text-purple-400'
+                  : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              <Send className="h-4 w-4 text-sakode-purple" />
+              <Send className="h-4 w-4" />
               <span>Aplikasi Saya ({applications.length})</span>
             </button>
           </div>
@@ -251,19 +253,19 @@ export default function MemberDashboardPage() {
             <div className="space-y-6">
               {/* DOMINANT HERO ACTIVE TASK CARD */}
               {loadingActiveTask ? (
-                <div className="py-12 text-center bg-white rounded-xl border border-sakode-border">
-                  <Loader2 className="h-7 w-7 animate-spin mx-auto text-sakode-cyan" />
-                  <p className="text-xs text-sakode-text-muted mt-2">Memeriksa status task aktif...</p>
+                <div className="py-12 text-center bg-white dark:bg-slate-900/80 rounded-2xl border border-slate-200/90 dark:border-slate-800">
+                  <Loader2 className="h-7 w-7 animate-spin mx-auto text-sky-500" />
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Memeriksa status task aktif...</p>
                 </div>
               ) : activeTask ? (
-                <Card className="border-2 border-sakode-cyan shadow-lg bg-gradient-to-br from-white via-white to-sky-50/30 overflow-hidden">
-                  <div className="bg-sakode-cyan/15 px-6 py-3 border-b border-sakode-cyan/30 flex flex-wrap items-center justify-between gap-2">
+                <Card className="border-2 border-sky-500/60 dark:border-sky-500/40 shadow-sm bg-white dark:bg-slate-900/90 overflow-hidden rounded-2xl">
+                  <div className="bg-sky-500/10 dark:bg-sky-500/15 px-5 py-3 border-b border-sky-500/20 flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <span className="relative flex h-3 w-3">
+                      <span className="relative flex h-2.5 w-2.5">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                       </span>
-                      <span className="text-xs font-black uppercase tracking-wider text-sakode-text">
+                      <span className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white">
                         Hero Active Task • Sedang Anda Kerjakan
                       </span>
                     </div>
@@ -276,30 +278,30 @@ export default function MemberDashboardPage() {
                     </div>
                   </div>
 
-                  <CardContent className="p-6 space-y-5">
+                  <CardContent className="p-5 sm:p-6 space-y-5">
                     <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                       <div className="space-y-2 flex-1">
-                        <h2 className="text-xl sm:text-2xl font-black text-sakode-text leading-tight">
+                        <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white leading-tight">
                           {activeTask.title}
                         </h2>
-                        <p className="text-xs sm:text-sm text-sakode-text-muted leading-relaxed">
+                        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
                           {activeTask.description}
                         </p>
                       </div>
 
                       {/* Bounty & Deadline Highlight Box */}
-                      <div className="p-4 rounded-xl bg-white border border-sakode-border shadow-xs space-y-2 shrink-0 md:w-72">
+                      <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/90 dark:border-slate-800 shadow-2xs space-y-2 shrink-0 md:w-72">
                         <div>
-                          <span className="text-[10px] font-bold text-sakode-text-muted uppercase tracking-wider">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                             Bounty Reward:
                           </span>
-                          <div className="text-2xl font-black text-sakode-text">
+                          <div className="text-2xl font-black text-slate-900 dark:text-white font-mono">
                             {formatCurrencyIDR(activeTask.totalReward)}
                           </div>
                         </div>
 
-                        <div className="pt-2 border-t border-sakode-border/60">
-                          <span className="text-[10px] font-bold text-sakode-text-muted uppercase tracking-wider block mb-1">
+                        <div className="pt-2 border-t border-slate-200/80 dark:border-slate-800">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
                             Sisa Waktu Pengerjaan:
                           </span>
                           <CountdownTimer deadline={activeTask.deadlineAt} />
@@ -308,18 +310,18 @@ export default function MemberDashboardPage() {
                     </div>
 
                     {/* Acceptance Criteria Checklist */}
-                    <div className="pt-2 border-t border-sakode-border/60">
-                      <h4 className="text-xs font-bold text-sakode-text uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                    <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                      <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                         <span>Kriteria Penerimaan (Acceptance Criteria):</span>
                       </h4>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {activeTask.acceptanceCriteria.map((criterion, idx) => (
                           <div
                             key={idx}
-                            className="flex items-start gap-2 p-2.5 rounded-lg bg-emerald-50/50 border border-emerald-100 text-xs text-slate-800"
+                            className="flex items-start gap-2 p-2.5 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-800/40 text-xs text-slate-800 dark:text-slate-200"
                           >
-                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                             <span>{criterion}</span>
                           </div>
                         ))}
@@ -327,15 +329,15 @@ export default function MemberDashboardPage() {
                     </div>
 
                     {/* Deliverable Hint & Action Buttons */}
-                    <div className="pt-3 border-t border-sakode-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                      <div className="text-xs text-sakode-text-muted">
-                        Panduan Deliverable: <strong className="text-sakode-text">{activeTask.deliverableGuidelines}</strong>
+                    <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="text-xs text-slate-500 dark:text-slate-400">
+                        Panduan Deliverable: <strong className="text-slate-800 dark:text-slate-200">{activeTask.deliverableGuidelines}</strong>
                       </div>
 
                       <div className="flex items-center gap-2">
                         {activeTask.assignedTeamId && (
                           <Link href={`/member/teams/${activeTask.assignedTeamId}`}>
-                            <Button variant="team" size="sm" className="text-xs font-bold h-10 gap-1.5">
+                            <Button variant="team" size="sm" className="text-xs font-bold h-9 gap-1.5 cursor-pointer">
                               <Users className="h-4 w-4" />
                               <span>Ruang Tim</span>
                             </Button>
@@ -343,8 +345,8 @@ export default function MemberDashboardPage() {
                         )}
 
                         <Link href={`/member/tasks/${activeTask.id}`}>
-                          <Button variant="outline" size="sm" className="text-xs font-bold h-10">
-                            Lihat Rincian Lengkap
+                          <Button variant="outline" size="sm" className="text-xs font-semibold h-9 cursor-pointer">
+                            Rincian Task
                           </Button>
                         </Link>
 
@@ -352,7 +354,7 @@ export default function MemberDashboardPage() {
                           <Button
                             variant="primary"
                             size="sm"
-                            className="font-bold text-xs h-10 gap-1.5 px-4 shadow-sm bg-emerald-600 hover:bg-emerald-700 border-emerald-600 text-white"
+                            className="font-bold text-xs h-9 gap-1.5 px-4 shadow-xs bg-emerald-600 hover:bg-emerald-700 border-emerald-600 text-white cursor-pointer"
                           >
                             <FileCheck2 className="h-4 w-4" />
                             <span>Kirim Hasil Pekerjaan</span>
@@ -364,15 +366,17 @@ export default function MemberDashboardPage() {
                 </Card>
               ) : (
                 /* No Active Task Hero Promo */
-                <Card className="p-8 text-center border-dashed bg-white">
+                <Card className="py-12 px-6 text-center border-dashed border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 rounded-2xl shadow-2xs">
                   <div className="max-w-md mx-auto space-y-3">
-                    <Compass className="h-10 w-10 text-sakode-cyan mx-auto" />
-                    <h3 className="text-base font-bold text-sakode-text">Anda Belum Memiliki Task Aktif</h3>
-                    <p className="text-xs text-sakode-text-muted">
+                    <div className="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center mx-auto">
+                      <Compass className="h-6 w-6" />
+                    </div>
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white">Anda Belum Memiliki Task Aktif</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
                       Jelajahi quest yang tersedia, ambil tugas solo secara langsung dengan Instant Take, atau daftar ke task kolaborasi tim untuk memperoleh bounty reward.
                     </p>
                     <Link href="/member/tasks">
-                      <Button variant="primary" size="sm" className="font-bold gap-2 mt-2">
+                      <Button variant="primary" size="sm" className="font-bold gap-2 mt-2 text-xs h-9 cursor-pointer">
                         <span>Buka Papan Bounty</span>
                         <ArrowRight className="h-3.5 w-3.5" />
                       </Button>
@@ -382,14 +386,14 @@ export default function MemberDashboardPage() {
               )}
 
               {/* Profile & Skill Overview */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <User className="h-4 w-4 text-sakode-purple" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card className="bg-white dark:bg-slate-900/80 border-slate-200/90 dark:border-slate-800 shadow-2xs">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-bold flex items-center gap-2 text-slate-900 dark:text-white">
+                      <User className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                       <span>Keahlian & Tag Skill Anda</span>
                     </CardTitle>
-                    <CardDescription className="text-xs">
+                    <CardDescription className="text-xs text-slate-500 dark:text-slate-400">
                       Digunakan untuk merekomendasikan task yang relevan dengan spesialisasi Anda:
                     </CardDescription>
                   </CardHeader>
@@ -402,26 +406,26 @@ export default function MemberDashboardPage() {
                           </Badge>
                         ))
                       ) : (
-                        <span className="text-xs text-sakode-text-muted">Belum ada skill yang dipilih</span>
+                        <span className="text-xs text-slate-400 italic">Belum ada skill yang dipilih</span>
                       )}
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                <Card className="bg-white dark:bg-slate-900/80 border-slate-200/90 dark:border-slate-800 shadow-2xs">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-bold flex items-center gap-2 text-slate-900 dark:text-white">
+                      <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                       <span>Informasi Akun & Kontak</span>
                     </CardTitle>
-                    <CardDescription className="text-xs">
+                    <CardDescription className="text-xs text-slate-500 dark:text-slate-400">
                       Data identitas dan rekening pencairan yang diverifikasi admin:
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-2 pt-0 text-xs">
-                    <div>Email: <strong className="text-sakode-text">{user?.email}</strong></div>
-                    <div>WhatsApp/Telegram: <strong className="text-sakode-text">{user?.contactNumber || '-'}</strong></div>
-                    <div>Rekening: <strong className="font-mono text-sakode-text">{user?.paymentAccountMasked || '-'}</strong></div>
+                  <CardContent className="space-y-2 pt-0 text-xs text-slate-600 dark:text-slate-300">
+                    <div>Email: <strong className="text-slate-900 dark:text-white">{user?.email}</strong></div>
+                    <div>WhatsApp/Telegram: <strong className="text-slate-900 dark:text-white">{user?.contactNumber || '-'}</strong></div>
+                    <div>Rekening: <strong className="font-mono text-slate-900 dark:text-white">{user?.paymentAccountMasked || '-'}</strong></div>
                   </CardContent>
                 </Card>
               </div>
@@ -431,16 +435,16 @@ export default function MemberDashboardPage() {
           {/* TAB 2: APPLICATIONS LIST */}
           {activeTab === 'applications' && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-sakode-border">
+              <div className="flex items-center justify-between bg-white dark:bg-slate-900/80 p-4 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-2xs">
                 <div>
-                  <h3 className="text-sm font-bold text-sakode-text">Daftar Permohonan Task (Applications)</h3>
-                  <p className="text-xs text-sakode-text-muted">
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">Daftar Permohonan Task (Applications)</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Kuota pending: <strong>{pendingAppsCount} / 3</strong> • Pembatalan permohonan pending tidak dikenakan penalti.
                   </p>
                 </div>
 
                 <Link href="/member/tasks">
-                  <Button variant="outline" size="sm" className="text-xs font-bold gap-1">
+                  <Button variant="outline" size="sm" className="text-xs font-semibold gap-1 h-8 cursor-pointer">
                     <Compass className="h-3.5 w-3.5" />
                     <span>Cari Task Lain</span>
                   </Button>
@@ -449,15 +453,15 @@ export default function MemberDashboardPage() {
 
               {loadingApplications ? (
                 <div className="py-16 text-center">
-                  <Loader2 className="h-7 w-7 animate-spin mx-auto text-sakode-cyan" />
-                  <p className="text-xs text-sakode-text-muted mt-2">Memuat daftar aplikasi Anda...</p>
+                  <Loader2 className="h-7 w-7 animate-spin mx-auto text-sky-500" />
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Memuat daftar aplikasi Anda...</p>
                 </div>
               ) : applications.length === 0 ? (
-                <Card className="py-16 text-center border-dashed">
+                <Card className="py-16 text-center border-dashed border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 rounded-2xl">
                   <CardContent className="space-y-3">
-                    <Send className="h-10 w-10 text-slate-300 mx-auto" />
-                    <h4 className="text-sm font-bold text-sakode-text">Belum ada permohonan task</h4>
-                    <p className="text-xs text-sakode-text-muted max-w-sm mx-auto">
+                    <Send className="h-10 w-10 text-slate-300 dark:text-slate-600 mx-auto" />
+                    <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">Belum ada permohonan task</h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
                       Anda belum pernah mengajukan permohonan pada task bertipe Application.
                     </p>
                   </CardContent>
@@ -470,28 +474,31 @@ export default function MemberDashboardPage() {
                     const isWithdrawn = app.status === 'WITHDRAWN';
 
                     return (
-                      <Card key={app.id} className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                      <Card
+                        key={app.id}
+                        className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-start justify-between gap-4 bg-white dark:bg-slate-900/80 border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs"
+                      >
                         <div className="space-y-2 flex-1">
                           <div className="flex items-center gap-2">
                             <StatusPill status={app.status} size="sm" />
-                            <span className="text-xs text-sakode-text-muted font-medium">
-                              Diajukan pada: {formatDateWIB(app.createdAt)}
+                            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                              Diajukan: {formatDateWIB(app.createdAt)}
                             </span>
                           </div>
 
-                          <h3 className="text-base font-bold text-sakode-text">
+                          <h3 className="text-base font-bold text-slate-900 dark:text-white">
                             {app.taskTitle || `Task ID: ${app.taskId.slice(0, 10)}...`}
                           </h3>
 
                           {app.taskReward && (
-                            <div className="text-xs text-sakode-text-muted">
-                              Potensi Bounty: <strong className="text-sakode-text">{formatCurrencyIDR(app.taskReward)}</strong>
+                            <div className="text-xs text-slate-500 dark:text-slate-400">
+                              Potensi Bounty: <strong className="text-slate-900 dark:text-white font-mono">{formatCurrencyIDR(app.taskReward)}</strong>
                             </div>
                           )}
 
                           {/* Message snippet */}
-                          <div className="p-2.5 rounded bg-slate-50 border border-slate-200 text-xs text-slate-700">
-                            <span className="font-semibold text-slate-500 uppercase text-[10px] block mb-0.5">
+                          <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/90 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300">
+                            <span className="font-semibold text-slate-400 uppercase text-[10px] block mb-0.5">
                               Pesan Motivasi Anda:
                             </span>
                             <p className="whitespace-pre-line leading-relaxed">{app.message}</p>
@@ -506,7 +513,7 @@ export default function MemberDashboardPage() {
                               size="sm"
                               disabled={withdrawingAppId === app.id}
                               onClick={() => handleWithdrawApplication(app.id)}
-                              className="font-bold text-xs gap-1.5 h-9 text-rose-700 border-rose-200 hover:bg-rose-50"
+                              className="font-bold text-xs gap-1.5 h-8 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-900 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer"
                             >
                               {withdrawingAppId === app.id ? (
                                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -518,8 +525,8 @@ export default function MemberDashboardPage() {
                           )}
 
                           {isAccepted && (
-                            <div className="px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-bold flex items-center gap-1.5">
-                              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                            <div className="px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold flex items-center gap-1.5">
+                              <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                               <span>Permohonan Diterima</span>
                             </div>
                           )}
@@ -538,38 +545,6 @@ export default function MemberDashboardPage() {
             </div>
           )}
         </div>
-
-        {/* Modal: Submission Notice (Sprint 4 Preview) */}
-        {showSubmissionNotice && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-            <div className="bg-white rounded-xl shadow-2xl border border-sakode-border w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-              <div className="p-5 border-b border-sakode-border bg-sakode-bg flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <FileCheck2 className="h-5 w-5 text-sakode-cyan" />
-                  <h3 className="text-base font-bold text-sakode-text">Pengiriman Hasil Pekerjaan</h3>
-                </div>
-                <button onClick={() => setShowSubmissionNotice(false)} className="text-slate-400 hover:text-slate-700">
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-
-              <div className="p-5 space-y-3 text-xs sm:text-sm text-slate-700 leading-relaxed">
-                <p>
-                  Modul pengiriman hasil pekerjaan (Submission Form, Git Repository URL, Preview Link, dan Review Lock System) akan diaktifkan secara menyeluruh pada <strong>Sprint 4: Submission & Review Core</strong>.
-                </p>
-                <p>
-                  Untuk saat ini, silakan selesaikan seluruh kriteria penerimaan yang ditentukan pada branch repositori Anda sebelum batas waktu berakhir.
-                </p>
-              </div>
-
-              <div className="p-4 border-t border-sakode-border bg-sakode-bg flex justify-end">
-                <Button variant="primary" size="sm" onClick={() => setShowSubmissionNotice(false)} className="font-bold text-xs">
-                  Mengerti
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </AuthGuard>
   );
