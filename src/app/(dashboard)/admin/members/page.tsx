@@ -36,6 +36,19 @@ import {
   Lock,
 } from 'lucide-react';
 
+const REJECT_PRESETS = [
+  'Nomor WhatsApp/kontak tidak dapat dihubungi.',
+  'Nama rekening tidak cocok dengan nama identitas profil.',
+  'Akun terindikasi duplikasi (multi-account).',
+  'Profil keahlian belum memenuhi standar kualifikasi.',
+];
+
+const REVISION_PRESETS = [
+  'Harap cantumkan tautan portofolio GitHub atau website aktif.',
+  'Mohon gunakan nomor WhatsApp aktif untuk koordinasi task.',
+  'Format rekening salah, pastikan nama bank dan nomor rekening valid.',
+];
+
 export default function AdminMembersPage() {
   const { user: currentAdmin } = useAuth();
 
@@ -358,56 +371,78 @@ export default function AdminMembersPage() {
           )}
 
           {/* Filter Bar & Search */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white dark:bg-slate-900/80 p-2 sm:p-2.5 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-2xs">
             {/* Filter Tabs */}
-            <div className="flex items-center p-1 bg-sakode-card rounded-lg border border-sakode-border w-full sm:w-auto overflow-x-auto">
+            <div className="flex items-center gap-1 w-full sm:w-auto overflow-x-auto scrollbar-none">
               {(
                 [
-                  { id: 'PENDING', label: 'Menunggu (PENDING)' },
-                  { id: 'APPROVED', label: 'Disetujui' },
-                  { id: 'REJECTED', label: 'Ditolak' },
-                  { id: 'ALL', label: 'Semua Status' },
+                  { id: 'PENDING', label: 'Menunggu', count: pendingCount },
+                  { id: 'APPROVED', label: 'Disetujui', count: members.filter((m) => m.approvalStatus === 'APPROVED').length },
+                  { id: 'REJECTED', label: 'Ditolak', count: members.filter((m) => m.approvalStatus === 'REJECTED').length },
+                  { id: 'ALL', label: 'Semua Status', count: members.length },
                 ] as const
-              ).map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setFilterStatus(tab.id)}
-                  className={`px-3 py-1.5 text-xs font-bold rounded-md whitespace-nowrap transition-colors cursor-pointer ${
-                    filterStatus === tab.id
-                      ? 'bg-sakode-cyan text-sakode-text shadow-xs font-extrabold'
-                      : 'text-sakode-text-muted hover:text-sakode-text'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
+              ).map((tab) => {
+                const isActive = filterStatus === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setFilterStatus(tab.id)}
+                    className={`px-3 py-1.5 text-xs font-bold rounded-xl whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+                      isActive
+                        ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <span>{tab.label}</span>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                        isActive
+                          ? 'bg-slate-700 dark:bg-slate-200 text-white dark:text-slate-900'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                      }`}
+                    >
+                      {tab.count}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
 
             {/* Search Input */}
-            <div className="w-full sm:w-72">
-              <Input
+            <div className="relative w-full sm:w-72 shrink-0">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+              <input
+                type="text"
                 placeholder="Cari nama, email, kontak..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                leftIcon={<Search className="h-4 w-4" />}
-                className="h-10 text-xs"
+                className="w-full pl-9 pr-8 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500"
               />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs cursor-pointer"
+                >
+                  ✕
+                </button>
+              )}
             </div>
           </div>
 
           {/* Members List */}
           {isLoading ? (
-            <div className="min-h-[30vh] flex flex-col items-center justify-center p-12 text-sakode-text-muted text-xs space-y-2">
-              <RefreshCw className="h-6 w-6 animate-spin text-sakode-cyan" />
+            <div className="min-h-[30vh] flex flex-col items-center justify-center p-12 text-slate-400 text-xs space-y-2">
+              <RefreshCw className="h-6 w-6 animate-spin text-sky-500" />
               <span>Memuat antrean pendaftar...</span>
             </div>
           ) : filteredMembers.length === 0 ? (
-            <Card className="text-center p-12">
-              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+            <Card className="text-center p-12 border-dashed border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/40 rounded-2xl">
+              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400">
                 <Clock className="h-6 w-6" />
               </div>
-              <CardTitle className="text-base text-sakode-text">Tidak Ada Pendaftar</CardTitle>
-              <CardDescription className="text-xs">
+              <CardTitle className="text-base text-slate-800 dark:text-slate-200">Tidak Ada Pendaftar</CardTitle>
+              <CardDescription className="text-xs text-slate-500 dark:text-slate-400">
                 Tidak ada data member yang cocok dengan filter status atau pencarian saat ini.
               </CardDescription>
             </Card>
@@ -420,12 +455,12 @@ export default function AdminMembersPage() {
                 return (
                   <Card
                     key={member.id}
-                    className="flex flex-col justify-between shadow-xs hover:border-sakode-cyan/50 transition-colors"
+                    className="flex flex-col justify-between shadow-2xs hover:shadow-md hover:border-sky-500/40 dark:hover:border-sky-500/40 transition-all rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80"
                   >
                     <CardHeader className="space-y-3 pb-3">
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                          <span className="font-extrabold text-base text-sakode-text">
+                          <span className="font-extrabold text-base text-slate-900 dark:text-white">
                             {member.displayName || 'Nama Belum Diisi'}
                           </span>
                           <Badge variant="outline" className="text-[10px]">
@@ -436,20 +471,20 @@ export default function AdminMembersPage() {
                       </div>
 
                       {/* Contact metadata */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-sakode-text-muted">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-500 dark:text-slate-400">
                         <div className="flex items-center gap-1.5">
-                          <Mail className="h-3.5 w-3.5 text-sakode-cyan shrink-0" />
+                          <Mail className="h-3.5 w-3.5 text-sky-500 shrink-0" />
                           <span className="truncate">{member.email}</span>
                         </div>
                         <div className="flex items-center gap-1.5">
-                          <Phone className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                          <Phone className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                           <span>{member.contactNumber || 'Belum ada kontak'}</span>
                         </div>
                       </div>
 
                       {/* Registered Date in WIB */}
-                      <div className="text-[11px] text-sakode-text-muted">
-                        Mendaftar: <span className="font-semibold text-sakode-text">{formatDateWIB(member.createdAt)}</span>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                        Mendaftar: <span className="font-semibold text-slate-800 dark:text-slate-200">{formatDateWIB(member.createdAt)}</span>
                       </div>
                     </CardHeader>
 
@@ -457,7 +492,7 @@ export default function AdminMembersPage() {
                       {/* Skills Tags */}
                       {member.skills && member.skills.length > 0 && (
                         <div className="space-y-1">
-                          <span className="text-[11px] text-sakode-text-muted font-bold block">
+                          <span className="text-[11px] text-slate-400 dark:text-slate-500 font-bold block">
                             Tag Keahlian:
                           </span>
                           <div className="flex flex-wrap gap-1">
@@ -471,10 +506,10 @@ export default function AdminMembersPage() {
                       )}
 
                       {/* Rekening Info Box */}
-                      <div className="p-3 rounded-lg bg-sakode-bg border border-sakode-border space-y-2 text-xs">
+                      <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/90 dark:border-slate-700/80 space-y-2 text-xs">
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-sakode-text flex items-center gap-1.5">
-                            <Lock className="h-3.5 w-3.5 text-sakode-orange" />
+                          <span className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                            <Lock className="h-3.5 w-3.5 text-amber-500" />
                             <span>Data Rekening Reward:</span>
                           </span>
 
@@ -482,7 +517,7 @@ export default function AdminMembersPage() {
                             type="button"
                             onClick={() => handleToggleRevealPayment(member)}
                             disabled={revealingId === member.id}
-                            className="text-[11px] font-bold text-sakode-cyan hover:underline flex items-center gap-1 cursor-pointer"
+                            className="text-[11px] font-bold text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-1 cursor-pointer"
                           >
                             {isRevealed ? (
                               <>
@@ -499,17 +534,17 @@ export default function AdminMembersPage() {
                         </div>
 
                         {isRevealed && paymentInfo ? (
-                          <div className="p-2.5 rounded bg-white border border-sakode-cyan/50 space-y-1 text-slate-800">
-                            <div className="text-[10px] uppercase font-bold text-emerald-700 flex items-center gap-1">
+                          <div className="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-sky-300 dark:border-sky-700 space-y-1 text-slate-800 dark:text-slate-200">
+                            <div className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                               <ShieldCheck className="h-3 w-3" />
                               <span>Data Terdekripsi (Audit Trail Dicatat)</span>
                             </div>
                             <div>Bank / Dompet: <strong className="font-bold">{paymentInfo.bankName}</strong></div>
-                            <div>No. Rekening: <strong className="font-mono font-bold text-sm text-sakode-text">{paymentInfo.accountNumber}</strong></div>
+                            <div>No. Rekening: <strong className="font-mono font-bold text-sm text-slate-900 dark:text-white">{paymentInfo.accountNumber}</strong></div>
                             <div>Atas Nama: <strong className="font-bold">{paymentInfo.accountHolderName}</strong></div>
                           </div>
                         ) : (
-                          <div className="font-mono text-xs font-semibold text-sakode-text">
+                          <div className="font-mono text-xs font-semibold text-slate-800 dark:text-slate-200">
                             {member.paymentAccountMasked || 'Belum mengisi rekening'}
                           </div>
                         )}
@@ -517,7 +552,7 @@ export default function AdminMembersPage() {
 
                       {/* Rejection / Revision Note if present */}
                       {member.rejectionReason && (
-                        <div className="p-2.5 rounded bg-rose-50 border border-rose-200 text-xs text-rose-800 space-y-0.5">
+                        <div className="p-2.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-xs text-rose-800 dark:text-rose-300 space-y-0.5">
                           <span className="font-bold block">Alasan Penolakan:</span>
                           <p>{member.rejectionReason}</p>
                         </div>
@@ -525,13 +560,13 @@ export default function AdminMembersPage() {
                     </CardContent>
 
                     {/* Action Buttons */}
-                    <div className="p-4 pt-0 border-t border-sakode-border/50 mt-2 flex flex-wrap items-center justify-end gap-2">
+                    <div className="p-4 pt-0 border-t border-slate-100 dark:border-slate-800 mt-2 flex flex-wrap items-center justify-end gap-2">
                       {member.approvalStatus === 'PENDING' && (
                         <>
                           <Button
                             size="sm"
                             variant="outline"
-                            className="text-xs text-slate-700 h-9"
+                            className="text-xs text-slate-700 dark:text-slate-300 h-8.5"
                             onClick={() => openActionDialog(member, 'REVISION')}
                             disabled={actionLoadingId === member.id}
                           >
@@ -541,7 +576,7 @@ export default function AdminMembersPage() {
                           <Button
                             size="sm"
                             variant="danger"
-                            className="text-xs h-9 gap-1"
+                            className="text-xs h-8.5 gap-1"
                             onClick={() => openActionDialog(member, 'REJECT')}
                             disabled={actionLoadingId === member.id}
                           >
@@ -552,7 +587,7 @@ export default function AdminMembersPage() {
                           <Button
                             size="sm"
                             variant="primary"
-                            className="text-xs font-bold h-9 gap-1"
+                            className="text-xs font-bold h-8.5 gap-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white"
                             onClick={() => handleApprove(member)}
                             isLoading={actionLoadingId === member.id}
                           >
@@ -563,8 +598,8 @@ export default function AdminMembersPage() {
                       )}
 
                       {member.approvalStatus === 'APPROVED' && (
-                        <span className="text-xs font-bold text-emerald-700 flex items-center gap-1.5 py-1">
-                          <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                        <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5 py-1">
+                          <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                           <span>Member Terverifikasi Penuh</span>
                         </span>
                       )}
@@ -586,28 +621,66 @@ export default function AdminMembersPage() {
             </div>
           )}
 
-          {/* Modal Input Alasan Tolak / Revisi */}
+          {/* Modal Input Alasan Tolak / Revisi dengan Quick Presets */}
           {dialogState.isOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-              <Card className="max-w-md w-full shadow-xl">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <AlertTriangle className="h-5 w-5 text-sakode-orange" />
-                    <span>
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+              <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+                <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-900/90">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className={`h-5 w-5 ${dialogState.type === 'REJECT' ? 'text-rose-500' : 'text-amber-500'}`} />
+                    <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
                       {dialogState.type === 'REJECT'
                         ? 'Tolak Pendaftaran Member'
                         : 'Minta Perbaikan Data Profil'}
-                    </span>
-                  </CardTitle>
-                  <CardDescription>
-                    Member: <strong>{dialogState.targetUser?.displayName || dialogState.targetUser?.email}</strong>
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
+                    </h3>
+                  </div>
+                  <button
+                    onClick={() =>
+                      setDialogState({ isOpen: false, type: 'REJECT', targetUser: null, reasonText: '' })
+                    }
+                    className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="p-5 space-y-4">
+                  <div className="text-xs text-slate-600 dark:text-slate-400">
+                    Member:{' '}
+                    <strong className="text-slate-900 dark:text-white">
+                      {dialogState.targetUser?.displayName || dialogState.targetUser?.email}
+                    </strong>
+                  </div>
+
+                  {/* Quick Reason Presets */}
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-sakode-text">
+                    <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                      Rekomendasi Cepat (Klik untuk Mengisi):
+                    </label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {(dialogState.type === 'REJECT' ? REJECT_PRESETS : REVISION_PRESETS).map((preset) => (
+                        <button
+                          key={preset}
+                          type="button"
+                          onClick={() =>
+                            setDialogState((prev) => ({
+                              ...prev,
+                              reasonText: prev.reasonText ? `${prev.reasonText}\n${preset}` : preset,
+                              error: undefined,
+                            }))
+                          }
+                          className="px-2.5 py-1 text-[11px] text-left rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-950/60 text-slate-700 dark:text-slate-300 hover:text-sky-700 dark:hover:text-sky-300 border border-slate-200 dark:border-slate-700 hover:border-sky-300 transition-colors cursor-pointer"
+                        >
+                          + {preset}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                       {dialogState.type === 'REJECT'
-                        ? 'Alasan Penolakan (Akan dibaca oleh member)'
+                        ? 'Alasan Penolakan (Akan dikirim ke member)'
                         : 'Catatan Hal yang Perlu Diperbaiki'}
                     </label>
                     <textarea
@@ -616,21 +689,23 @@ export default function AdminMembersPage() {
                       onChange={(e) =>
                         setDialogState((prev) => ({ ...prev, reasonText: e.target.value, error: undefined }))
                       }
-                      placeholder="Contoh: Nomor rekening dan nama buku tabungan tidak cocok..."
-                      className="w-full rounded-lg border border-sakode-border p-3 text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sakode-cyan"
+                      placeholder="Pilih rekomendasi di atas atau ketik catatan spesifik..."
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 p-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-sky-500"
                     />
                     {dialogState.error && (
-                      <p className="text-xs font-semibold text-sakode-orange">{dialogState.error}</p>
+                      <p className="text-xs font-semibold text-rose-600 dark:text-rose-400">{dialogState.error}</p>
                     )}
                   </div>
-                </CardContent>
-                <div className="p-4 pt-0 flex justify-end gap-2 border-t border-sakode-border/50">
+                </div>
+
+                <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2 bg-slate-50/50 dark:bg-slate-900/50">
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
                     onClick={() =>
                       setDialogState({ isOpen: false, type: 'REJECT', targetUser: null, reasonText: '' })
                     }
+                    className="text-xs"
                   >
                     Batal
                   </Button>
@@ -638,11 +713,12 @@ export default function AdminMembersPage() {
                     variant={dialogState.type === 'REJECT' ? 'danger' : 'primary'}
                     size="sm"
                     onClick={handleDialogSubmit}
+                    className="text-xs font-bold"
                   >
                     {dialogState.type === 'REJECT' ? 'Konfirmasi Tolak' : 'Kirim Catatan Revisi'}
                   </Button>
                 </div>
-              </Card>
+              </div>
             </div>
           )}
         </div>
