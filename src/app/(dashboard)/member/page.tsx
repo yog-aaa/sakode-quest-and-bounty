@@ -27,8 +27,11 @@ import {
   ArrowRight,
   Loader2,
   X,
+  Wallet,
   Clock,
   Sparkles,
+  ChevronRight,
+  Lock,
 } from 'lucide-react';
 
 export default function MemberDashboardPage() {
@@ -41,7 +44,6 @@ export default function MemberDashboardPage() {
   const [loadingApplications, setLoadingApplications] = useState(false);
 
   const [activeTab, setActiveTab] = useState<'overview' | 'applications'>('overview');
-  const [showSubmissionNotice, setShowSubmissionNotice] = useState(false);
   const [withdrawingAppId, setWithdrawingAppId] = useState<string | null>(null);
   const [actionSuccessMsg, setActionSuccessMsg] = useState<string | null>(null);
   const [actionErrorMsg, setActionErrorMsg] = useState<string | null>(null);
@@ -119,38 +121,44 @@ export default function MemberDashboardPage() {
 
   return (
     <AuthGuard requireApproved>
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-6 px-4 sm:px-6 lg:px-8 text-slate-900 dark:text-slate-100 transition-colors">
-        <div className="max-w-6xl mx-auto space-y-6">
+      <div className="relative min-h-screen bg-slate-50 dark:bg-[#070A10] py-8 px-4 sm:px-6 lg:px-8 text-slate-900 dark:text-slate-100 transition-colors overflow-hidden">
+        {/* Subtle Ambient Radial Mesh Glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-b from-sky-500/[0.07] via-indigo-500/[0.03] to-transparent pointer-events-none blur-3xl -z-10" />
+
+        <div className="max-w-6xl mx-auto space-y-7">
           {/* Welcome Banner */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/90 dark:border-slate-800/80 pb-4">
-            <div className="space-y-1">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 pb-6 border-b border-slate-200/80 dark:border-slate-800/80">
+            <div className="space-y-1.5">
               <div className="flex items-center gap-2">
-                <Badge variant="success" leftIcon={<ShieldCheck className="h-3 w-3" />}>
-                  Member Terverifikasi
-                </Badge>
-                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">SAKODE Academy</span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/80 shadow-2xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Member Terverifikasi</span>
+                </span>
+                <span className="text-xs text-slate-400 font-medium">SAKODE Academy</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-950 dark:text-white tracking-tight">
                 Halo, {user?.displayName || 'Member SAKODE'}!
               </h1>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                Status akun Anda: <strong className="text-emerald-600 dark:text-emerald-400">APPROVED</strong>. Anda memiliki akses penuh untuk mengambil task dan berkolaborasi dalam tim.
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-xl leading-relaxed">
+                Akun Anda berstatus <strong className="text-emerald-600 dark:text-emerald-400 font-bold">APPROVED</strong>. Anda memiliki akses penuh untuk mengeksekusi task solo instan atau bergabung dalam squad proyek tim.
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <Link href="/member/tasks">
-                <Button variant="primary" className="font-bold gap-2 h-9 px-4 text-xs shadow-xs cursor-pointer">
-                  <Compass className="h-4 w-4" />
+                <button className="group flex items-center gap-2.5 pl-4 pr-2 py-2 rounded-full bg-slate-950 dark:bg-white text-white dark:text-slate-950 text-xs font-bold shadow-xs transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
                   <span>Jelajahi Task Tersedia</span>
-                </Button>
+                  <div className="w-6 h-6 rounded-full bg-white/15 dark:bg-slate-900/15 flex items-center justify-center transition-transform group-hover:translate-x-0.5">
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </div>
+                </button>
               </Link>
             </div>
           </div>
 
           {/* Action Notifications */}
           {actionSuccessMsg && (
-            <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-200 text-xs sm:text-sm flex items-center justify-between gap-2 shadow-2xs">
+            <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-200 text-xs sm:text-sm flex items-center justify-between gap-2 shadow-2xs animate-in fade-in duration-200">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
                 <span>{actionSuccessMsg}</span>
@@ -162,7 +170,7 @@ export default function MemberDashboardPage() {
           )}
 
           {actionErrorMsg && (
-            <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 text-rose-800 dark:text-rose-200 text-xs sm:text-sm flex items-center justify-between gap-2 shadow-2xs">
+            <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 text-rose-800 dark:text-rose-200 text-xs sm:text-sm flex items-center justify-between gap-2 shadow-2xs animate-in fade-in duration-200">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
                 <span>{actionErrorMsg}</span>
@@ -173,79 +181,136 @@ export default function MemberDashboardPage() {
             </div>
           )}
 
-          {/* Quick Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-            <Card className="p-4 bg-white dark:bg-slate-900/80 border-slate-200/90 dark:border-slate-800 shadow-2xs">
-              <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                Task Aktif Saat Ini
-              </div>
-              <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-1">
-                {activeTask ? '1 Task (Aktif)' : '0 Task Aktif'}
-              </div>
-              <span className="text-[11px] text-slate-400 dark:text-slate-500 mt-1 block">
-                Batas Invariant: Maksimal 1 Active Task
-              </span>
-            </Card>
-
-            <Card className="p-4 bg-white dark:bg-slate-900/80 border-slate-200/90 dark:border-slate-800 shadow-2xs">
-              <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                Aplikasi Pending
-              </div>
-              <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-1">
-                {pendingAppsCount} / 3 Kuota
-              </div>
-              <span className="text-[11px] text-slate-400 dark:text-slate-500 mt-1 block">
-                Batas Invariant: Maksimal 3 pending application
-              </span>
-            </Card>
-
-            <Card className="p-4 bg-white dark:bg-slate-900/80 border-slate-200/90 dark:border-slate-800 shadow-2xs flex flex-col justify-between">
-              <div>
+          {/* Quick Stats Grid: Hardware Doppelrand Bento Architecture */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Card 1: Task Aktif */}
+            <div className="p-1 rounded-2xl bg-slate-200/50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800/80 transition-all hover:border-slate-300 dark:hover:border-slate-700 shadow-2xs">
+              <div className="p-4 rounded-[calc(1rem-0.125rem)] bg-white dark:bg-slate-900/90 h-full flex flex-col justify-between space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                    Task Aktif Saat Ini
+                  </span>
+                  <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-200/60 dark:border-amber-800/60">
+                    <Zap className="h-4 w-4" />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-2xl font-black text-slate-950 dark:text-white font-mono">
+                    {activeTask ? '1 Task' : '0 Task'}
+                  </div>
+                  <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 block mt-0.5">
+                    {activeTask ? 'Sedang Anda Kerjakan' : 'Slot Pengerjaan Kosong'}
+                  </span>
+                </div>
+
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+                  <span>Limit Invariant:</span>
+                  <span className="font-semibold text-slate-600 dark:text-slate-300">Maks. 1 Task</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 2: Aplikasi Pending */}
+            <div className="p-1 rounded-2xl bg-slate-200/50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800/80 transition-all hover:border-slate-300 dark:hover:border-slate-700 shadow-2xs">
+              <div className="p-4 rounded-[calc(1rem-0.125rem)] bg-white dark:bg-slate-900/90 h-full flex flex-col justify-between space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                    Aplikasi Pending
+                  </span>
+                  <div className="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center border border-purple-200/60 dark:border-purple-800/60">
+                    <Send className="h-4 w-4" />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-2xl font-black text-slate-950 dark:text-white font-mono">
+                    {pendingAppsCount} <span className="text-base text-slate-400 font-normal">/ 3</span>
+                  </div>
+                  {/* Slot progress dots */}
+                  <div className="flex items-center gap-1.5 mt-1.5">
+                    {[0, 1, 2].map((idx) => (
+                      <div
+                        key={idx}
+                        className={`h-1.5 flex-1 rounded-full transition-colors ${
+                          idx < pendingAppsCount
+                            ? 'bg-purple-500'
+                            : 'bg-slate-100 dark:bg-slate-800'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+                  <span>Status Kuota:</span>
+                  <span className="font-semibold text-slate-600 dark:text-slate-300">
+                    {3 - pendingAppsCount} Slot Tersisa
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 3: Rekening & Dompet */}
+            <div className="p-1 rounded-2xl bg-slate-200/50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800/80 transition-all hover:border-slate-300 dark:hover:border-slate-700 shadow-2xs">
+              <div className="p-4 rounded-[calc(1rem-0.125rem)] bg-white dark:bg-slate-900/90 h-full flex flex-col justify-between space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                     Rekening & Klaim
                   </span>
-                  <Link href="/member/rewards">
-                    <span className="text-[11px] font-bold text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-0.5 cursor-pointer">
-                      Buka Dompet <ArrowRight className="h-3 w-3" />
-                    </span>
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-200/60 dark:border-emerald-800/60">
+                    <Wallet className="h-4 w-4" />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-sm font-mono font-bold text-slate-900 dark:text-white truncate">
+                    {user?.paymentAccountMasked || 'Belum diatur'}
+                  </div>
+                  <div className="flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5">
+                    <Lock className="h-3 w-3" />
+                    <span>Terenkripsi AES-256</span>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px]">
+                  <span className="text-slate-400">Pencairan Dana:</span>
+                  <Link href="/member/rewards" className="font-bold text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-0.5">
+                    <span>Buka Dompet</span>
+                    <ChevronRight className="h-3 w-3" />
                   </Link>
                 </div>
-                <div className="text-sm font-mono font-bold text-slate-900 dark:text-white mt-1 truncate">
-                  {user?.paymentAccountMasked || 'Belum terdaftar'}
-                </div>
               </div>
-              <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1 block">
-                Terenkripsi AES-256 • Siap Pencairan
-              </span>
-            </Card>
+            </div>
           </div>
 
-          {/* Tab Navigation */}
-          <div className="flex items-center gap-2 border-b border-slate-200/90 dark:border-slate-800/80 pb-1">
-            <button
-              onClick={() => setActiveTab('overview')}
-              className={`px-3 py-1.5 text-xs sm:text-sm font-bold border-b-2 transition-all flex items-center gap-1.5 cursor-pointer ${
-                activeTab === 'overview'
-                  ? 'border-sky-500 text-sky-600 dark:text-sky-400'
-                  : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
-              }`}
-            >
-              <Zap className="h-4 w-4" />
-              <span>Task Aktif & Profil</span>
-            </button>
+          {/* Tab Navigation: Floating Segmented Island */}
+          <div className="flex items-center justify-between pt-2">
+            <div className="inline-flex p-1 rounded-full bg-slate-100/90 dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800/80 gap-1">
+              <button
+                onClick={() => setActiveTab('overview')}
+                className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  activeTab === 'overview'
+                    ? 'bg-white dark:bg-slate-800 text-slate-950 dark:text-white shadow-xs'
+                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                <Zap className="h-3.5 w-3.5 text-amber-500" />
+                <span>Task Aktif & Profil</span>
+              </button>
 
-            <button
-              onClick={() => setActiveTab('applications')}
-              className={`px-3 py-1.5 text-xs sm:text-sm font-bold border-b-2 transition-all flex items-center gap-1.5 cursor-pointer ${
-                activeTab === 'applications'
-                  ? 'border-purple-500 text-purple-600 dark:text-purple-400'
-                  : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
-              }`}
-            >
-              <Send className="h-4 w-4" />
-              <span>Aplikasi Saya ({applications.length})</span>
-            </button>
+              <button
+                onClick={() => setActiveTab('applications')}
+                className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  activeTab === 'applications'
+                    ? 'bg-white dark:bg-slate-800 text-slate-950 dark:text-white shadow-xs'
+                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                <Send className="h-3.5 w-3.5 text-purple-500" />
+                <span>Aplikasi Saya ({applications.length})</span>
+              </button>
+            </div>
           </div>
 
           {/* TAB 1: OVERVIEW & ACTIVE TASK HERO */}
@@ -253,141 +318,194 @@ export default function MemberDashboardPage() {
             <div className="space-y-6">
               {/* DOMINANT HERO ACTIVE TASK CARD */}
               {loadingActiveTask ? (
-                <div className="py-12 text-center bg-white dark:bg-slate-900/80 rounded-2xl border border-slate-200/90 dark:border-slate-800">
-                  <Loader2 className="h-7 w-7 animate-spin mx-auto text-sky-500" />
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Memeriksa status task aktif...</p>
+                <div className="py-16 text-center bg-white dark:bg-slate-900/80 rounded-2xl border border-slate-200/90 dark:border-slate-800">
+                  <Loader2 className="h-8 w-8 animate-spin mx-auto text-sky-500" />
+                  <p className="text-xs text-slate-400 mt-2">Memeriksa status task aktif...</p>
                 </div>
               ) : activeTask ? (
-                <Card className="border-2 border-sky-500/60 dark:border-sky-500/40 shadow-sm bg-white dark:bg-slate-900/90 overflow-hidden rounded-2xl">
-                  <div className="bg-sky-500/10 dark:bg-sky-500/15 px-5 py-3 border-b border-sky-500/20 flex flex-wrap items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="relative flex h-2.5 w-2.5">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                      </span>
-                      <span className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white">
-                        Hero Active Task • Sedang Anda Kerjakan
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Badge variant="cyan" leftIcon={<Zap className="h-3 w-3" />}>
-                        {activeTask.assignmentType === 'INSTANT_TAKE' ? 'Instant Take' : 'Application'}
-                      </Badge>
-                      <StatusPill status={activeTask.status} size="sm" />
-                    </div>
-                  </div>
-
-                  <CardContent className="p-5 sm:p-6 space-y-5">
-                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                      <div className="space-y-2 flex-1">
-                        <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white leading-tight">
-                          {activeTask.title}
-                        </h2>
-                        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                          {activeTask.description}
-                        </p>
-                      </div>
-
-                      {/* Bounty & Deadline Highlight Box */}
-                      <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/90 dark:border-slate-800 shadow-2xs space-y-2 shrink-0 md:w-72">
-                        <div>
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                            Bounty Reward:
-                          </span>
-                          <div className="text-2xl font-black text-slate-900 dark:text-white font-mono">
-                            {formatCurrencyIDR(activeTask.totalReward)}
-                          </div>
-                        </div>
-
-                        <div className="pt-2 border-t border-slate-200/80 dark:border-slate-800">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
-                            Sisa Waktu Pengerjaan:
-                          </span>
-                          <CountdownTimer deadline={activeTask.deadlineAt} />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Acceptance Criteria Checklist */}
-                    <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80">
-                      <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                        <span>Kriteria Penerimaan (Acceptance Criteria):</span>
-                      </h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {activeTask.acceptanceCriteria.map((criterion, idx) => (
-                          <div
-                            key={idx}
-                            className="flex items-start gap-2 p-2.5 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-800/40 text-xs text-slate-800 dark:text-slate-200"
-                          >
-                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                            <span>{criterion}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Deliverable Hint & Action Buttons */}
-                    <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                      <div className="text-xs text-slate-500 dark:text-slate-400">
-                        Panduan Deliverable: <strong className="text-slate-800 dark:text-slate-200">{activeTask.deliverableGuidelines}</strong>
+                <div className="p-1 rounded-3xl bg-gradient-to-b from-sky-400/30 to-slate-200/40 dark:from-sky-500/20 dark:to-slate-800/40 border border-sky-400/40 dark:border-sky-500/30 shadow-md">
+                  <div className="rounded-[calc(1.5rem-0.125rem)] bg-white dark:bg-slate-900 overflow-hidden">
+                    {/* Header bar */}
+                    <div className="bg-sky-50/70 dark:bg-sky-950/40 px-6 py-3.5 border-b border-sky-100 dark:border-sky-900/40 flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="relative flex h-2.5 w-2.5">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+                        </span>
+                        <span className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white">
+                          Hero Active Task • Sedang Anda Kerjakan
+                        </span>
                       </div>
 
                       <div className="flex items-center gap-2">
-                        {activeTask.assignedTeamId && (
-                          <Link href={`/member/teams/${activeTask.assignedTeamId}`}>
-                            <Button variant="team" size="sm" className="text-xs font-bold h-9 gap-1.5 cursor-pointer">
-                              <Users className="h-4 w-4" />
-                              <span>Ruang Tim</span>
+                        <Badge variant="cyan" leftIcon={<Zap className="h-3 w-3" />}>
+                          {activeTask.assignmentType === 'INSTANT_TAKE' ? 'Instant Take' : 'Application'}
+                        </Badge>
+                        <StatusPill status={activeTask.status} size="sm" />
+                      </div>
+                    </div>
+
+                    <div className="p-6 sm:p-7 space-y-6">
+                      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
+                        <div className="space-y-2 flex-1">
+                          <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white leading-tight">
+                            {activeTask.title}
+                          </h2>
+                          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                            {activeTask.description}
+                          </p>
+                        </div>
+
+                        {/* Bounty & Deadline Highlight Box */}
+                        <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/90 dark:border-slate-800 shadow-2xs space-y-2.5 shrink-0 md:w-72">
+                          <div>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                              Bounty Reward:
+                            </span>
+                            <div className="text-2xl font-black text-slate-900 dark:text-white font-mono">
+                              {formatCurrencyIDR(activeTask.totalReward)}
+                            </div>
+                          </div>
+
+                          <div className="pt-2 border-t border-slate-200/80 dark:border-slate-800">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                              Sisa Waktu Pengerjaan:
+                            </span>
+                            <CountdownTimer deadline={activeTask.deadlineAt} />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Acceptance Criteria Checklist */}
+                      <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80">
+                        <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                          <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                          <span>Kriteria Penerimaan (Acceptance Criteria):</span>
+                        </h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {activeTask.acceptanceCriteria.map((criterion, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-start gap-2 p-2.5 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-800/40 text-xs text-slate-800 dark:text-slate-200"
+                            >
+                              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                              <span>{criterion}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Deliverable Hint & Action Buttons */}
+                      <div className="pt-4 border-t border-slate-100 dark:border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="text-xs text-slate-500 dark:text-slate-400">
+                          Panduan Deliverable: <strong className="text-slate-800 dark:text-slate-200">{activeTask.deliverableGuidelines}</strong>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          {activeTask.assignedTeamId && (
+                            <Link href={`/member/teams/${activeTask.assignedTeamId}`}>
+                              <Button variant="team" size="sm" className="text-xs font-bold h-9 gap-1.5 cursor-pointer">
+                                <Users className="h-4 w-4" />
+                                <span>Ruang Tim</span>
+                              </Button>
+                            </Link>
+                          )}
+
+                          <Link href={`/member/tasks/${activeTask.id}`}>
+                            <Button variant="outline" size="sm" className="text-xs font-semibold h-9 cursor-pointer">
+                              Rincian Task
                             </Button>
                           </Link>
-                        )}
 
-                        <Link href={`/member/tasks/${activeTask.id}`}>
-                          <Button variant="outline" size="sm" className="text-xs font-semibold h-9 cursor-pointer">
-                            Rincian Task
-                          </Button>
-                        </Link>
+                          <Link href={`/member/tasks/${activeTask.id}/submit`}>
+                            <Button
+                              variant="primary"
+                              size="sm"
+                              className="font-bold text-xs h-9 gap-1.5 px-4 shadow-xs bg-emerald-600 hover:bg-emerald-700 border-emerald-600 text-white cursor-pointer"
+                            >
+                              <FileCheck2 className="h-4 w-4" />
+                              <span>Kirim Hasil Pekerjaan</span>
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* INTERACTIVE QUEST DISCOVERY CARD (Modern High-End Empty State) */
+                <div className="p-1 rounded-3xl bg-slate-200/50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800/80 shadow-xs">
+                  <div className="p-8 sm:p-10 rounded-[calc(1.5rem-0.125rem)] bg-white dark:bg-slate-900/90 text-center relative overflow-hidden">
+                    {/* Background Ethereal Circle */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-sky-500/5 dark:bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
 
-                        <Link href={`/member/tasks/${activeTask.id}/submit`}>
-                          <Button
-                            variant="primary"
-                            size="sm"
-                            className="font-bold text-xs h-9 gap-1.5 px-4 shadow-xs bg-emerald-600 hover:bg-emerald-700 border-emerald-600 text-white cursor-pointer"
-                          >
-                            <FileCheck2 className="h-4 w-4" />
-                            <span>Kirim Hasil Pekerjaan</span>
-                          </Button>
+                    <div className="max-w-lg mx-auto space-y-4 relative z-10">
+                      {/* Radar Icon Container */}
+                      <div className="w-16 h-16 rounded-2xl bg-sky-50 dark:bg-sky-950/60 border border-sky-100 dark:border-sky-800/60 text-sky-600 dark:text-sky-400 flex items-center justify-center mx-auto shadow-xs">
+                        <Compass className="h-8 w-8 animate-pulse" />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <h3 className="text-lg sm:text-xl font-extrabold text-slate-950 dark:text-white tracking-tight">
+                          Siap Menyelesaikan Quest Pertama Anda?
+                        </h3>
+                        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                          Papan tugas SAKODE Work memuat puluhan tantangan IT terkurasi. Ambil task solo instan atau bergabung ke squad proyek bereputasi.
+                        </p>
+                      </div>
+
+                      {/* 3 Value Pillars */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 text-left">
+                        <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 text-xs space-y-1">
+                          <span className="font-bold text-slate-900 dark:text-white flex items-center gap-1">
+                            <Zap className="h-3.5 w-3.5 text-amber-500" />
+                            <span>Instant Take</span>
+                          </span>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                            Langsung kunci task tanpa antrean seleksi.
+                          </p>
+                        </div>
+
+                        <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 text-xs space-y-1">
+                          <span className="font-bold text-slate-900 dark:text-white flex items-center gap-1">
+                            <Users className="h-3.5 w-3.5 text-purple-500" />
+                            <span>Kolaborasi Tim</span>
+                          </span>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                            Kerjakan tantangan arsitektur bersama squad.
+                          </p>
+                        </div>
+
+                        <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 text-xs space-y-1">
+                          <span className="font-bold text-slate-900 dark:text-white flex items-center gap-1">
+                            <Wallet className="h-3.5 w-3.5 text-emerald-500" />
+                            <span>Bounty Terjamin</span>
+                          </span>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                            Pencairan langsung ke rekening terverifikasi.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* CTA Button */}
+                      <div className="pt-2">
+                        <Link href="/member/tasks">
+                          <button className="group inline-flex items-center gap-2 pl-5 pr-2.5 py-2.5 rounded-full bg-slate-950 dark:bg-white text-white dark:text-slate-950 font-bold text-xs shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer">
+                            <span>Buka Papan Bounty & Quest</span>
+                            <div className="w-6 h-6 rounded-full bg-white/20 dark:bg-slate-900/15 flex items-center justify-center transition-transform group-hover:translate-x-0.5">
+                              <ArrowRight className="h-3.5 w-3.5" />
+                            </div>
+                          </button>
                         </Link>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              ) : (
-                /* No Active Task Hero Promo */
-                <Card className="py-12 px-6 text-center border-dashed border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 rounded-2xl shadow-2xs">
-                  <div className="max-w-md mx-auto space-y-3">
-                    <div className="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center mx-auto">
-                      <Compass className="h-6 w-6" />
-                    </div>
-                    <h3 className="text-base font-bold text-slate-900 dark:text-white">Anda Belum Memiliki Task Aktif</h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                      Jelajahi quest yang tersedia, ambil tugas solo secara langsung dengan Instant Take, atau daftar ke task kolaborasi tim untuk memperoleh bounty reward.
-                    </p>
-                    <Link href="/member/tasks">
-                      <Button variant="primary" size="sm" className="font-bold gap-2 mt-2 text-xs h-9 cursor-pointer">
-                        <span>Buka Papan Bounty</span>
-                        <ArrowRight className="h-3.5 w-3.5" />
-                      </Button>
-                    </Link>
                   </div>
-                </Card>
+                </div>
               )}
 
               {/* Profile & Skill Overview */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Card className="bg-white dark:bg-slate-900/80 border-slate-200/90 dark:border-slate-800 shadow-2xs">
+                <Card className="bg-white dark:bg-slate-900/80 border-slate-200/90 dark:border-slate-800 shadow-2xs rounded-2xl">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm font-bold flex items-center gap-2 text-slate-900 dark:text-white">
                       <User className="h-4 w-4 text-purple-600 dark:text-purple-400" />
@@ -401,9 +519,12 @@ export default function MemberDashboardPage() {
                     <div className="flex flex-wrap gap-1.5">
                       {user?.skills && user.skills.length > 0 ? (
                         user.skills.map((skill) => (
-                          <Badge key={skill} variant="purple" className="text-xs">
+                          <span
+                            key={skill}
+                            className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200/60 dark:border-purple-800/60"
+                          >
                             {skill}
-                          </Badge>
+                          </span>
                         ))
                       ) : (
                         <span className="text-xs text-slate-400 italic">Belum ada skill yang dipilih</span>
@@ -412,7 +533,7 @@ export default function MemberDashboardPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-white dark:bg-slate-900/80 border-slate-200/90 dark:border-slate-800 shadow-2xs">
+                <Card className="bg-white dark:bg-slate-900/80 border-slate-200/90 dark:border-slate-800 shadow-2xs rounded-2xl">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm font-bold flex items-center gap-2 text-slate-900 dark:text-white">
                       <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
@@ -423,9 +544,18 @@ export default function MemberDashboardPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-2 pt-0 text-xs text-slate-600 dark:text-slate-300">
-                    <div>Email: <strong className="text-slate-900 dark:text-white">{user?.email}</strong></div>
-                    <div>WhatsApp/Telegram: <strong className="text-slate-900 dark:text-white">{user?.contactNumber || '-'}</strong></div>
-                    <div>Rekening: <strong className="font-mono text-slate-900 dark:text-white">{user?.paymentAccountMasked || '-'}</strong></div>
+                    <div className="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800/60">
+                      <span className="text-slate-400">Email:</span>
+                      <strong className="text-slate-900 dark:text-white font-mono">{user?.email}</strong>
+                    </div>
+                    <div className="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800/60">
+                      <span className="text-slate-400">Kontak:</span>
+                      <strong className="text-slate-900 dark:text-white font-mono">{user?.contactNumber || '-'}</strong>
+                    </div>
+                    <div className="flex justify-between py-1">
+                      <span className="text-slate-400">Rekening:</span>
+                      <strong className="text-slate-900 dark:text-white font-mono">{user?.paymentAccountMasked || '-'}</strong>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
