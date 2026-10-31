@@ -12,6 +12,7 @@ import {
   getEligibleMembersForPromotionAction,
   manageAdminRoleAction,
 } from '@/server/actions/admin-manage.actions';
+import { ViewModeToggle, type ViewMode } from '@/components/ui/ViewModeToggle';
 import type { UserDocument } from '@/types/database';
 import {
   ShieldCheck,
@@ -45,6 +46,13 @@ export default function SuperAdminRolesPage() {
 
   // Search Filter
   const [searchTerm, setSearchTerm] = useState('');
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('sakode_admin_roles_view_mode') as ViewMode | null;
+      if (saved === 'grid' || saved === 'list' || saved === 'table') return saved;
+    }
+    return 'list';
+  });
 
   const loadData = useCallback(async () => {
     if (!user) return;
@@ -278,16 +286,26 @@ export default function SuperAdminRolesPage() {
                 </p>
               </div>
 
-              {/* Search Box */}
-              <div className="relative w-full sm:w-64">
-                <Search className="h-4 w-4 absolute left-3 top-2.5 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="Cari nama / email member..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-purple-500"
-                />
+              {/* Search Box & View Mode Toggle */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 w-full sm:w-auto">
+                <div className="relative w-full sm:w-64">
+                  <Search className="h-4 w-4 absolute left-3 top-2.5 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Cari nama / email member..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                  />
+                </div>
+
+                <div className="shrink-0 self-end sm:self-auto">
+                  <ViewModeToggle
+                    currentMode={viewMode}
+                    onChange={setViewMode}
+                    storageKey="sakode_admin_roles_view_mode"
+                  />
+                </div>
               </div>
             </div>
 
@@ -295,6 +313,111 @@ export default function SuperAdminRolesPage() {
               <p className="text-xs text-slate-400 dark:text-slate-500 italic py-4">
                 Tidak ada anggota terverifikasi yang cocok dengan pencarian.
               </p>
+            ) : viewMode === 'grid' ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {filteredMembers.map((m) => (
+                  <Card
+                    key={m.id}
+                    className="p-4 border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80 rounded-2xl shadow-2xs flex flex-col justify-between space-y-3"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs font-bold text-slate-900 dark:text-white">
+                          {m.displayName || m.email}
+                        </span>
+                        <Badge variant="outline">{m.approvalStatus}</Badge>
+                      </div>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate mt-0.5">
+                        {m.email}
+                      </span>
+                      {m.skills && m.skills.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {m.skills.slice(0, 3).map((s) => (
+                            <span
+                              key={s}
+                              className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-1.5 py-0.2 rounded"
+                            >
+                              {s}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+                      <span className="text-[10px] font-mono text-slate-400 truncate max-w-[120px]">
+                        {m.id.slice(0, 10)}...
+                      </span>
+                      <Button
+                        variant="team"
+                        size="sm"
+                        onClick={() => handleOpenModal(m, 'PROMOTE')}
+                        className="text-xs font-bold gap-1 h-7 cursor-pointer"
+                      >
+                        <UserCheck className="h-3 w-3" />
+                        <span>Angkat Admin</span>
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            ) : viewMode === 'table' ? (
+              <div className="border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900/80 overflow-hidden shadow-2xs">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-slate-50 dark:bg-slate-950/60 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 font-bold uppercase text-[10px] tracking-wider">
+                      <tr>
+                        <th className="p-3.5">Nama & Email</th>
+                        <th className="p-3.5">Skills / Spesialisasi</th>
+                        <th className="p-3.5">Status</th>
+                        <th className="p-3.5 text-right">Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                      {filteredMembers.map((m) => (
+                        <tr key={m.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
+                          <td className="p-3.5 whitespace-nowrap">
+                            <span className="font-bold text-slate-900 dark:text-white block">
+                              {m.displayName || m.email}
+                            </span>
+                            <span className="text-[11px] text-slate-500 font-mono">{m.email}</span>
+                          </td>
+                          <td className="p-3.5">
+                            {m.skills && m.skills.length > 0 ? (
+                              <div className="flex flex-wrap gap-1">
+                                {m.skills.slice(0, 3).map((s) => (
+                                  <span
+                                    key={s}
+                                    className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-1.5 py-0.2 rounded"
+                                  >
+                                    {s}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : (
+                              <span className="text-[11px] text-slate-400 italic">Belum ada skill</span>
+                            )}
+                          </td>
+                          <td className="p-3.5 whitespace-nowrap">
+                            <Badge variant="outline">{m.approvalStatus}</Badge>
+                          </td>
+                          <td className="p-3.5 whitespace-nowrap text-right">
+                            <Button
+                              variant="team"
+                              size="sm"
+                              onClick={() => handleOpenModal(m, 'PROMOTE')}
+                              className="text-xs font-bold gap-1 h-7 cursor-pointer"
+                            >
+                              <UserCheck className="h-3 w-3" />
+                              <span>Promosikan</span>
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             ) : (
               <div className="divide-y divide-slate-100 dark:divide-slate-800/80 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900/80 overflow-hidden shadow-2xs">
                 {filteredMembers.map((m) => (

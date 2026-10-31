@@ -47,6 +47,7 @@ import {
   RotateCcw,
   Tag,
 } from 'lucide-react';
+import { ViewModeToggle, type ViewMode } from '@/components/ui/ViewModeToggle';
 
 type SortOption = 'NEWEST' | 'OLDEST' | 'REWARD_HIGH' | 'REWARD_LOW' | 'DEADLINE';
 type ModeFilterOption = 'ALL' | 'SOLO' | 'TEAM';
@@ -58,6 +59,20 @@ export default function AdminTasksPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  // View Mode: 'list' | 'grid' | 'table'
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('sakode_admin_tasks_view_mode') as ViewMode | null;
+      if (saved && (saved === 'grid' || saved === 'list' || saved === 'table')) {
+        setViewMode(saved);
+      }
+    } catch {
+      // Ignore
+    }
+  }, []);
 
   // Filter & Search State
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
@@ -513,6 +528,13 @@ export default function AdminTasksPage() {
                       <span className="w-1.5 h-1.5 rounded-full bg-sky-500 shrink-0" />
                     )}
                   </button>
+
+                  {/* View Mode Switcher */}
+                  <ViewModeToggle
+                    value={viewMode}
+                    onChange={setViewMode}
+                    storageKey="sakode_admin_tasks_view_mode"
+                  />
                 </div>
               </div>
 
@@ -616,7 +638,186 @@ export default function AdminTasksPage() {
                 </div>
               </CardContent>
             </Card>
-          ) : (
+          ) : viewMode === 'grid' ? (
+            /* =============================================================== */
+            /* VIEW MODE A: CARD BESAR (GRID 2 KOLOM)                          */
+            /* =============================================================== */
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filteredAndSortedTasks.map((task) => {
+                const isSolo = task.mode === TASK_MODES.SOLO;
+                const isInstant = task.assignmentType === TASK_ASSIGNMENT_TYPES.INSTANT_TAKE;
+                const isDraft = task.status === TASK_STATUS.DRAFT;
+                const isApplication = !isInstant;
+                const isCopied = copiedTaskId === task.id;
+
+                let deadlineBadgeText: string | null = null;
+                if (task.durationMinutes) {
+                  const hours = Math.round(task.durationMinutes / 60);
+                  deadlineBadgeText = hours >= 24 ? `${Math.round(hours / 24)} Hari` : `${hours} Jam`;
+                } else if (task.fixedDeadlineAt) {
+                  deadlineBadgeText = formatDateWIB(task.fixedDeadlineAt);
+                } else if (task.deadlineAt) {
+                  deadlineBadgeText = formatDateWIB(task.deadlineAt);
+                }
+
+                return (
+                  <div
+                    key={task.id}
+                    className="p-5 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 hover:border-sky-500/40 dark:hover:border-sky-500/40 shadow-2xs hover:shadow-md transition-all duration-200 flex flex-col justify-between space-y-4"
+                  >
+                    <div className="space-y-3">
+                      {/* Top Badges */}
+                      <div className="flex flex-wrap items-center gap-1.5 justify-between">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span
+                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-bold ${
+                              isSolo
+                                ? 'bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200/60 dark:border-sky-800/60'
+                                : 'bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200/60 dark:border-purple-800/60'
+                            }`}
+                          >
+                            {isSolo ? <User className="h-3 w-3" /> : <Users className="h-3 w-3" />}
+                            <span>{isSolo ? 'Solo' : 'Tim'}</span>
+                          </span>
+
+                          <span
+                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-bold ${
+                              isInstant
+                                ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/60'
+                                : 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800/60'
+                            }`}
+                          >
+                            {isInstant ? <Zap className="h-3 w-3 text-amber-500" /> : <Send className="h-3 w-3 text-indigo-500" />}
+                            <span>{isInstant ? 'Instant Take' : 'Seleksi Pelamar'}</span>
+                          </span>
+
+                          <StatusPill status={task.status} size="sm" />
+                        </div>
+
+                        {deadlineBadgeText && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200/70 dark:border-slate-700/70">
+                            <Clock className="h-3 w-3 text-slate-400" />
+                            <span>{deadlineBadgeText}</span>
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Judul Task */}
+                      <Link href={`/member/tasks/${task.id}`} className="block group">
+                        <h2 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-cyan-400 transition-colors line-clamp-2">
+                          {task.title}
+                        </h2>
+                      </Link>
+
+                      {/* Ringkasan Deskripsi */}
+                      {task.description && (
+                        <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                          {task.description}
+                        </p>
+                      )}
+
+                      {/* Skills Tags */}
+                      {task.requiredSkills && task.requiredSkills.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-1">
+                          {task.requiredSkills.slice(0, 4).map((skill) => (
+                            <button
+                              key={skill}
+                              type="button"
+                              onClick={() => setSearchQuery(skill)}
+                              className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 hover:bg-sky-50 dark:bg-slate-800 dark:hover:bg-sky-950/60 text-slate-600 hover:text-sky-700 dark:text-slate-300 dark:hover:text-sky-300 border border-slate-200/60 dark:border-slate-700/60 transition-colors cursor-pointer"
+                            >
+                              {skill}
+                            </button>
+                          ))}
+                          {task.requiredSkills.length > 4 && (
+                            <span className="text-[10px] font-bold text-slate-400">
+                              +{task.requiredSkills.length - 4}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Bottom: Bounty & Actions */}
+                    <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-3">
+                      <div>
+                        <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 block leading-tight">
+                          Total Bounty
+                        </span>
+                        <span className="text-lg font-black text-slate-900 dark:text-white font-mono">
+                          {formatCurrencyIDR(task.totalReward)}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {isDraft && (
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            disabled={actionInProgress === task.id}
+                            onClick={() => handlePublishTask(task.id)}
+                            className="font-bold text-xs gap-1 h-8 bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
+                          >
+                            <CheckCircle2 className="h-3 w-3" />
+                            <span>Terbitkan</span>
+                          </Button>
+                        )}
+
+                        {isApplication && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleOpenApplicants(task)}
+                            className="font-bold text-xs gap-1 h-8 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800 hover:bg-purple-50 dark:hover:bg-purple-950/40 cursor-pointer"
+                          >
+                            <Users className="h-3 w-3 text-purple-500" />
+                            <span>Pelamar</span>
+                          </Button>
+                        )}
+
+                        {task.mode === TASK_MODES.TEAM && task.assignedTeamId && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleOpenTeamRoster(task)}
+                            className="font-bold text-xs gap-1 h-8 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800 cursor-pointer"
+                          >
+                            <Users className="h-3 w-3" />
+                            <span>Roster</span>
+                          </Button>
+                        )}
+
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          type="button"
+                          onClick={() => handleCopyLink(task.id)}
+                          className="text-xs h-8 px-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+                          title="Salin tautan task"
+                        >
+                          {isCopied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
+                        </Button>
+
+                        <Link href={`/member/tasks/${task.id}`} target="_blank">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-xs h-8 px-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+                            title="Buka pratinjau"
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : viewMode === 'list' ? (
+            /* =============================================================== */
+            /* VIEW MODE B: MEMANJANG (HORIZONTAL LIST)                        */
+            /* =============================================================== */
             <div className="space-y-3">
               {filteredAndSortedTasks.map((task) => {
                 const isSolo = task.mode === TASK_MODES.SOLO;
@@ -625,7 +826,6 @@ export default function AdminTasksPage() {
                 const isApplication = !isInstant;
                 const isCopied = copiedTaskId === task.id;
 
-                // Hitung estimasi durasi / deadline
                 let deadlineBadgeText: string | null = null;
                 if (task.durationMinutes) {
                   const hours = Math.round(task.durationMinutes / 60);
@@ -678,7 +878,7 @@ export default function AdminTasksPage() {
 
                       {/* Judul Task */}
                       <Link href={`/member/tasks/${task.id}`} className="block group">
-                        <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sakode-cyan transition-colors line-clamp-1">
+                        <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-cyan-400 transition-colors line-clamp-1">
                           {task.title}
                         </h2>
                       </Link>
@@ -710,7 +910,7 @@ export default function AdminTasksPage() {
                         )}
                       </div>
 
-                      {/* Skills Tags (Clickable untuk Filter Instan) */}
+                      {/* Skills Tags */}
                       {task.requiredSkills && task.requiredSkills.length > 0 && (
                         <div className="flex flex-wrap items-center gap-1 pt-0.5">
                           <Tag className="h-3 w-3 text-slate-400 shrink-0" />
@@ -749,7 +949,7 @@ export default function AdminTasksPage() {
                             size="sm"
                             disabled={actionInProgress === task.id}
                             onClick={() => handlePublishTask(task.id)}
-                            className="font-bold text-xs gap-1.5 h-8.5 bg-emerald-600 hover:bg-emerald-700 text-white"
+                            className="font-bold text-xs gap-1.5 h-8.5 bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
                           >
                             {actionInProgress === task.id ? (
                               <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -765,7 +965,7 @@ export default function AdminTasksPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => handleOpenApplicants(task)}
-                            className="font-bold text-xs gap-1.5 h-8.5 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800 hover:bg-purple-50 dark:hover:bg-purple-950/40"
+                            className="font-bold text-xs gap-1.5 h-8.5 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800 hover:bg-purple-50 dark:hover:bg-purple-950/40 cursor-pointer"
                           >
                             <Users className="h-3.5 w-3.5 text-purple-500" />
                             <span>Review Pelamar</span>
@@ -777,7 +977,7 @@ export default function AdminTasksPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => handleOpenTeamRoster(task)}
-                            className="font-bold text-xs gap-1.5 h-8.5 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800"
+                            className="font-bold text-xs gap-1.5 h-8.5 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800 cursor-pointer"
                           >
                             <Users className="h-3.5 w-3.5" />
                             <span>Roster Tim</span>
@@ -790,7 +990,7 @@ export default function AdminTasksPage() {
                           size="sm"
                           type="button"
                           onClick={() => handleCopyLink(task.id)}
-                          className="text-xs font-semibold gap-1 h-8.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                          className="text-xs font-semibold gap-1 h-8.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer"
                           title="Salin tautan task publik"
                         >
                           {isCopied ? (
@@ -811,7 +1011,7 @@ export default function AdminTasksPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="text-xs font-semibold gap-1 h-8.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                            className="text-xs font-semibold gap-1 h-8.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer"
                             title="Buka pratinjau halaman publik"
                           >
                             <span>Pratinjau</span>
@@ -823,6 +1023,153 @@ export default function AdminTasksPage() {
                   </div>
                 );
               })}
+            </div>
+          ) : (
+            /* =============================================================== */
+            /* VIEW MODE C: FORMAT TABEL DATA PADAT (TABLE)                    */
+            /* =============================================================== */
+            <div className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80 overflow-hidden shadow-2xs">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead className="bg-slate-50 dark:bg-slate-950/70 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 font-bold uppercase text-[10px] tracking-wider">
+                    <tr>
+                      <th className="p-3.5 pl-4">Task &amp; ID</th>
+                      <th className="p-3.5">Mode &amp; Metode</th>
+                      <th className="p-3.5">Status</th>
+                      <th className="p-3.5">Bounty (IDR)</th>
+                      <th className="p-3.5">Batas Waktu</th>
+                      <th className="p-3.5">Skill Utama</th>
+                      <th className="p-3.5 pr-4 text-right">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                    {filteredAndSortedTasks.map((task) => {
+                      const isSolo = task.mode === TASK_MODES.SOLO;
+                      const isInstant = task.assignmentType === TASK_ASSIGNMENT_TYPES.INSTANT_TAKE;
+                      const isDraft = task.status === TASK_STATUS.DRAFT;
+                      const isApplication = !isInstant;
+                      const isCopied = copiedTaskId === task.id;
+
+                      let deadlineBadgeText: string | null = null;
+                      if (task.durationMinutes) {
+                        const hours = Math.round(task.durationMinutes / 60);
+                        deadlineBadgeText = hours >= 24 ? `${Math.round(hours / 24)} Hari` : `${hours} Jam`;
+                      } else if (task.fixedDeadlineAt) {
+                        deadlineBadgeText = formatDateWIB(task.fixedDeadlineAt);
+                      } else if (task.deadlineAt) {
+                        deadlineBadgeText = formatDateWIB(task.deadlineAt);
+                      }
+
+                      return (
+                        <tr key={task.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
+                          <td className="p-3.5 pl-4 max-w-xs">
+                            <Link
+                              href={`/member/tasks/${task.id}`}
+                              className="font-bold text-slate-900 dark:text-white hover:text-sky-600 dark:hover:text-cyan-400 line-clamp-1 block"
+                            >
+                              {task.title}
+                            </Link>
+                            <span className="text-[10px] font-mono text-slate-400 block truncate">
+                              #{task.id}
+                            </span>
+                          </td>
+                          <td className="p-3.5 whitespace-nowrap">
+                            <div className="flex items-center gap-1">
+                              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                                {isSolo ? 'Solo' : 'Tim'}
+                              </span>
+                              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                                {isInstant ? 'Instant' : 'Kurasi'}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="p-3.5 whitespace-nowrap">
+                            <StatusPill status={task.status} size="sm" />
+                          </td>
+                          <td className="p-3.5 whitespace-nowrap font-mono font-bold text-slate-900 dark:text-white">
+                            {formatCurrencyIDR(task.totalReward)}
+                          </td>
+                          <td className="p-3.5 whitespace-nowrap text-[11px] text-slate-500 dark:text-slate-400">
+                            {deadlineBadgeText || '-'}
+                          </td>
+                          <td className="p-3.5 max-w-[160px]">
+                            {task.requiredSkills && task.requiredSkills.length > 0 ? (
+                              <div className="flex flex-wrap gap-1">
+                                {task.requiredSkills.slice(0, 2).map((s) => (
+                                  <Badge key={s} variant="outline" className="text-[9px] py-0 px-1">
+                                    {s}
+                                  </Badge>
+                                ))}
+                                {task.requiredSkills.length > 2 && (
+                                  <span className="text-[10px] text-slate-400">
+                                    +{task.requiredSkills.length - 2}
+                                  </span>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-slate-400 italic text-[11px]">-</span>
+                            )}
+                          </td>
+                          <td className="p-3.5 pr-4 text-right whitespace-nowrap">
+                            <div className="inline-flex items-center gap-1">
+                              {isDraft && (
+                                <Button
+                                  variant="primary"
+                                  size="sm"
+                                  disabled={actionInProgress === task.id}
+                                  onClick={() => handlePublishTask(task.id)}
+                                  className="font-bold text-[11px] h-7 px-2 bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
+                                >
+                                  Terbitkan
+                                </Button>
+                              )}
+                              {isApplication && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleOpenApplicants(task)}
+                                  className="font-bold text-[11px] h-7 px-2 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800 hover:bg-purple-50 dark:hover:bg-purple-950/40 cursor-pointer"
+                                >
+                                  Pelamar
+                                </Button>
+                              )}
+                              {task.mode === TASK_MODES.TEAM && task.assignedTeamId && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleOpenTeamRoster(task)}
+                                  className="font-bold text-[11px] h-7 px-2 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800 cursor-pointer"
+                                >
+                                  Roster
+                                </Button>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleCopyLink(task.id)}
+                                className="h-7 px-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
+                                title="Salin tautan"
+                              >
+                                {isCopied ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
+                              </Button>
+                              <Link href={`/member/tasks/${task.id}`} target="_blank">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-7 px-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
+                                  title="Pratinjau"
+                                >
+                                  <ExternalLink className="h-3 w-3" />
+                                </Button>
+                              </Link>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </div>

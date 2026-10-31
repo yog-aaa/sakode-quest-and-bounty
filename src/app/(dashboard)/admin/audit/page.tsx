@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { formatDateWIB } from '@/lib/utils';
 import { getAuditEventsAction } from '@/server/actions/admin-manage.actions';
+import { ViewModeToggle, type ViewMode } from '@/components/ui/ViewModeToggle';
 import type { AuditEventDocument } from '@/types/database';
 import {
   FileText,
@@ -27,6 +28,13 @@ export default function AdminAuditTrailPage() {
   const { user } = useAuth();
 
   const [events, setEvents] = useState<AuditEventDocument[]>([]);
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('sakode_admin_audit_view_mode') as ViewMode | null;
+      if (saved === 'grid' || saved === 'list' || saved === 'table') return saved;
+    }
+    return 'table';
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -182,19 +190,29 @@ export default function AdminAuditTrailPage() {
               </select>
             </div>
 
-            <div className="relative w-full sm:w-72 shrink-0">
-              <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Cari aktor, entitas, atau alasan..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500"
-              />
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 w-full sm:w-auto">
+              <div className="relative w-full sm:w-72 shrink-0">
+                <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Cari aktor, entitas, atau alasan..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                />
+              </div>
+
+              <div className="shrink-0 self-end sm:self-auto">
+                <ViewModeToggle
+                  currentMode={viewMode}
+                  onChange={setViewMode}
+                  storageKey="sakode_admin_audit_view_mode"
+                />
+              </div>
             </div>
           </div>
 
-          {/* Audit Logs Table */}
+          {/* Audit Logs Content */}
           {isLoading ? (
             <div className="py-20 text-center">
               <Loader2 className="h-8 w-8 animate-spin mx-auto text-sky-500" />
@@ -208,6 +226,138 @@ export default function AdminAuditTrailPage() {
                 Belum ada aktivitas mutasi yang tercatat untuk filter ini.
               </p>
             </Card>
+          ) : viewMode === 'grid' ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filteredEvents.map((ev) => {
+                const hasSnapshot = Boolean(ev.beforeSnapshot || ev.afterSnapshot);
+                return (
+                  <Card
+                    key={ev.id}
+                    className="p-5 border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80 space-y-3 rounded-2xl shadow-2xs flex flex-col justify-between"
+                  >
+                    <div className="space-y-2.5">
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <span
+                          className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
+                            ev.action.includes('PENALTY') || ev.action.includes('DEMOTED')
+                              ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-900/60'
+                              : ev.action.includes('PROMOTED') || ev.action.includes('RESOLVED')
+                              ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/60'
+                              : ev.action.includes('CLAIM')
+                              ? 'bg-cyan-50 dark:bg-cyan-950/40 text-cyan-800 dark:text-cyan-300 border-cyan-200 dark:border-cyan-900/60'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                          }`}
+                        >
+                          {ev.action}
+                        </span>
+                        <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500">
+                          {formatDateWIB(ev.timestamp)}
+                        </span>
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-slate-900 dark:text-slate-100 text-sm">
+                            {ev.actorName || ev.actorId}
+                          </span>
+                          <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">
+                            Role: {ev.actorRole}
+                          </span>
+                        </div>
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
+                          Target: <strong className="text-slate-700 dark:text-slate-300">{ev.entityType}</strong> ({ev.entityId.slice(0, 16)}...)
+                        </div>
+                      </div>
+
+                      <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 text-xs text-slate-600 dark:text-slate-400 line-clamp-2">
+                        {ev.reason || 'Tidak ada catatan tambahan.'}
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-[10px] text-slate-400 font-mono">ID: {ev.id.slice(0, 10)}</span>
+                      {hasSnapshot ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setActiveSnapshotEvent(ev)}
+                          className="text-[11px] font-bold h-7 px-2.5 gap-1.5"
+                        >
+                          <Eye className="h-3 w-3 text-sky-500" />
+                          <span>Lihat Snapshot Diff</span>
+                        </Button>
+                      ) : (
+                        <span className="text-[10px] text-slate-400 italic">No snapshot</span>
+                      )}
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          ) : viewMode === 'list' ? (
+            <div className="space-y-3">
+              {filteredEvents.map((ev) => {
+                const hasSnapshot = Boolean(ev.beforeSnapshot || ev.afterSnapshot);
+                return (
+                  <Card
+                    key={ev.id}
+                    className="p-4 border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80 rounded-2xl shadow-2xs hover:border-slate-300 dark:hover:border-slate-700 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                  >
+                    <div className="space-y-1.5 flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                            ev.action.includes('PENALTY') || ev.action.includes('DEMOTED')
+                              ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-900/60'
+                              : ev.action.includes('PROMOTED') || ev.action.includes('RESOLVED')
+                              ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/60'
+                              : ev.action.includes('CLAIM')
+                              ? 'bg-cyan-50 dark:bg-cyan-950/40 text-cyan-800 dark:text-cyan-300 border-cyan-200 dark:border-cyan-900/60'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                          }`}
+                        >
+                          {ev.action}
+                        </span>
+                        <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                          {ev.actorName || ev.actorId}
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-mono">({ev.actorRole})</span>
+                        <span className="text-slate-400">•</span>
+                        <span className="text-[11px] font-mono text-slate-400">
+                          {formatDateWIB(ev.timestamp)}
+                        </span>
+                      </div>
+
+                      <div className="text-xs text-slate-600 dark:text-slate-400">
+                        Target: <span className="font-bold text-slate-800 dark:text-slate-200">{ev.entityType}</span>{' '}
+                        <span className="font-mono text-[11px] text-slate-400">({ev.entityId})</span>
+                        {ev.reason && (
+                          <span className="block text-slate-500 dark:text-slate-400 mt-0.5 text-[11px] truncate">
+                            Catatan: {ev.reason}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="shrink-0 text-right">
+                      {hasSnapshot ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setActiveSnapshotEvent(ev)}
+                          className="text-xs font-bold gap-1.5"
+                        >
+                          <Eye className="h-3.5 w-3.5 text-sky-500" />
+                          <span>Lihat Diff</span>
+                        </Button>
+                      ) : (
+                        <span className="text-[11px] text-slate-400 italic">Tanpa Snapshot</span>
+                      )}
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
           ) : (
             <div className="border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900/80 overflow-hidden shadow-xs">
               <div className="overflow-x-auto">

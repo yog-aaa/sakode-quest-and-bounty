@@ -120,8 +120,9 @@ export default function AdminMembersPage() {
       return;
     }
     const adminUid = currentAdmin.id;
+    setIsLoading(true);
 
-    getUsersListAction(adminUid, filterStatus).then((res) => {
+    getUsersListAction(adminUid, 'ALL').then((res) => {
       if (ignore) return;
       if (res.success && res.users) {
         setMembers(res.users);
@@ -177,11 +178,7 @@ export default function AdminMembersPage() {
           },
         ];
 
-        setMembers(
-          filterStatus === 'ALL'
-            ? mockList
-            : mockList.filter((m) => m.approvalStatus === filterStatus)
-        );
+        setMembers(mockList);
       }
       setIsLoading(false);
     });
@@ -189,7 +186,7 @@ export default function AdminMembersPage() {
     return () => {
       ignore = true;
     };
-  }, [currentAdmin, filterStatus, refreshTrigger]);
+  }, [currentAdmin, refreshTrigger]);
 
   // Aksi Menyetujui Member
   const handleApprove = async (member: UserDocument) => {
@@ -315,16 +312,26 @@ export default function AdminMembersPage() {
     }
   };
 
-  // Filter pencarian
+  // Filter pencarian & status tab
   const filteredMembers = members.filter((m) => {
+    // 1. Filter Status Tab
+    if (filterStatus !== 'ALL' && m.approvalStatus !== filterStatus) {
+      return false;
+    }
+
+    // 2. Filter Search Query
+    if (!searchQuery.trim()) return true;
     const query = searchQuery.toLowerCase();
-    const nameMatch = m.displayName?.toLowerCase().includes(query);
+    const nameMatch = m.displayName?.toLowerCase().includes(query) || false;
     const emailMatch = m.email.toLowerCase().includes(query);
-    const phoneMatch = m.contactNumber?.toLowerCase().includes(query);
-    return nameMatch || emailMatch || phoneMatch;
+    const phoneMatch = m.contactNumber?.toLowerCase().includes(query) || false;
+    const skillsMatch = m.skills?.some((s) => s.toLowerCase().includes(query)) || false;
+    return nameMatch || emailMatch || phoneMatch || skillsMatch;
   });
 
   const pendingCount = members.filter((m) => m.approvalStatus === 'PENDING').length;
+  const approvedCount = members.filter((m) => m.approvalStatus === 'APPROVED').length;
+  const rejectedCount = members.filter((m) => m.approvalStatus === 'REJECTED').length;
 
   return (
     <AuthGuard requireAdmin>
@@ -406,8 +413,8 @@ export default function AdminMembersPage() {
               {(
                 [
                   { id: 'PENDING', label: 'Menunggu', count: pendingCount },
-                  { id: 'APPROVED', label: 'Disetujui', count: members.filter((m) => m.approvalStatus === 'APPROVED').length },
-                  { id: 'REJECTED', label: 'Ditolak', count: members.filter((m) => m.approvalStatus === 'REJECTED').length },
+                  { id: 'APPROVED', label: 'Disetujui', count: approvedCount },
+                  { id: 'REJECTED', label: 'Ditolak', count: rejectedCount },
                   { id: 'ALL', label: 'Semua Status', count: members.length },
                 ] as const
               ).map((tab) => {

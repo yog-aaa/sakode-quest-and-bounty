@@ -12,6 +12,7 @@ import {
   adminProcessClaimAction,
 } from '@/server/actions/claim.actions';
 import { TransferProofUploader } from '@/components/claim/TransferProofUploader';
+import { ViewModeToggle, type ViewMode } from '@/components/ui/ViewModeToggle';
 import type { ClaimDocument } from '@/types/database';
 import type { ClaimStatus } from '@/lib/constants';
 import {
@@ -36,6 +37,13 @@ export default function AdminClaimsPage() {
 
   const [claims, setClaims] = useState<ClaimDocument[]>([]);
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('sakode_admin_claims_view_mode') as ViewMode | null;
+      if (saved === 'grid' || saved === 'list' || saved === 'table') return saved;
+    }
+    return 'list';
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -280,27 +288,37 @@ export default function AdminClaimsPage() {
             </Card>
           </div>
 
-          {/* Status Filter Tabs */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-slate-200 dark:border-slate-800">
-            {[
-              { id: 'ALL', label: 'Semua Status' },
-              { id: 'CLAIMED', label: 'Menunggu Verifikasi' },
-              { id: 'PROCESSING', label: 'Sedang Diproses' },
-              { id: 'PAID', label: 'Sudah Ditransfer' },
-              { id: 'CONFIRMED', label: 'Selesai & Dikonfirmasi' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setFilterStatus(tab.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
-                  filterStatus === tab.id
-                    ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xs'
-                    : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+          {/* Status Filter Tabs & View Mode */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-200 dark:border-slate-800">
+            <div className="flex items-center gap-1.5 overflow-x-auto">
+              {[
+                { id: 'ALL', label: 'Semua Status' },
+                { id: 'CLAIMED', label: 'Menunggu Verifikasi' },
+                { id: 'PROCESSING', label: 'Sedang Diproses' },
+                { id: 'PAID', label: 'Sudah Ditransfer' },
+                { id: 'CONFIRMED', label: 'Selesai & Dikonfirmasi' },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setFilterStatus(tab.id)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
+                    filterStatus === tab.id
+                      ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xs'
+                      : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="shrink-0 flex items-center gap-2">
+              <ViewModeToggle
+                currentMode={viewMode}
+                onChange={setViewMode}
+                storageKey="sakode_admin_claims_view_mode"
+              />
+            </div>
           </div>
 
           {/* Claims List */}
@@ -314,6 +332,326 @@ export default function AdminClaimsPage() {
                 Tidak ada permohonan pencairan dana yang cocok dengan filter yang dipilih.
               </p>
             </Card>
+          ) : viewMode === 'grid' ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {claims.map((claim) => {
+                const isUnmasked = unmaskedClaimIds.includes(claim.id);
+                const accountNumber = claim.bankAccountSnapshot?.accountNumber || '';
+                const displayAccountNum = isUnmasked
+                  ? accountNumber
+                  : accountNumber.length > 4
+                  ? `${'•'.repeat(accountNumber.length - 4)}${accountNumber.slice(-4)}`
+                  : accountNumber;
+
+                return (
+                  <Card key={claim.id} className="p-5 border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80 space-y-4 rounded-2xl shadow-2xs flex flex-col justify-between">
+                    <div>
+                      {/* Top Row */}
+                      <div className="flex items-start justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                        <div>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="text-xs font-mono font-bold text-slate-400 dark:text-slate-500">
+                              #{claim.id.slice(0, 8)}
+                            </span>
+                            <span className="text-xs text-slate-300 dark:text-slate-600">•</span>
+                            <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                              {claim.userDisplayName || claim.userId}
+                            </span>
+                          </div>
+                          <span className="text-[11px] text-slate-400 dark:text-slate-500">{claim.userEmail}</span>
+                        </div>
+
+                        <div>
+                          {claim.status === 'CLAIMED' && (
+                            <span className="text-[10px] font-bold text-amber-800 bg-amber-50 dark:bg-amber-950/60 dark:text-amber-300 px-2.5 py-1 rounded-full border border-amber-200 dark:border-amber-800 flex items-center gap-1">
+                              <Clock className="h-3 w-3 text-amber-600 dark:text-amber-400" />
+                              <span>Menunggu Transfer</span>
+                            </span>
+                          )}
+                          {claim.status === 'PROCESSING' && (
+                            <span className="text-[10px] font-bold text-blue-800 bg-blue-50 dark:bg-blue-950/60 dark:text-blue-300 px-2.5 py-1 rounded-full border border-blue-200 dark:border-blue-800 flex items-center gap-1">
+                              <RefreshCw className="h-3 w-3 text-blue-600 dark:text-blue-400 animate-spin" />
+                              <span>Sedang Diproses</span>
+                            </span>
+                          )}
+                          {claim.status === 'PAID' && (
+                            <span className="text-[10px] font-bold text-cyan-900 bg-cyan-50 dark:bg-cyan-950/60 dark:text-cyan-300 px-2.5 py-1 rounded-full border border-cyan-200 dark:border-cyan-800 flex items-center gap-1">
+                              <CheckCircle2 className="h-3 w-3 text-sakode-cyan" />
+                              <span>Telah Ditransfer</span>
+                            </span>
+                          )}
+                          {claim.status === 'CONFIRMED' && (
+                            <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-300 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800 flex items-center gap-1">
+                              <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                              <span>Pencairan Selesai</span>
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Amount */}
+                      <div className="py-2.5 flex items-baseline justify-between">
+                        <div>
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 block font-medium">Total Pencairan</span>
+                          <span className="text-xl font-black text-slate-900 dark:text-white font-mono">
+                            {formatCurrencyIDR(claim.totalAmount)}
+                          </span>
+                        </div>
+                        <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono">
+                          {claim.rewardLedgerIds?.length || 1} task ledger
+                        </span>
+                      </div>
+
+                      {/* Snapshot Rekening */}
+                      <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 space-y-1.5 text-xs">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5 text-slate-800 dark:text-slate-200 font-bold">
+                            <Building className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400" />
+                            <span>{claim.bankAccountSnapshot?.bankName}</span>
+                          </div>
+                          <span className="text-[11px] text-slate-700 dark:text-slate-300">
+                            a.n. <strong className="text-slate-900 dark:text-white">{claim.bankAccountSnapshot?.accountHolderName}</strong>
+                          </span>
+                        </div>
+
+                        <div className="flex items-center justify-between pt-1 border-t border-slate-200/50 dark:border-slate-700/50">
+                          <div className="flex items-center gap-1.5">
+                            <CreditCard className="h-3.5 w-3.5 text-slate-400" />
+                            <span className="font-mono font-bold text-slate-900 dark:text-white text-xs">
+                              {displayAccountNum}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => toggleUnmaskAccount(claim.id)}
+                              className="p-0.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded transition-colors cursor-pointer"
+                              title={isUnmasked ? 'Sembunyikan Nomor' : 'Buka Nomor Rekening Lengkap'}
+                            >
+                              {isUnmasked ? (
+                                <EyeOff className="h-3 w-3" />
+                              ) : (
+                                <Eye className="h-3 w-3" />
+                              )}
+                            </button>
+                          </div>
+                          <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">
+                            {claim.idempotencyKey.slice(0, 16)}...
+                          </span>
+                        </div>
+                      </div>
+
+                      {claim.adminNotes && (
+                        <p className="text-[11px] text-slate-600 dark:text-slate-400 italic mt-2">
+                          Catatan: {claim.adminNotes}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        {claim.transferProofUrl && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setActiveProofUrl(claim.transferProofUrl)}
+                            className="text-xs font-bold gap-1 text-slate-700 dark:text-slate-200"
+                          >
+                            <FileText className="h-3.5 w-3.5 text-sakode-cyan" />
+                            <span>Bukti</span>
+                          </Button>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        {claim.status === 'CLAIMED' && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={actionLoadingId === claim.id}
+                            onClick={() => handleMarkProcessing(claim.id)}
+                            className="text-xs font-bold"
+                          >
+                            {actionLoadingId === claim.id ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <RefreshCw className="h-3.5 w-3.5" />
+                            )}
+                            <span>Proses</span>
+                          </Button>
+                        )}
+
+                        {(claim.status === 'CLAIMED' || claim.status === 'PROCESSING') && (
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={() => handleOpenPaymentModal(claim)}
+                            className="font-bold text-xs gap-1.5 shadow-sm"
+                          >
+                            <Send className="h-3.5 w-3.5" />
+                            <span>Kirim Pembayaran</span>
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          ) : viewMode === 'table' ? (
+            <div className="border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900/90 overflow-hidden shadow-2xs">
+              <div className="overflow-x-auto">
+                <table className="table-auto w-full text-left text-xs">
+                  <thead className="bg-slate-50 dark:bg-slate-950/60 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 font-bold uppercase text-[10px] tracking-wider">
+                    <tr>
+                      <th className="p-3.5">ID & Pemohon</th>
+                      <th className="p-3.5">Rekening Snapshot</th>
+                      <th className="p-3.5">Total Bounty</th>
+                      <th className="p-3.5">Status</th>
+                      <th className="p-3.5">Idempotency</th>
+                      <th className="p-3.5 text-right">Aksi Cepat</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                    {claims.map((claim) => {
+                      const isUnmasked = unmaskedClaimIds.includes(claim.id);
+                      const accountNumber = claim.bankAccountSnapshot?.accountNumber || '';
+                      const displayAccountNum = isUnmasked
+                        ? accountNumber
+                        : accountNumber.length > 4
+                        ? `${'•'.repeat(accountNumber.length - 4)}${accountNumber.slice(-4)}`
+                        : accountNumber;
+
+                      return (
+                        <tr key={claim.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
+                          <td className="p-3.5 whitespace-nowrap">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-mono font-bold text-slate-400 dark:text-slate-500">
+                                #{claim.id.slice(0, 8)}
+                              </span>
+                              <div>
+                                <span className="font-bold text-slate-900 dark:text-slate-100 block">
+                                  {claim.userDisplayName || claim.userId}
+                                </span>
+                                <span className="text-[10px] text-slate-400 dark:text-slate-500">
+                                  {claim.userEmail}
+                                </span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="p-3.5 whitespace-nowrap">
+                            <div className="text-xs">
+                              <div className="flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-200">
+                                <Building className="h-3 w-3 text-slate-400" />
+                                <span>{claim.bankAccountSnapshot?.bankName}</span>
+                              </div>
+                              <div className="flex items-center gap-1.5 mt-0.5">
+                                <CreditCard className="h-3 w-3 text-slate-400" />
+                                <span className="font-mono font-bold text-slate-900 dark:text-white text-[11px]">
+                                  {displayAccountNum}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => toggleUnmaskAccount(claim.id)}
+                                  className="p-0.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded cursor-pointer"
+                                  title={isUnmasked ? 'Sembunyikan Nomor' : 'Buka Nomor Rekening Lengkap'}
+                                >
+                                  {isUnmasked ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                                </button>
+                                <span className="text-slate-400">•</span>
+                                <span className="text-[11px] text-slate-600 dark:text-slate-400">
+                                  {claim.bankAccountSnapshot?.accountHolderName}
+                                </span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="p-3.5 whitespace-nowrap">
+                            <span className="font-black text-slate-900 dark:text-white font-mono text-sm block">
+                              {formatCurrencyIDR(claim.totalAmount)}
+                            </span>
+                            <span className="text-[10px] text-slate-400">
+                              {claim.rewardLedgerIds?.length || 1} task
+                            </span>
+                          </td>
+                          <td className="p-3.5 whitespace-nowrap">
+                            {claim.status === 'CLAIMED' && (
+                              <span className="text-[10px] font-bold text-amber-800 bg-amber-50 dark:bg-amber-950/60 dark:text-amber-300 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800 inline-flex items-center gap-1">
+                                <Clock className="h-3 w-3 text-amber-600 dark:text-amber-400" />
+                                <span>Menunggu Transfer</span>
+                              </span>
+                            )}
+                            {claim.status === 'PROCESSING' && (
+                              <span className="text-[10px] font-bold text-blue-800 bg-blue-50 dark:bg-blue-950/60 dark:text-blue-300 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800 inline-flex items-center gap-1">
+                                <RefreshCw className="h-3 w-3 text-blue-600 dark:text-blue-400 animate-spin" />
+                                <span>Diproses</span>
+                              </span>
+                            )}
+                            {claim.status === 'PAID' && (
+                              <span className="text-[10px] font-bold text-cyan-900 bg-cyan-50 dark:bg-cyan-950/60 dark:text-cyan-300 px-2 py-0.5 rounded-full border border-cyan-200 dark:border-cyan-800 inline-flex items-center gap-1">
+                                <CheckCircle2 className="h-3 w-3 text-sakode-cyan" />
+                                <span>Ditransfer</span>
+                              </span>
+                            )}
+                            {claim.status === 'CONFIRMED' && (
+                              <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800 inline-flex items-center gap-1">
+                                <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                                <span>Selesai</span>
+                              </span>
+                            )}
+                          </td>
+                          <td className="p-3.5 whitespace-nowrap text-[10px] font-mono text-slate-400 dark:text-slate-500">
+                            {claim.idempotencyKey.slice(0, 14)}...
+                          </td>
+                          <td className="p-3.5 whitespace-nowrap text-right">
+                            <div className="inline-flex items-center gap-1.5 justify-end">
+                              {claim.transferProofUrl && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setActiveProofUrl(claim.transferProofUrl)}
+                                  className="text-xs font-bold gap-1 text-slate-700 dark:text-slate-200"
+                                >
+                                  <FileText className="h-3 w-3 text-sakode-cyan" />
+                                  <span>Bukti</span>
+                                </Button>
+                              )}
+
+                              {claim.status === 'CLAIMED' && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  disabled={actionLoadingId === claim.id}
+                                  onClick={() => handleMarkProcessing(claim.id)}
+                                  className="text-xs font-bold"
+                                >
+                                  {actionLoadingId === claim.id ? (
+                                    <Loader2 className="h-3 w-3 animate-spin" />
+                                  ) : (
+                                    <RefreshCw className="h-3 w-3" />
+                                  )}
+                                  <span>Proses</span>
+                                </Button>
+                              )}
+
+                              {(claim.status === 'CLAIMED' || claim.status === 'PROCESSING') && (
+                                <Button
+                                  variant="primary"
+                                  size="sm"
+                                  onClick={() => handleOpenPaymentModal(claim)}
+                                  className="font-bold text-xs gap-1 shadow-xs"
+                                >
+                                  <Send className="h-3 w-3" />
+                                  <span>Bayar</span>
+                                </Button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           ) : (
             <div className="space-y-4">
               {claims.map((claim) => {
@@ -352,25 +690,25 @@ export default function AdminClaimsPage() {
 
                       <div>
                         {claim.status === 'CLAIMED' && (
-                          <span className="text-xs font-bold text-amber-800 bg-amber-50 px-3 py-1 rounded-full border border-amber-200 flex items-center gap-1.5">
-                            <Clock className="h-3.5 w-3.5 text-amber-600" />
+                          <span className="text-xs font-bold text-amber-800 bg-amber-50 dark:bg-amber-950/60 dark:text-amber-300 px-3 py-1 rounded-full border border-amber-200 dark:border-amber-800 flex items-center gap-1.5">
+                            <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
                             <span>Menunggu Transfer</span>
                           </span>
                         )}
                         {claim.status === 'PROCESSING' && (
-                          <span className="text-xs font-bold text-blue-800 bg-blue-50 px-3 py-1 rounded-full border border-blue-200 flex items-center gap-1.5">
-                            <RefreshCw className="h-3.5 w-3.5 text-blue-600 animate-spin" />
+                          <span className="text-xs font-bold text-blue-800 bg-blue-50 dark:bg-blue-950/60 dark:text-blue-300 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-800 flex items-center gap-1.5">
+                            <RefreshCw className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 animate-spin" />
                             <span>Sedang Diproses</span>
                           </span>
                         )}
                         {claim.status === 'PAID' && (
-                          <span className="text-xs font-bold text-cyan-900 bg-cyan-50 px-3 py-1 rounded-full border border-cyan-200 flex items-center gap-1.5">
+                          <span className="text-xs font-bold text-cyan-900 bg-cyan-50 dark:bg-cyan-950/60 dark:text-cyan-300 px-3 py-1 rounded-full border border-cyan-200 dark:border-cyan-800 flex items-center gap-1.5">
                             <CheckCircle2 className="h-3.5 w-3.5 text-sakode-cyan" />
                             <span>Telah Ditransfer</span>
                           </span>
                         )}
                         {claim.status === 'CONFIRMED' && (
-                          <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 flex items-center gap-1.5">
+                          <span className="text-xs font-bold text-emerald-800 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-300 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5">
                             <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
                             <span>Pencairan Selesai</span>
                           </span>
@@ -431,7 +769,7 @@ export default function AdminClaimsPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => setActiveProofUrl(claim.transferProofUrl)}
-                            className="text-xs font-bold gap-1 text-slate-700"
+                            className="text-xs font-bold gap-1 text-slate-700 dark:text-slate-200"
                           >
                             <FileText className="h-3.5 w-3.5 text-sakode-cyan" />
                             <span>Lihat Bukti Transfer</span>
