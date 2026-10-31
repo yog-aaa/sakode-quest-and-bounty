@@ -131,14 +131,14 @@ export default function AdminReportsPage() {
           )}
 
           {/* Anti-Conflict Notice */}
-          <div className="p-4 rounded-xl bg-purple-50/70 border border-purple-200 text-purple-950 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+          <div className="p-4 rounded-2xl bg-purple-50/70 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/70 text-purple-950 dark:text-purple-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
             <div className="flex items-center gap-2.5">
-              <ShieldAlert className="h-5 w-5 text-sakode-purple shrink-0" />
+              <ShieldAlert className="h-5 w-5 text-purple-600 dark:text-purple-400 shrink-0" />
               <div>
-                <strong className="block text-sakode-text font-bold">
-                  Protokol Anti-Konflik Kepentingan & Eskalasi Otomatis
+                <strong className="block text-slate-900 dark:text-white font-bold">
+                  Protokol Anti-Konflik Kepentingan &amp; Eskalasi Otomatis
                 </strong>
-                <span className="text-slate-600 text-[11px] leading-relaxed">
+                <span className="text-slate-600 dark:text-slate-400 text-[11px] leading-relaxed">
                   {user?.isSuperAdmin
                     ? 'Sebagai Super Admin, Anda memiliki hak penuh untuk meninjau dan menyelesaikan seluruh laporan termasuk yang melibatkan staf Admin.'
                     : 'Laporan yang melibatkan diri Anda disaring secara otomatis dari antrean Anda dan dialihkan ke Super Admin.'}
@@ -157,60 +157,60 @@ export default function AdminReportsPage() {
 
           {/* 3 Metric Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Card className="p-5 border-l-4 border-l-amber-500 bg-white">
+            <Card className="p-5 border-l-4 border-l-amber-500 rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/90 shadow-2xs">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-sakode-text-muted uppercase tracking-wider">
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   Menunggu Investigasi
                 </span>
-                <div className="h-8 w-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
+                <div className="h-8 w-8 rounded-lg bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 flex items-center justify-center">
                   <Clock className="h-4 w-4" />
                 </div>
               </div>
               <div className="mt-2">
-                <div className="text-2xl font-black text-amber-950">{pendingCount}</div>
-                <span className="text-[11px] text-slate-500 font-medium">
+                <div className="text-2xl font-black text-amber-800 dark:text-amber-300 font-mono">{pendingCount}</div>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                   Perlu ditinjau bukti dan kronologinya
                 </span>
               </div>
             </Card>
 
-            <Card className="p-5 border-l-4 border-l-sakode-purple bg-white">
+            <Card className="p-5 border-l-4 border-l-purple-500 rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/90 shadow-2xs">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-sakode-text-muted uppercase tracking-wider">
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   Eskalasi Super Admin
                 </span>
-                <div className="h-8 w-8 rounded-lg bg-purple-100 text-purple-800 flex items-center justify-center">
+                <div className="h-8 w-8 rounded-lg bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 flex items-center justify-center">
                   <ShieldAlert className="h-4 w-4" />
                 </div>
               </div>
               <div className="mt-2">
-                <div className="text-2xl font-black text-purple-950">{escalatedCount}</div>
-                <span className="text-[11px] text-slate-500 font-medium">
+                <div className="text-2xl font-black text-purple-800 dark:text-purple-300 font-mono">{escalatedCount}</div>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                   Kasus sengketa mencatut staf Admin
                 </span>
               </div>
             </Card>
 
-            <Card className="p-5 border-l-4 border-l-emerald-500 bg-white">
+            <Card className="p-5 border-l-4 border-l-emerald-500 rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/90 shadow-2xs">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-sakode-text-muted uppercase tracking-wider">
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   Telah Diselesaikan
                 </span>
-                <div className="h-8 w-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                <div className="h-8 w-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 flex items-center justify-center">
                   <CheckCircle2 className="h-4 w-4" />
                 </div>
               </div>
               <div className="mt-2">
-                <div className="text-2xl font-black text-emerald-950">{resolvedCount}</div>
-                <span className="text-[11px] text-slate-500 font-medium">
-                  Sanksi & resolusi resmi diberlakukan
+                <div className="text-2xl font-black text-emerald-800 dark:text-emerald-300 font-mono">{resolvedCount}</div>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                  Sanksi &amp; resolusi resmi diberlakukan
                 </span>
               </div>
             </Card>
           </div>
 
           {/* Status Filter Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-sakode-border">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-slate-200 dark:border-slate-800">
             {[
               { id: 'ALL', label: 'Semua Status' },
               { id: 'SUBMITTED', label: 'Baru Masuk' },
@@ -222,10 +222,10 @@ export default function AdminReportsPage() {
               <button
                 key={tab.id}
                 onClick={() => setFilterStatus(tab.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-colors ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
                   filterStatus === tab.id
-                    ? 'bg-sakode-text text-white shadow-xs'
-                    : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                    ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xs'
+                    : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'
                 }`}
               >
                 {tab.label}
@@ -236,18 +236,18 @@ export default function AdminReportsPage() {
           {/* Reports List */}
           {isLoading ? (
             <div className="py-20 text-center">
-              <Loader2 className="h-8 w-8 animate-spin mx-auto text-sakode-orange" />
-              <p className="text-xs text-sakode-text-muted mt-2 font-medium">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto text-amber-500" />
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">
                 Memuat antrean investigasi sengketa...
               </p>
             </div>
           ) : filteredReports.length === 0 ? (
-            <Card className="p-12 text-center bg-white space-y-3">
-              <AlertTriangle className="h-12 w-12 text-slate-300 mx-auto" />
-              <h3 className="text-base font-extrabold text-sakode-text">
+            <Card className="p-12 text-center bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-3 rounded-2xl">
+              <AlertTriangle className="h-12 w-12 text-slate-300 dark:text-slate-600 mx-auto" />
+              <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
                 Tidak Ada Laporan yang Cocok
               </h3>
-              <p className="text-xs text-sakode-text-muted">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Tidak ada laporan sengketa aktif dalam kategori filter yang dipilih.
               </p>
             </Card>
@@ -257,7 +257,7 @@ export default function AdminReportsPage() {
                 return (
                   <Card
                     key={report.id}
-                    className="p-5 border-sakode-border bg-white hover:border-slate-300 transition-all space-y-3"
+                    className="p-5 border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80 hover:border-amber-500/40 dark:hover:border-amber-500/40 transition-all rounded-2xl shadow-2xs space-y-3"
                   >
                     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                       <div className="space-y-1.5 flex-1">
@@ -271,26 +271,26 @@ export default function AdminReportsPage() {
                           <span
                             className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
                               report.status === 'RESOLVED'
-                                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                                ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
                                 : report.status === 'REJECTED'
-                                ? 'bg-slate-100 text-slate-700 border-slate-200'
+                                ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
                                 : report.status === 'NEED_MORE_EVIDENCE'
-                                ? 'bg-blue-50 text-blue-800 border-blue-200'
-                                : 'bg-amber-50 text-amber-800 border-amber-200'
+                                ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800'
+                                : 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800'
                             }`}
                           >
                             {report.status}
                           </span>
-                          <span className="text-xs text-slate-400">
+                          <span className="text-xs text-slate-400 dark:text-slate-500">
                             {formatDateWIB(report.createdAt)}
                           </span>
                         </div>
 
-                        <h3 className="text-base font-black text-sakode-text">
+                        <h3 className="text-base font-black text-slate-900 dark:text-white">
                           {report.category}
                         </h3>
 
-                        <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                        <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
                           {report.chronology}
                         </p>
                       </div>
@@ -298,7 +298,7 @@ export default function AdminReportsPage() {
                       <div className="shrink-0 text-left sm:text-right">
                         <Link href={`/admin/reports/${report.id}`}>
                           <Button variant="outline" size="sm" className="font-bold text-xs gap-1.5">
-                            <Eye className="h-3.5 w-3.5 text-sakode-orange" />
+                            <Eye className="h-3.5 w-3.5 text-amber-500" />
                             <span>Investigasi Kasus</span>
                             <ArrowRight className="h-3.5 w-3.5" />
                           </Button>
@@ -307,15 +307,15 @@ export default function AdminReportsPage() {
                     </div>
 
                     {/* Metadata Footer */}
-                    <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs flex flex-wrap items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 text-slate-700">
+                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 text-xs flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
                         <User className="h-3.5 w-3.5 text-slate-400" />
                         <span>
-                          Pelapor: <strong>{report.reporterDisplayName}</strong> ({report.reporterEmail})
+                          Pelapor: <strong className="text-slate-900 dark:text-white">{report.reporterDisplayName}</strong> ({report.reporterEmail})
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-3 text-slate-500 font-mono text-[11px]">
+                      <div className="flex items-center gap-3 text-slate-500 dark:text-slate-400 font-mono text-[11px]">
                         <span>Target: {report.targetTitle || report.targetId}</span>
                         <span>•</span>
                         <span>{report.evidenceFiles?.length || 0} berkas bukti</span>

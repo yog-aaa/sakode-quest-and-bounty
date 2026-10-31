@@ -151,21 +151,21 @@ function ReportDetailContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-sakode-bg py-24 text-center">
-        <Loader2 className="h-8 w-8 animate-spin mx-auto text-sakode-orange" />
-        <p className="text-xs text-sakode-text-muted mt-2 font-medium">Memuat data sengketa...</p>
+      <div className="min-h-screen bg-slate-50 dark:bg-[#070C14] py-24 text-center">
+        <Loader2 className="h-8 w-8 animate-spin mx-auto text-sky-500" />
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">Memuat data sengketa...</p>
       </div>
     );
   }
 
   if (!report) {
     return (
-      <div className="min-h-screen bg-sakode-bg py-16 px-4 text-center">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#070C14] py-16 px-4 text-center">
         <AlertTriangle className="h-12 w-12 text-rose-500 mx-auto" />
-        <h2 className="text-lg font-bold text-sakode-text mt-3">Laporan Tidak Ditemukan</h2>
-        <p className="text-xs text-slate-500 mt-1">{errorMsg}</p>
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white mt-3">Laporan Tidak Ditemukan</h2>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{errorMsg}</p>
         <Link href="/admin/reports" className="mt-4 inline-block">
-          <Button variant="outline" size="sm">Kembali ke Antrean Laporan</Button>
+          <Button variant="outline" size="sm" className="cursor-pointer">Kembali ke Antrean Laporan</Button>
         </Link>
       </div>
     );
@@ -176,49 +176,49 @@ function ReportDetailContent() {
 
   return (
     <AuthGuard requireAdmin>
-      <div className="min-h-screen bg-sakode-bg py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#070C14] text-slate-900 dark:text-slate-100 py-8 px-4 sm:px-6 lg:px-8 transition-colors">
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Back Navigation */}
           <div className="flex items-center justify-between">
             <Link
               href="/admin/reports"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-sakode-text-muted hover:text-sakode-text transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
               <span>Kembali ke Antrean Laporan</span>
             </Link>
 
-            <span className="text-xs text-slate-500 font-mono">ID: #{report.id}</span>
+            <span className="text-xs text-slate-400 dark:text-slate-500 font-mono">ID: #{report.id}</span>
           </div>
 
           {/* Feedback */}
           {errorMsg && (
-            <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center justify-between gap-2">
+            <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-800 dark:text-rose-200 text-xs flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
                 <span>{errorMsg}</span>
               </div>
-              <button onClick={() => setErrorMsg(null)} className="text-rose-600 hover:text-rose-900">
+              <button onClick={() => setErrorMsg(null)} className="text-rose-600 hover:text-rose-900 dark:hover:text-rose-100 cursor-pointer">
                 <X className="h-4 w-4" />
               </button>
             </div>
           )}
 
           {successMsg && (
-            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center justify-between gap-2">
+            <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 text-emerald-800 dark:text-emerald-200 text-xs flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
                 <span>{successMsg}</span>
               </div>
-              <button onClick={() => setSuccessMsg(null)} className="text-emerald-600 hover:text-emerald-900">
+              <button onClick={() => setSuccessMsg(null)} className="text-emerald-600 hover:text-emerald-900 dark:hover:text-emerald-100 cursor-pointer">
                 <X className="h-4 w-4" />
               </button>
             </div>
           )}
 
           {/* Report Summary Card */}
-          <Card className="p-6 border-sakode-border bg-white space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 border-b border-slate-100 pb-4">
+          <Card className="p-6 border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80 rounded-2xl shadow-2xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="orange">{report.targetType}</Badge>
@@ -227,13 +227,13 @@ function ReportDetailContent() {
                       Eskalasi Super Admin
                     </Badge>
                   )}
-                  <span className="text-xs font-bold text-slate-500">
+                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
                     {formatDateWIB(report.createdAt)}
                   </span>
                 </div>
-                <h1 className="text-xl font-black text-sakode-text mt-1">{report.category}</h1>
-                <p className="text-xs text-slate-500">
-                  Target Entitas: <strong>{report.targetTitle || report.targetId}</strong>
+                <h1 className="text-xl font-black text-slate-900 dark:text-white mt-1">{report.category}</h1>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Target Entitas: <strong className="text-slate-800 dark:text-slate-200">{report.targetTitle || report.targetId}</strong>
                 </p>
               </div>
 
@@ -241,10 +241,10 @@ function ReportDetailContent() {
                 <span
                   className={`text-xs font-bold px-3 py-1 rounded-full border ${
                     report.status === 'RESOLVED'
-                      ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                      ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
                       : report.status === 'REJECTED'
-                      ? 'bg-slate-100 text-slate-700 border-slate-200'
-                      : 'bg-amber-50 text-amber-800 border-amber-200'
+                      ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                      : 'bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800'
                   }`}
                 >
                   Status: {report.status}
@@ -253,47 +253,47 @@ function ReportDetailContent() {
             </div>
 
             {/* Reporter Profile */}
-            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2 text-slate-800">
+            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200">
                 <User className="h-4 w-4 text-slate-400" />
                 <span>
-                  Pelapor: <strong>{report.reporterDisplayName}</strong> ({report.reporterEmail})
+                  Pelapor: <strong className="text-slate-900 dark:text-white">{report.reporterDisplayName}</strong> ({report.reporterEmail})
                 </span>
               </div>
-              <span className="font-mono text-slate-500 text-[11px]">UID: {report.reporterUserId}</span>
+              <span className="font-mono text-slate-500 dark:text-slate-400 text-[11px]">UID: {report.reporterUserId}</span>
             </div>
 
             {/* Chronology */}
             <div>
-              <h3 className="text-xs font-bold text-sakode-text uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                <FileText className="h-3.5 w-3.5 text-sakode-orange" />
+              <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                <FileText className="h-3.5 w-3.5 text-sky-500" />
                 <span>Kronologi Kejadian Terlapor:</span>
               </h3>
-              <div className="p-4 rounded-xl bg-slate-50/70 border border-slate-200 text-xs text-slate-800 leading-relaxed whitespace-pre-line">
+              <div className="p-4 rounded-xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-200 leading-relaxed whitespace-pre-line">
                 {report.chronology}
               </div>
             </div>
 
             {/* Evidence Files */}
             <div>
-              <h3 className="text-xs font-bold text-sakode-text uppercase tracking-wider mb-2">
+              <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-2">
                 Berkas Bukti Pendukung ({report.evidenceFiles?.length || 0}):
               </h3>
               {(!report.evidenceFiles || report.evidenceFiles.length === 0) ? (
-                <p className="text-xs text-slate-400 italic">Tidak ada berkas bukti yang dilampirkan.</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 italic">Tidak ada berkas bukti yang dilampirkan.</p>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {report.evidenceFiles.map((file, idx) => (
                     <div
                       key={idx}
                       onClick={() => setActiveEvidence(file)}
-                      className="p-3 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 cursor-pointer transition-colors text-center space-y-1.5"
+                      className="p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors text-center space-y-1.5"
                     >
-                      <FileText className="h-6 w-6 text-sakode-orange mx-auto" />
-                      <span className="text-[11px] font-bold text-slate-700 block truncate">
+                      <FileText className="h-6 w-6 text-sky-500 mx-auto" />
+                      <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block truncate">
                         {file.fileName || `Bukti #${idx + 1}`}
                       </span>
-                      <span className="text-[10px] text-sakode-cyan underline font-medium block">
+                      <span className="text-[10px] text-sky-600 dark:text-cyan-400 underline font-medium block">
                         Klik untuk Tinjau
                       </span>
                     </div>
@@ -304,46 +304,46 @@ function ReportDetailContent() {
           </Card>
 
           {/* System Recommendation Panel */}
-          <Card className="p-5 border-l-4 border-l-sakode-cyan bg-white space-y-2">
+          <Card className="p-5 border border-slate-200/90 dark:border-slate-800 border-l-4 border-l-sky-500 dark:border-l-cyan-400 bg-white dark:bg-slate-900/80 rounded-2xl shadow-2xs space-y-2">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-sakode-cyan" />
-              <h3 className="text-xs font-bold text-sakode-text uppercase tracking-wider">
+              <Sparkles className="h-4 w-4 text-sky-500 dark:text-cyan-400" />
+              <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                 Rekomendasi Penalti Otomatis Sistem SAKODE
               </h3>
             </div>
             <div className="flex items-center gap-2 text-xs">
-              <span className="font-bold text-slate-700">Tingkat Penalti:</span>
+              <span className="font-bold text-slate-700 dark:text-slate-300">Tingkat Penalti:</span>
               <Badge variant="orange">{systemRec.penaltyType}</Badge>
               {systemRec.durationDays && (
-                <span className="font-mono text-slate-500 font-bold">
+                <span className="font-mono text-slate-500 dark:text-slate-400 font-bold">
                   ({systemRec.durationDays} Hari)
                 </span>
               )}
             </div>
-            <p className="text-xs text-slate-600 leading-relaxed">{systemRec.explanation}</p>
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{systemRec.explanation}</p>
           </Card>
 
           {/* Resolution Form / Decision Result */}
           {isAlreadyResolved ? (
-            <Card className="p-5 border-sakode-border bg-white space-y-3">
+            <Card className="p-5 border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80 rounded-2xl shadow-2xs space-y-3">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                <h3 className="text-sm font-bold text-sakode-text">
+                <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
                   Laporan Telah Diselesaikan
                 </h3>
               </div>
-              <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700 space-y-1">
-                <span className="font-bold block">Catatan Resolusi Admin ({report.assignedAdminName}):</span>
+              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-200 space-y-1">
+                <span className="font-bold block text-slate-900 dark:text-white">Catatan Resolusi Admin ({report.assignedAdminName}):</span>
                 <p className="leading-relaxed">{report.resolutionNotes}</p>
               </div>
             </Card>
           ) : (
-            <Card className="p-6 border-sakode-border bg-white space-y-5">
+            <Card className="p-6 border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80 rounded-2xl shadow-2xs space-y-5">
               <div>
-                <h3 className="text-base font-extrabold text-sakode-text">
+                <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
                   Formulir Resolusi & Penjatuhan Sanksi
                 </h3>
-                <p className="text-xs text-sakode-text-muted">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   Tetapkan keputusan investigasi resmi. Seluruh keputusan dan penjatuhan sanksi akan dicatat permanen di log audit.
                 </p>
               </div>
@@ -351,16 +351,16 @@ function ReportDetailContent() {
               <form onSubmit={handleResolve} className="space-y-4">
                 {/* 1. Action Decision */}
                 <div>
-                  <label className="block text-xs font-bold text-sakode-text uppercase tracking-wider mb-2">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
                     Keputusan Tindakan:
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <label
                       onClick={() => setAction('RESOLVE')}
-                      className={`p-3 rounded-lg border block cursor-pointer transition-all text-xs font-bold ${
+                      className={`p-3 rounded-xl border block cursor-pointer transition-all text-xs font-bold ${
                         action === 'RESOLVE'
-                          ? 'border-emerald-500 bg-emerald-50 text-emerald-900 ring-1 ring-emerald-500'
-                          : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                          ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 ring-1 ring-emerald-500'
+                          : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50'
                       }`}
                     >
                       <input
@@ -375,10 +375,10 @@ function ReportDetailContent() {
 
                     <label
                       onClick={() => setAction('REJECT')}
-                      className={`p-3 rounded-lg border block cursor-pointer transition-all text-xs font-bold ${
+                      className={`p-3 rounded-xl border block cursor-pointer transition-all text-xs font-bold ${
                         action === 'REJECT'
-                          ? 'border-rose-500 bg-rose-50 text-rose-900 ring-1 ring-rose-500'
-                          : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                          ? 'border-rose-500 bg-rose-50 dark:bg-rose-950/40 text-rose-900 dark:text-rose-200 ring-1 ring-rose-500'
+                          : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50'
                       }`}
                     >
                       <input
@@ -393,10 +393,10 @@ function ReportDetailContent() {
 
                     <label
                       onClick={() => setAction('REQUEST_EVIDENCE')}
-                      className={`p-3 rounded-lg border block cursor-pointer transition-all text-xs font-bold ${
+                      className={`p-3 rounded-xl border block cursor-pointer transition-all text-xs font-bold ${
                         action === 'REQUEST_EVIDENCE'
-                          ? 'border-blue-500 bg-blue-50 text-blue-900 ring-1 ring-blue-500'
-                          : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                          ? 'border-sky-500 bg-sky-50 dark:bg-sky-950/40 text-sky-900 dark:text-sky-200 ring-1 ring-sky-500'
+                          : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50'
                       }`}
                     >
                       <input
@@ -413,7 +413,7 @@ function ReportDetailContent() {
 
                 {/* 2. Resolution Notes */}
                 <div>
-                  <label className="block text-xs font-bold text-sakode-text uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                     Catatan Resolusi Investigasi (Min. 15 Karakter):
                   </label>
                   <textarea
@@ -421,30 +421,30 @@ function ReportDetailContent() {
                     value={resolutionNotes}
                     onChange={(e) => setResolutionNotes(e.target.value)}
                     placeholder="Tuliskan temuan investigasi, pertimbangan bukti, dan dasar putusan..."
-                    className="w-full p-3 text-xs rounded-lg border border-sakode-border bg-white text-sakode-text focus:outline-none focus:ring-1 focus:ring-sakode-cyan leading-relaxed"
+                    className="w-full p-3 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500 leading-relaxed"
                   />
                 </div>
 
                 {/* 3. Apply Penalty Toggle */}
                 {action === 'RESOLVE' && (
-                  <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-4">
+                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 space-y-4">
                     <label className="flex items-center gap-2 cursor-pointer select-none">
                       <input
                         type="checkbox"
                         checked={applyPenalty}
                         onChange={(e) => setApplyPenalty(e.target.checked)}
-                        className="h-4 w-4 rounded text-sakode-orange focus:ring-sakode-orange"
+                        className="h-4 w-4 rounded text-sky-600 focus:ring-sky-500 cursor-pointer"
                       />
-                      <span className="text-xs font-bold text-sakode-text">
+                      <span className="text-xs font-bold text-slate-900 dark:text-white">
                         Jatuhkan Sanksi Penalti Progresif kepada Pihak Terlapor
                       </span>
                     </label>
 
                     {applyPenalty && (
-                      <div className="space-y-3 pt-2 border-t border-slate-200">
+                      <div className="space-y-3 pt-3 border-t border-slate-200 dark:border-slate-700">
                         {/* Target User UID */}
                         <div>
-                          <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
+                          <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase mb-1">
                             UID Pengguna Terlapor:
                           </label>
                           <input
@@ -452,20 +452,20 @@ function ReportDetailContent() {
                             value={penaltyTargetUserId}
                             onChange={(e) => setPenaltyTargetUserId(e.target.value)}
                             placeholder="Contoh: user_12345"
-                            className="w-full px-3 py-2 text-xs font-mono rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-sakode-orange"
+                            className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-sky-500"
                           />
                         </div>
 
                         {/* Penalty Type Select */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
-                            <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
+                            <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase mb-1">
                               Tingkatan Sanksi Penalti:
                             </label>
                             <select
                               value={penaltyType}
                               onChange={(e) => setPenaltyType(e.target.value as PenaltyType)}
-                              className="w-full p-2 text-xs rounded-lg border border-slate-300 bg-white font-bold text-slate-800"
+                              className="w-full p-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-sky-500 cursor-pointer"
                             >
                               <option value={PENALTY_TYPES.WARNING}>WARNING (Peringatan Tertulis)</option>
                               <option value={PENALTY_TYPES.COOLDOWN}>COOLDOWN (Jeda Task Baru)</option>
@@ -479,7 +479,7 @@ function ReportDetailContent() {
                           {(penaltyType === PENALTY_TYPES.COOLDOWN ||
                             penaltyType === PENALTY_TYPES.TEMPORARY_SUSPEND) && (
                             <div>
-                              <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
+                              <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase mb-1">
                                 Durasi Sanksi (Hari):
                               </label>
                               <input
@@ -488,7 +488,7 @@ function ReportDetailContent() {
                                 max={90}
                                 value={penaltyDurationDays}
                                 onChange={(e) => setPenaltyDurationDays(parseInt(e.target.value, 10) || 1)}
-                                className="w-full px-3 py-2 text-xs font-bold rounded-lg border border-slate-300 bg-white"
+                                className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
                               />
                             </div>
                           )}
@@ -501,16 +501,16 @@ function ReportDetailContent() {
                               type="checkbox"
                               checked={isOverride}
                               onChange={(e) => setIsOverride(e.target.checked)}
-                              className="h-4 w-4 rounded text-sakode-purple focus:ring-sakode-purple"
+                              className="h-4 w-4 rounded text-purple-600 focus:ring-purple-500 cursor-pointer"
                             />
-                            <span className="text-xs font-bold text-purple-900">
+                            <span className="text-xs font-bold text-purple-700 dark:text-purple-300">
                               Override Rekomendasi Sistem ({systemRec.penaltyType})
                             </span>
                           </label>
 
                           {isOverride && (
                             <div className="mt-2 space-y-1">
-                              <label className="block text-[11px] font-bold text-rose-700 uppercase">
+                              <label className="block text-[11px] font-bold text-rose-700 dark:text-rose-400 uppercase">
                                 Alasan Wajib Override (Min. 15 Karakter - Strict Invariant):
                               </label>
                               <textarea
@@ -518,7 +518,7 @@ function ReportDetailContent() {
                                 value={overrideReason}
                                 onChange={(e) => setOverrideReason(e.target.value)}
                                 placeholder="Jelaskan dasar pertimbangan objektif mengapa sanksi berbeda dari rekomendasi otomatis sistem..."
-                                className="w-full p-2.5 text-xs rounded-lg border border-purple-300 bg-white focus:outline-none focus:ring-1 focus:ring-sakode-purple"
+                                className="w-full p-2.5 text-xs rounded-xl border border-purple-200 dark:border-purple-800 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-purple-500"
                               />
                             </div>
                           )}
@@ -529,9 +529,9 @@ function ReportDetailContent() {
                 )}
 
                 {/* Submit Button */}
-                <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+                <div className="pt-3 flex items-center justify-end gap-2 border-t border-slate-200 dark:border-slate-800">
                   <Link href="/admin/reports">
-                    <Button type="button" variant="ghost" size="sm" className="text-xs">
+                    <Button type="button" variant="ghost" size="sm" className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer">
                       Batal
                     </Button>
                   </Link>
@@ -540,7 +540,7 @@ function ReportDetailContent() {
                     type="submit"
                     variant="primary"
                     disabled={isSubmitting || resolutionNotes.trim().length < 15}
-                    className="font-bold text-xs gap-1.5 shadow-sm h-10 px-5"
+                    className="font-bold text-xs gap-1.5 shadow-sm h-10 px-5 cursor-pointer"
                   >
                     {isSubmitting ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -557,27 +557,27 @@ function ReportDetailContent() {
           {/* Evidence Viewer Modal */}
           {activeEvidence && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-              <div className="bg-white rounded-2xl shadow-2xl border border-sakode-border w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
-                <div className="p-4 border-b border-sakode-border flex items-center justify-between bg-sakode-bg">
-                  <h4 className="text-sm font-bold text-sakode-text flex items-center gap-1.5 truncate">
-                    <FileText className="h-4 w-4 text-sakode-orange shrink-0" />
+              <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+                <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950/70">
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5 truncate">
+                    <FileText className="h-4 w-4 text-sky-500 shrink-0" />
                     <span className="truncate">{activeEvidence.fileName || 'Berkas Bukti'}</span>
                   </h4>
-                  <button onClick={() => setActiveEvidence(null)} className="p-1 text-slate-400 hover:text-slate-700">
+                  <button onClick={() => setActiveEvidence(null)} className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg transition-colors cursor-pointer">
                     <X className="h-5 w-5" />
                   </button>
                 </div>
 
-                <div className="p-4 overflow-auto flex-1 text-center bg-slate-900/5 flex items-center justify-center min-h-[300px]">
+                <div className="p-4 overflow-auto flex-1 text-center bg-slate-900/5 dark:bg-black/30 flex items-center justify-center min-h-[300px]">
                   {activeEvidence.url.toLowerCase().endsWith('.pdf') ? (
                     <div className="space-y-3">
                       <FileText className="h-16 w-16 text-rose-500 mx-auto" />
-                      <p className="text-xs text-slate-600">Dokumen Bukti PDF</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-300">Dokumen Bukti PDF</p>
                       <a
                         href={activeEvidence.url}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-xs font-bold text-sakode-cyan underline"
+                        className="inline-flex items-center gap-1 text-xs font-bold text-sky-600 dark:text-cyan-400 underline"
                       >
                         <span>Buka PDF di Tab Baru</span>
                         <ExternalLink className="h-3.5 w-3.5" />
@@ -588,22 +588,22 @@ function ReportDetailContent() {
                     <img
                       src={activeEvidence.url}
                       alt="Berkas Bukti Laporan"
-                      className="max-h-[70vh] object-contain rounded-lg shadow-xs"
+                      className="max-h-[70vh] object-contain rounded-xl shadow-xs"
                     />
                   )}
                 </div>
 
-                <div className="p-3 border-t border-sakode-border bg-sakode-bg flex items-center justify-between">
+                <div className="p-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 flex items-center justify-between">
                   <a
                     href={activeEvidence.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-xs font-bold text-sakode-cyan flex items-center gap-1"
+                    className="text-xs font-bold text-sky-600 dark:text-cyan-400 flex items-center gap-1"
                   >
                     <span>Buka Tautan Asli</span>
                     <ExternalLink className="h-3.5 w-3.5" />
                   </a>
-                  <Button variant="outline" size="sm" onClick={() => setActiveEvidence(null)} className="text-xs">
+                  <Button variant="outline" size="sm" onClick={() => setActiveEvidence(null)} className="text-xs font-bold border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 cursor-pointer">
                     Tutup
                   </Button>
                 </div>
@@ -620,9 +620,9 @@ export default function ReportDetailPage() {
   return (
     <React.Suspense
       fallback={
-        <div className="min-h-screen bg-sakode-bg py-20 text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto text-sakode-orange" />
-          <p className="text-xs text-sakode-text-muted mt-2 font-medium">Memuat investigasi...</p>
+        <div className="min-h-screen bg-slate-50 dark:bg-[#070C14] py-20 text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-sky-500" />
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">Memuat investigasi...</p>
         </div>
       }
     >

@@ -160,13 +160,13 @@ export default function AdminAuditTrailPage() {
           )}
 
           {/* Controls: Action Select & Search Input */}
-          <div className="p-4 rounded-xl bg-white border border-sakode-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+          <div className="p-3 sm:p-4 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
             <div className="flex items-center gap-2 overflow-x-auto">
-              <span className="text-xs font-bold text-slate-500 whitespace-nowrap">Aksi:</span>
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap">Aksi:</span>
               <select
                 value={selectedAction}
                 onChange={(e) => setSelectedAction(e.target.value)}
-                className="px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-sakode-cyan"
+                className="px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-sky-500 cursor-pointer"
               >
                 <option value="ALL">Semua Aksi</option>
                 <option value="REPORT_SUBMITTED">REPORT_SUBMITTED</option>
@@ -182,14 +182,14 @@ export default function AdminAuditTrailPage() {
               </select>
             </div>
 
-            <div className="relative w-full sm:w-72">
-              <Search className="h-4 w-4 absolute left-3 top-2.5 text-slate-400" />
+            <div className="relative w-full sm:w-72 shrink-0">
+              <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 placeholder="Cari aktor, entitas, atau alasan..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-sakode-cyan"
+                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500"
               />
             </div>
           </div>
@@ -197,22 +197,22 @@ export default function AdminAuditTrailPage() {
           {/* Audit Logs Table */}
           {isLoading ? (
             <div className="py-20 text-center">
-              <Loader2 className="h-8 w-8 animate-spin mx-auto text-sakode-cyan" />
-              <p className="text-xs text-sakode-text-muted mt-2 font-medium">Memuat log audit...</p>
+              <Loader2 className="h-8 w-8 animate-spin mx-auto text-sky-500" />
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">Memuat log audit...</p>
             </div>
           ) : filteredEvents.length === 0 ? (
-            <Card className="p-12 text-center bg-white space-y-3">
-              <FileText className="h-12 w-12 text-slate-300 mx-auto" />
-              <h3 className="text-base font-extrabold text-sakode-text">Tidak Ada Log Audit</h3>
-              <p className="text-xs text-slate-500">
+            <Card className="p-12 text-center bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 space-y-3">
+              <FileText className="h-12 w-12 text-slate-300 dark:text-slate-700 mx-auto" />
+              <h3 className="text-base font-extrabold text-slate-900 dark:text-white">Tidak Ada Log Audit</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Belum ada aktivitas mutasi yang tercatat untuk filter ini.
               </p>
             </Card>
           ) : (
-            <div className="border border-slate-200 rounded-xl bg-white overflow-hidden shadow-xs">
+            <div className="border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900/80 overflow-hidden shadow-xs">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[10px] tracking-wider">
+                  <thead className="bg-slate-50 dark:bg-slate-950/60 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 font-bold uppercase text-[10px] tracking-wider">
                     <tr>
                       <th className="p-3.5">Waktu (WIB)</th>
                       <th className="p-3.5">Aktor</th>
@@ -222,19 +222,19 @@ export default function AdminAuditTrailPage() {
                       <th className="p-3.5 text-right">Snapshot Diff</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
                     {filteredEvents.map((ev) => {
                       const hasSnapshot = Boolean(ev.beforeSnapshot || ev.afterSnapshot);
                       return (
-                        <tr key={ev.id} className="hover:bg-slate-50/70 transition-colors">
-                          <td className="p-3.5 whitespace-nowrap text-slate-500 font-mono text-[11px]">
+                        <tr key={ev.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
+                          <td className="p-3.5 whitespace-nowrap text-slate-500 dark:text-slate-400 font-mono text-[11px]">
                             {formatDateWIB(ev.timestamp)}
                           </td>
                           <td className="p-3.5 whitespace-nowrap">
-                            <span className="font-bold text-sakode-text block">
+                            <span className="font-bold text-slate-900 dark:text-slate-100 block">
                               {ev.actorName || ev.actorId}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-mono">
+                            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">
                               Role: {ev.actorRole}
                             </span>
                           </td>
@@ -242,27 +242,27 @@ export default function AdminAuditTrailPage() {
                             <span
                               className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                                 ev.action.includes('PENALTY') || ev.action.includes('DEMOTED')
-                                  ? 'bg-rose-50 text-rose-800 border-rose-200'
+                                  ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-900/60'
                                   : ev.action.includes('PROMOTED') || ev.action.includes('RESOLVED')
-                                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                                  ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/60'
                                   : ev.action.includes('CLAIM')
-                                  ? 'bg-cyan-50 text-cyan-800 border-cyan-200'
-                                  : 'bg-slate-100 text-slate-700 border-slate-200'
+                                  ? 'bg-cyan-50 dark:bg-cyan-950/40 text-cyan-800 dark:text-cyan-300 border-cyan-200 dark:border-cyan-900/60'
+                                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
                               }`}
                             >
                               {ev.action}
                             </span>
                           </td>
                           <td className="p-3.5 whitespace-nowrap">
-                            <span className="font-bold text-slate-800 block text-[11px]">
+                            <span className="font-bold text-slate-800 dark:text-slate-200 block text-[11px]">
                               {ev.entityType}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-mono truncate block max-w-[140px]">
+                            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono truncate block max-w-[140px]">
                               {ev.entityId}
                             </span>
                           </td>
                           <td className="p-3.5 max-w-xs">
-                            <p className="truncate text-slate-700 text-[11px]">
+                            <p className="truncate text-slate-700 dark:text-slate-300 text-[11px]">
                               {ev.reason || '-'}
                             </p>
                           </td>
@@ -272,13 +272,13 @@ export default function AdminAuditTrailPage() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => setActiveSnapshotEvent(ev)}
-                                className="text-[11px] font-bold h-7 px-2 gap-1"
+                                className="text-[11px] font-bold h-7 px-2.5 gap-1.5 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
                               >
-                                <Eye className="h-3 w-3 text-sakode-cyan" />
+                                <Eye className="h-3 w-3 text-sky-500" />
                                 <span>Lihat Diff</span>
                               </Button>
                             ) : (
-                              <span className="text-[10px] text-slate-400 italic">No snapshot</span>
+                              <span className="text-[10px] text-slate-400 dark:text-slate-600 italic">No snapshot</span>
                             )}
                           </td>
                         </tr>
@@ -293,20 +293,20 @@ export default function AdminAuditTrailPage() {
           {/* SNAPSHOT DIFF VIEWER MODAL */}
           {activeSnapshotEvent && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-              <div className="bg-white rounded-2xl shadow-2xl border border-sakode-border w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
-                <div className="p-4 border-b border-sakode-border bg-sakode-bg flex items-center justify-between">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+                <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-bold text-sakode-text flex items-center gap-1.5">
-                      <FileText className="h-4 w-4 text-sakode-cyan" />
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                      <FileText className="h-4 w-4 text-sky-500" />
                       <span>Snapshot Diff: {activeSnapshotEvent.action}</span>
                     </h3>
-                    <span className="text-[11px] text-slate-500 font-mono">
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
                       Entitas: {activeSnapshotEvent.entityType} #{activeSnapshotEvent.entityId}
                     </span>
                   </div>
                   <button
                     onClick={() => setActiveSnapshotEvent(null)}
-                    className="p-1 text-slate-400 hover:text-slate-700"
+                    className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg transition-colors cursor-pointer"
                   >
                     <X className="h-5 w-5" />
                   </button>
@@ -314,8 +314,8 @@ export default function AdminAuditTrailPage() {
 
                 <div className="p-5 space-y-4 overflow-y-auto">
                   {activeSnapshotEvent.reason && (
-                    <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700">
-                      <strong>Catatan / Alasan Mutasi:</strong>
+                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-200">
+                      <strong className="text-slate-900 dark:text-white font-semibold">Catatan / Alasan Mutasi:</strong>
                       <p className="mt-0.5">{activeSnapshotEvent.reason}</p>
                     </div>
                   )}
@@ -323,10 +323,10 @@ export default function AdminAuditTrailPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {/* Before */}
                     <div className="space-y-1">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-rose-700 block">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-rose-700 dark:text-rose-400 block">
                         Before Snapshot:
                       </span>
-                      <pre className="p-3 rounded-lg bg-rose-50/50 border border-rose-200 font-mono text-[10px] text-slate-800 overflow-x-auto max-h-60 leading-relaxed">
+                      <pre className="p-3 rounded-xl bg-rose-50/60 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 font-mono text-[10px] text-slate-800 dark:text-slate-200 overflow-x-auto max-h-60 leading-relaxed">
                         {activeSnapshotEvent.beforeSnapshot
                           ? JSON.stringify(activeSnapshotEvent.beforeSnapshot, null, 2)
                           : 'null (Initial Creation)'}
@@ -335,10 +335,10 @@ export default function AdminAuditTrailPage() {
 
                     {/* After */}
                     <div className="space-y-1">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 block">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 block">
                         After Snapshot:
                       </span>
-                      <pre className="p-3 rounded-lg bg-emerald-50/50 border border-emerald-200 font-mono text-[10px] text-slate-800 overflow-x-auto max-h-60 leading-relaxed">
+                      <pre className="p-3 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 font-mono text-[10px] text-slate-800 dark:text-slate-200 overflow-x-auto max-h-60 leading-relaxed">
                         {activeSnapshotEvent.afterSnapshot
                           ? JSON.stringify(activeSnapshotEvent.afterSnapshot, null, 2)
                           : 'null'}
@@ -347,8 +347,13 @@ export default function AdminAuditTrailPage() {
                   </div>
                 </div>
 
-                <div className="p-3 border-t border-sakode-border bg-sakode-bg flex justify-end">
-                  <Button variant="outline" size="sm" onClick={() => setActiveSnapshotEvent(null)} className="text-xs">
+                <div className="p-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 flex justify-end">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setActiveSnapshotEvent(null)}
+                    className="text-xs font-bold border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 cursor-pointer"
+                  >
                     Tutup
                   </Button>
                 </div>

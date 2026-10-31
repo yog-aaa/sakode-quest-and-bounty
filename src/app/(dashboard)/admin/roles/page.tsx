@@ -205,8 +205,8 @@ export default function SuperAdminRolesPage() {
           {/* Section 1: Active Staff List */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-extrabold text-sakode-text uppercase tracking-wider flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-sakode-purple" />
+              <h2 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                 <span>Daftar Administrator Aktif ({staff.length})</span>
               </h2>
             </div>
@@ -217,20 +217,20 @@ export default function SuperAdminRolesPage() {
                 const isSuperAdminRole = member.role === 'SUPER_ADMIN';
 
                 return (
-                  <Card key={member.id} className="p-4 border-sakode-border bg-white flex flex-col justify-between space-y-3">
+                  <Card key={member.id} className="p-4 border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80 rounded-2xl flex flex-col justify-between space-y-3 shadow-2xs">
                     <div className="flex items-start justify-between gap-2">
                       <div className="space-y-0.5">
                         <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-bold text-sakode-text">
+                          <span className="text-xs font-bold text-slate-900 dark:text-white">
                             {member.displayName || member.email}
                           </span>
                           {isMe && (
-                            <span className="text-[10px] bg-sakode-cyan/20 text-[#076991] font-bold px-1.5 py-0.2 rounded">
+                            <span className="text-[10px] bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 font-bold px-1.5 py-0.2 rounded">
                               Anda
                             </span>
                           )}
                         </div>
-                        <span className="text-[11px] text-slate-500 block truncate">{member.email}</span>
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">{member.email}</span>
                       </div>
 
                       <Badge variant={isSuperAdminRole ? 'purple' : 'cyan'}>
@@ -238,8 +238,8 @@ export default function SuperAdminRolesPage() {
                       </Badge>
                     </div>
 
-                    <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
-                      <span className="text-[11px] font-mono text-slate-400 truncate max-w-[150px]">
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/80 text-xs">
+                      <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500 truncate max-w-[150px]">
                         UID: {member.id}
                       </span>
 
@@ -248,13 +248,13 @@ export default function SuperAdminRolesPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => handleOpenModal(member, 'DEMOTE')}
-                          className="text-xs font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200 h-8"
+                          className="text-xs font-bold text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 border-rose-200 dark:border-rose-900/60 h-8 cursor-pointer"
                         >
                           <UserX className="h-3.5 w-3.5 mr-1" />
                           <span>Cabut Akses Admin</span>
                         </Button>
                       ) : (
-                        <span className="text-[10px] text-slate-400 font-bold bg-slate-100 px-2 py-0.5 rounded">
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
                           Akses Utama Dilindungi
                         </span>
                       )}
@@ -266,14 +266,14 @@ export default function SuperAdminRolesPage() {
           </div>
 
           {/* Section 2: Promote Eligible Members */}
-          <div className="space-y-3 pt-4 border-t border-sakode-border">
+          <div className="space-y-3 pt-6 border-t border-slate-200 dark:border-slate-800">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h2 className="text-sm font-extrabold text-sakode-text uppercase tracking-wider flex items-center gap-2">
-                  <Users className="h-4 w-4 text-sakode-cyan" />
+                <h2 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                  <Users className="h-4 w-4 text-sky-500" />
                   <span>Anggota Terverifikasi untuk Promosi</span>
                 </h2>
-                <p className="text-[11px] text-slate-500">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
                   Hanya anggota yang telah berstatus APPROVED yang dapat diangkat menjadi staf Admin.
                 </p>
               </div>
@@ -286,36 +286,36 @@ export default function SuperAdminRolesPage() {
                   placeholder="Cari nama / email member..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-sakode-border bg-white focus:outline-none focus:ring-1 focus:ring-sakode-cyan"
+                  className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-purple-500"
                 />
               </div>
             </div>
 
             {filteredMembers.length === 0 ? (
-              <p className="text-xs text-slate-400 italic py-4">
+              <p className="text-xs text-slate-400 dark:text-slate-500 italic py-4">
                 Tidak ada anggota terverifikasi yang cocok dengan pencarian.
               </p>
             ) : (
-              <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl bg-white overflow-hidden">
+              <div className="divide-y divide-slate-100 dark:divide-slate-800/80 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900/80 overflow-hidden shadow-2xs">
                 {filteredMembers.map((m) => (
                   <div
                     key={m.id}
-                    className="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/60 transition-colors"
+                    className="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
                   >
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-sakode-text">
+                        <span className="text-xs font-bold text-slate-900 dark:text-white">
                           {m.displayName || m.email}
                         </span>
                         <Badge variant="outline">{m.approvalStatus}</Badge>
                       </div>
-                      <span className="text-[11px] text-slate-500">{m.email}</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">{m.email}</span>
                       {m.skills && m.skills.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-1">
                           {m.skills.slice(0, 3).map((s) => (
                             <span
                               key={s}
-                              className="text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.2 rounded"
+                              className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-1.5 py-0.2 rounded"
                             >
                               {s}
                             </span>
@@ -329,7 +329,7 @@ export default function SuperAdminRolesPage() {
                         variant="team"
                         size="sm"
                         onClick={() => handleOpenModal(m, 'PROMOTE')}
-                        className="text-xs font-bold gap-1 h-8"
+                        className="text-xs font-bold gap-1 h-8 cursor-pointer"
                       >
                         <UserCheck className="h-3.5 w-3.5" />
                         <span>Angkat Jadi Admin</span>
@@ -344,38 +344,41 @@ export default function SuperAdminRolesPage() {
           {/* Modal Konfirmasi Mutasi Role */}
           {activeModalUser && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-              <div className="bg-white rounded-2xl shadow-2xl border border-sakode-border w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-                <div className="p-4 sm:p-5 border-b border-sakode-border bg-sakode-bg flex items-center justify-between">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+                <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     {modalAction === 'PROMOTE' ? (
-                      <UserCheck className="h-5 w-5 text-sakode-purple" />
+                      <UserCheck className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                     ) : (
-                      <UserX className="h-5 w-5 text-rose-600" />
+                      <UserX className="h-5 w-5 text-rose-600 dark:text-rose-400" />
                     )}
-                    <h3 className="text-base font-extrabold text-sakode-text">
+                    <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
                       {modalAction === 'PROMOTE'
                         ? 'Pengangkatan Staf Administrator'
                         : 'Pencabutan Akses Administrator'}
                     </h3>
                   </div>
-                  <button onClick={() => setActiveModalUser(null)} className="p-1 text-slate-400 hover:text-slate-700">
+                  <button
+                    onClick={() => setActiveModalUser(null)}
+                    className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg transition-colors cursor-pointer"
+                  >
                     <X className="h-5 w-5" />
                   </button>
                 </div>
 
                 <form onSubmit={handleConfirmRoleChange} className="p-5 space-y-4">
-                  <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs space-y-1">
-                    <span className="text-slate-500 block">Target Pengguna:</span>
-                    <strong className="text-slate-900 block font-bold">
+                  <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1">
+                    <span className="text-slate-500 dark:text-slate-400 block font-medium">Target Pengguna:</span>
+                    <strong className="text-slate-900 dark:text-white block font-bold">
                       {activeModalUser.displayName || activeModalUser.email}
                     </strong>
-                    <span className="font-mono text-[11px] text-slate-500 block">
+                    <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400 block">
                       {activeModalUser.email}
                     </span>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-sakode-text uppercase tracking-wider mb-1">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                       Alasan Mutasi Role (Min. 15 Karakter - Wajib Audit):
                     </label>
                     <textarea
@@ -383,17 +386,17 @@ export default function SuperAdminRolesPage() {
                       value={reason}
                       onChange={(e) => setReason(e.target.value)}
                       placeholder="Jelaskan kebutuhan penambahan staf admin atau dasar evaluasi pencabutan wewenang..."
-                      className="w-full p-3 text-xs rounded-lg border border-sakode-border bg-white text-sakode-text focus:outline-none focus:ring-1 focus:ring-sakode-purple leading-relaxed"
+                      className="w-full p-3 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-purple-500 leading-relaxed"
                     />
                   </div>
 
-                  <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+                  <div className="pt-3 flex items-center justify-end gap-2 border-t border-slate-200 dark:border-slate-800">
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       onClick={() => setActiveModalUser(null)}
-                      className="text-xs"
+                      className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer"
                     >
                       Batal
                     </Button>
@@ -402,7 +405,7 @@ export default function SuperAdminRolesPage() {
                       variant={modalAction === 'PROMOTE' ? 'team' : 'danger'}
                       size="sm"
                       disabled={isSubmitting || reason.trim().length < 15}
-                      className="font-bold text-xs gap-1.5"
+                      className="font-bold text-xs gap-1.5 cursor-pointer"
                     >
                       {isSubmitting ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
