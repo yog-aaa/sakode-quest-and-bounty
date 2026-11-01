@@ -68,13 +68,45 @@ export default function AdminDashboardPage() {
 
     async function loadData() {
       try {
-        const res = await getAdminDashboardOverviewAction(user!.id);
-        if (!ignore) {
+        let overviewData: AdminDashboardOverviewData | null = null;
+        let errorMessage: string | null = null;
+
+        // 1. Coba lewat Server Action
+        try {
+          const res = await getAdminDashboardOverviewAction(user!.id);
           if (res.success && res.data) {
-            setOverview(res.data);
+            overviewData = res.data;
+          } else {
+            errorMessage = res.error || null;
+          }
+        } catch (actionErr) {
+          console.warn('Server action fallback to REST API:', actionErr);
+        }
+
+        // 2. Fallback resilien ke REST API Route Handler jika Server Action gagal atau 500
+        if (!overviewData) {
+          try {
+            const apiRes = await fetch(`/api/admin/overview?uid=${encodeURIComponent(user!.id)}`);
+            if (apiRes.ok) {
+              const apiJson = await apiRes.json();
+              if (apiJson.success && apiJson.data) {
+                overviewData = apiJson.data;
+                errorMessage = null;
+              } else if (apiJson.error) {
+                errorMessage = apiJson.error;
+              }
+            }
+          } catch (apiErr) {
+            console.error('REST API fallback error:', apiErr);
+          }
+        }
+
+        if (!ignore) {
+          if (overviewData) {
+            setOverview(overviewData);
             setErrorMsg(null);
           } else {
-            setErrorMsg(res.error || 'Gagal menyinkronkan data operasional.');
+            setErrorMsg(errorMessage || 'Gagal menyinkronkan data operasional.');
           }
         }
       } catch (err: unknown) {
