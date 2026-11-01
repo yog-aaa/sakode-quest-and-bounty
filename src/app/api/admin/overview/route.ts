@@ -31,7 +31,7 @@ export async function GET(req: Request) {
         success: false,
         error: error instanceof Error ? error.message : 'Gagal memuat ringkasan operasional admin',
       },
-      { status: 500 }
+      { status: 200 }
     );
   }
 }
