@@ -38,6 +38,10 @@ import {
   ExternalLink,
   Scale,
   PieChart,
+  Paperclip,
+  Download,
+  Globe,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 function TaskDetailContent() {
@@ -212,20 +216,20 @@ function TaskDetailContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-sakode-bg py-20 text-center">
-        <Loader2 className="h-8 w-8 animate-spin mx-auto text-sakode-cyan" />
-        <p className="text-xs text-sakode-text-muted mt-2 font-medium">Memuat rincian task...</p>
+      <div className="min-h-screen bg-slate-50 dark:bg-[#070A10] py-20 text-center">
+        <Loader2 className="h-8 w-8 animate-spin mx-auto text-sky-500" />
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">Memuat rincian task...</p>
       </div>
     );
   }
 
   if (!task) {
     return (
-      <div className="min-h-screen bg-sakode-bg py-16 px-4">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#070A10] py-16 px-4">
         <div className="max-w-xl mx-auto text-center space-y-4">
-          <Compass className="h-12 w-12 text-slate-300 mx-auto" />
-          <h2 className="text-xl font-bold text-sakode-text">Task Tidak Ditemukan</h2>
-          <p className="text-xs text-sakode-text-muted">
+          <Compass className="h-12 w-12 text-slate-300 dark:text-slate-600 mx-auto" />
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">Task Tidak Ditemukan</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             {errorMsg || 'Task yang Anda cari mungkin telah dihapus atau tidak tersedia.'}
           </p>
           <Link href="/member/tasks">
@@ -257,13 +261,13 @@ function TaskDetailContent() {
 
   return (
     <AuthGuard requireApproved>
-      <div className="min-h-screen bg-sakode-bg py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#070A10] py-8 px-4 sm:px-6 lg:px-8 text-slate-900 dark:text-slate-100 transition-colors">
         <div className="max-w-5xl mx-auto space-y-6">
           {/* Back Button & Report Action */}
           <div className="flex items-center justify-between">
             <Link
               href="/member/tasks"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-sakode-text-muted hover:text-sakode-text transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
               <span>Kembali ke Daftar Task</span>
@@ -402,6 +406,81 @@ function TaskDetailContent() {
                     </div>
                   </div>
 
+                  {/* Berkas Pendukung & Tautan Referensi dari Admin */}
+                  {((task.attachments && task.attachments.length > 0) || (task.links && task.links.length > 0)) && (
+                    <div className="p-4 rounded-xl border border-cyan-200/80 dark:border-cyan-900/40 bg-gradient-to-br from-cyan-50/50 to-sky-50/30 dark:from-cyan-950/20 dark:to-sky-950/10 space-y-3.5">
+                      <div className="flex items-center gap-2">
+                        <Paperclip className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+                        <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                          Berkas Pendukung & Tautan Referensi Task
+                        </h3>
+                      </div>
+
+                      {/* Tautan Referensi */}
+                      {task.links && task.links.length > 0 && (
+                        <div className="space-y-1.5">
+                          <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                            <Globe className="h-3 w-3 text-cyan-500" /> Tautan Terkait ({task.links.length}):
+                          </span>
+                          <div className="flex flex-wrap gap-2">
+                            {task.links.map((link, idx) => (
+                              <a
+                                key={idx}
+                                href={link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-cyan-700 dark:text-cyan-300 hover:text-cyan-600 hover:border-cyan-400 dark:hover:border-cyan-600 shadow-2xs transition-all max-w-sm truncate"
+                                title={link}
+                              >
+                                <ExternalLink className="h-3 w-3 shrink-0" />
+                                <span className="truncate">{link}</span>
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Lampiran Dokumen/Gambar */}
+                      {task.attachments && task.attachments.length > 0 && (
+                        <div className="space-y-1.5">
+                          <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                            <FileText className="h-3 w-3 text-cyan-500" /> Dokumen & Panduan ({task.attachments.length} Berkas):
+                          </span>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {task.attachments.map((file, idx) => {
+                              const ext = file.fileName.split('.').pop()?.toUpperCase() || 'FILE';
+                              return (
+                                <a
+                                  key={idx}
+                                  href={file.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  download={file.fileName}
+                                  className="flex items-center justify-between gap-2.5 p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-cyan-400 dark:hover:border-cyan-500 hover:shadow-2xs transition-all group"
+                                >
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <div className="h-8 w-8 rounded-lg bg-cyan-50 dark:bg-cyan-950/60 border border-cyan-200/60 dark:border-cyan-800 flex items-center justify-center shrink-0">
+                                      <FileText className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+                                    </div>
+                                    <div className="min-w-0">
+                                      <p className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 truncate">
+                                        {file.fileName}
+                                      </p>
+                                      <p className="text-[10px] text-slate-400 font-mono">
+                                        {ext} • {Math.round(file.fileSize / 1024)} KB
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <Download className="h-3.5 w-3.5 text-slate-400 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 shrink-0" />
+                                </a>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {/* Required Skills */}
                   <div>
                     <h3 className="text-xs font-bold text-sakode-text uppercase tracking-wider mb-2">
@@ -483,8 +562,36 @@ function TaskDetailContent() {
                         )}
 
                         {sub.evidenceFiles && sub.evidenceFiles.length > 0 && (
-                          <div className="text-[11px] text-slate-500 font-medium">
-                            Lampiran Bukti: {sub.evidenceFiles.length} berkas
+                          <div className="space-y-1.5 pt-1">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                              Berkas Bukti Pengerjaan ({sub.evidenceFiles.length}):
+                            </span>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              {sub.evidenceFiles.map((file, fIdx) => {
+                                const ext = file.fileName.split('.').pop()?.toUpperCase() || 'FILE';
+                                return (
+                                  <a
+                                    key={fIdx}
+                                    href={file.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    download={file.fileName}
+                                    className="flex items-center justify-between gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 hover:border-cyan-400 text-xs group transition-all"
+                                  >
+                                    <div className="flex items-center gap-2 min-w-0">
+                                      <FileText className="h-3.5 w-3.5 text-cyan-600 dark:text-cyan-400 shrink-0" />
+                                      <span className="font-medium text-slate-800 dark:text-slate-200 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 truncate">
+                                        {file.fileName}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-1 shrink-0 text-[10px] text-slate-400 font-mono">
+                                      <span>{ext}</span>
+                                      <Download className="h-3 w-3" />
+                                    </div>
+                                  </a>
+                                );
+                              })}
+                            </div>
                           </div>
                         )}
 
@@ -689,23 +796,23 @@ function TaskDetailContent() {
 
         {/* Modal: Instant Take Terms Confirmation */}
         {showInstantModal && task && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-            <div className="bg-white rounded-xl shadow-2xl border border-sakode-border w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
-              <div className="p-4 sm:p-5 border-b border-sakode-border bg-sakode-bg flex items-start justify-between">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
+              <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/50 flex items-start justify-between">
                 <div>
                   <Badge variant="cyan" leftIcon={<Zap className="h-3 w-3 text-amber-500" />}>
                     Instant Take Confirmation
                   </Badge>
-                  <h2 className="text-base sm:text-lg font-black text-sakode-text mt-1">{task.title}</h2>
+                  <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white mt-1">{task.title}</h2>
                 </div>
-                <button onClick={() => setShowInstantModal(false)} className="p-1 text-slate-400 hover:text-slate-700">
+                <button onClick={() => setShowInstantModal(false)} className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
               <div className="p-4 sm:p-5 space-y-4 overflow-y-auto">
-                <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
-                  <ShieldAlert className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2.5">
+                  <ShieldAlert className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                   <div>
                     {isSolo ? (
                       <span>
@@ -720,28 +827,28 @@ function TaskDetailContent() {
                 </div>
 
                 <div>
-                  <h4 className="text-xs font-bold text-sakode-text uppercase tracking-wider mb-1">
+                  <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                     Syarat & Ketentuan:
                   </h4>
-                  <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs font-mono text-slate-700 whitespace-pre-line leading-relaxed max-h-48 overflow-y-auto">
+                  <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 text-xs font-mono text-slate-700 dark:text-slate-300 whitespace-pre-line leading-relaxed max-h-48 overflow-y-auto">
                     {task.termsSnapshot.content}
                   </div>
                 </div>
 
-                <label className="flex items-start gap-2 pt-2 cursor-pointer select-none">
+                <label className="flex items-start gap-2.5 pt-2 cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={agreedTerms}
                     onChange={(e) => setAgreedTerms(e.target.checked)}
-                    className="mt-1 h-4 w-4 rounded border-sakode-border text-sakode-cyan focus:ring-sakode-cyan"
+                    className="mt-0.5 h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-sky-600 focus:ring-sky-500"
                   />
-                  <span className="text-xs text-sakode-text leading-snug">
+                  <span className="text-xs text-slate-700 dark:text-slate-300 leading-snug">
                     Saya telah membaca, memahami, dan menyetujui seluruh syarat & ketentuan pengerjaan task ini.
                   </span>
                 </label>
               </div>
 
-              <div className="p-4 border-t border-sakode-border bg-sakode-bg flex items-center justify-between">
+              <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/50 flex items-center justify-between">
                 <Button variant="outline" size="sm" onClick={() => setShowInstantModal(false)} className="text-xs">
                   Batal
                 </Button>
@@ -750,7 +857,7 @@ function TaskDetailContent() {
                   size="sm"
                   disabled={!agreedTerms || isTakingTask}
                   onClick={handleInstantTake}
-                  className="font-bold text-xs gap-1.5 h-10 px-4"
+                  className="font-bold text-xs gap-1.5 h-10 px-4 shadow-sm"
                 >
                   {isTakingTask ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
                   <span>Konfirmasi & Mulai Bekerja</span>
@@ -762,23 +869,23 @@ function TaskDetailContent() {
 
         {/* Modal: Application Submission */}
         {showApplyModal && task && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-            <div className="bg-white rounded-xl shadow-2xl border border-sakode-border w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
-              <div className="p-4 sm:p-5 border-b border-sakode-border bg-sakode-bg flex items-start justify-between">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
+              <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/50 flex items-start justify-between">
                 <div>
                   <Badge variant="purple" leftIcon={<Send className="h-3 w-3" />}>
                     Pengajuan Aplikasi
                   </Badge>
-                  <h2 className="text-base sm:text-lg font-black text-sakode-text mt-1">{task.title}</h2>
+                  <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white mt-1">{task.title}</h2>
                 </div>
-                <button onClick={() => setShowApplyModal(false)} className="p-1 text-slate-400 hover:text-slate-700">
+                <button onClick={() => setShowApplyModal(false)} className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
               <div className="p-4 sm:p-5 space-y-4 overflow-y-auto">
                 <div>
-                  <label className="block text-xs font-bold text-sakode-text uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                     Pesan Motivasi & Pengalaman Relevan <span className="text-rose-500">*</span>
                   </label>
                   <textarea
@@ -786,13 +893,13 @@ function TaskDetailContent() {
                     placeholder="Tuliskan pengalaman atau portofolio Anda yang relevan dengan kebutuhan task ini..."
                     value={motivationMessage}
                     onChange={(e) => setMotivationMessage(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-sakode-border focus:outline-none focus:ring-2 focus:ring-sakode-cyan leading-relaxed"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 leading-relaxed"
                   />
-                  <p className="text-[10px] text-sakode-text-muted mt-1">Minimal 10 karakter.</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Minimal 10 karakter.</p>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-sakode-text uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                     Tautan Portofolio / GitHub
                   </label>
                   <textarea
@@ -800,24 +907,24 @@ function TaskDetailContent() {
                     placeholder="Satu tautan per baris..."
                     value={portfolioInput}
                     onChange={(e) => setPortfolioInput(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-sakode-border focus:outline-none focus:ring-2 focus:ring-sakode-cyan font-mono"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono"
                   />
                 </div>
 
-                <label className="flex items-start gap-2 pt-1 cursor-pointer select-none">
+                <label className="flex items-start gap-2.5 pt-1 cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={agreedCommitment}
                     onChange={(e) => setAgreedCommitment(e.target.checked)}
-                    className="mt-1 h-4 w-4 rounded border-sakode-border text-sakode-cyan focus:ring-sakode-cyan"
+                    className="mt-0.5 h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-purple-600 focus:ring-purple-500"
                   />
-                  <span className="text-xs text-sakode-text leading-snug">
+                  <span className="text-xs text-slate-700 dark:text-slate-300 leading-snug">
                     Saya berkomitmen menyelesaikan seluruh kriteria penerimaan tepat waktu jika terpilih.
                   </span>
                 </label>
               </div>
 
-              <div className="p-4 border-t border-sakode-border bg-sakode-bg flex items-center justify-between">
+              <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/50 flex items-center justify-between">
                 <Button variant="outline" size="sm" onClick={() => setShowApplyModal(false)} className="text-xs">
                   Batal
                 </Button>
@@ -826,7 +933,7 @@ function TaskDetailContent() {
                   size="sm"
                   disabled={!agreedCommitment || motivationMessage.trim().length < 10 || isSubmittingApp}
                   onClick={handleApply}
-                  className="font-bold text-xs gap-1.5 h-10 px-4"
+                  className="font-bold text-xs gap-1.5 h-10 px-4 shadow-sm"
                 >
                   {isSubmittingApp ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
                   <span>Kirim Permohonan</span>
@@ -838,33 +945,33 @@ function TaskDetailContent() {
 
         {/* Modal: Submit Appeal (One-Time Appeal Engine) */}
         {showAppealModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-            <div className="bg-white rounded-xl shadow-2xl border border-violet-200 w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-              <div className="p-4 border-b border-sakode-border flex items-center justify-between bg-violet-50/50">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-violet-200 dark:border-violet-900/40 w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+              <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-violet-50/50 dark:bg-violet-950/30">
                 <div className="flex items-center gap-2">
-                  <Scale className="h-5 w-5 text-violet-600" />
+                  <Scale className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                   <div>
-                    <h3 className="text-base font-bold text-violet-950">
+                    <h3 className="text-base font-bold text-violet-950 dark:text-violet-200">
                       Pengajuan Sanggahan (One-Time Appeal Engine)
                     </h3>
-                    <p className="text-xs text-violet-700">1 kali kesempatan banding per submission</p>
+                    <p className="text-xs text-violet-700 dark:text-violet-300">1 kali kesempatan banding per submission</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setShowAppealModal(false)}
-                  className="text-slate-400 hover:text-slate-700"
+                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                 >
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
               <form onSubmit={handleFileAppeal} className="p-5 overflow-y-auto space-y-4 flex-1">
-                <div className="p-3.5 rounded-lg bg-violet-50 border border-violet-200 text-xs text-violet-900 leading-relaxed space-y-1">
+                <div className="p-3.5 rounded-xl bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-900/40 text-xs text-violet-900 dark:text-violet-200 leading-relaxed space-y-1">
                   <strong>Regulasi Sistem SAKODE:</strong> Sanggahan Anda akan diteruskan kepada <strong>Admin lain yang independen</strong> (bukan admin yang memberikan keputusan awal). Sertakan penjelasan kronologis yang objektif dan bukti tambahan.
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Alasan & Kronologi Sanggahan (Wajib, minimal 20 karakter) <span className="text-rose-500">*</span>
                   </label>
                   <textarea
@@ -874,7 +981,7 @@ function TaskDetailContent() {
                     value={appealReason}
                     onChange={(e) => setAppealReason(e.target.value)}
                     placeholder="Jelaskan secara rinci mengapa hasil pekerjaan Anda memenuhi kriteria dan tanggapan Anda terhadap catatan evaluator awal..."
-                    className="w-full text-xs p-3 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-violet-500"
+                    className="w-full text-xs p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500"
                   />
                   <div className="text-right text-[10px] text-slate-400 mt-0.5">
                     {appealReason.length} karakter (min. 20)
@@ -882,7 +989,7 @@ function TaskDetailContent() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Berkas Bukti Sanggahan Tambahan (Opsional, maks. 5 berkas)
                   </label>
                   <FileUploadDropzone
@@ -893,7 +1000,7 @@ function TaskDetailContent() {
                   />
                 </div>
 
-                <div className="p-4 border-t border-sakode-border bg-slate-50 flex justify-end gap-2 -mx-5 -mb-5 mt-4">
+                <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/70 flex justify-end gap-2 -mx-5 -mb-5 mt-4">
                   <Button
                     type="button"
                     variant="ghost"
@@ -909,7 +1016,7 @@ function TaskDetailContent() {
                     variant="primary"
                     size="sm"
                     disabled={isSubmittingAppeal || appealReason.trim().length < 20}
-                    className="bg-violet-600 hover:bg-violet-700 font-bold text-xs gap-1.5 text-white"
+                    className="bg-violet-600 hover:bg-violet-700 font-bold text-xs gap-1.5 text-white shadow-sm"
                   >
                     {isSubmittingAppeal ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />

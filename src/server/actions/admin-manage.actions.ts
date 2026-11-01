@@ -9,6 +9,8 @@ import {
   manageAdminRole,
   getAdminStaffList,
   getEligibleMembersForPromotion,
+  getAdminDashboardOverview,
+  type AdminDashboardOverviewData,
 } from '@/server/services/admin-manage.service';
 import { getAuditEvents, type AuditFilterParams } from '@/server/services/audit.service';
 import {
@@ -104,6 +106,30 @@ export async function getAuditEventsAction(
     return {
       success: false,
       error: getErrorMessage(error, 'Gagal mengambil log audit trail.'),
+    };
+  }
+}
+
+/**
+ * 5. Agregasi Metrik Real-time Dashboard Admin
+ */
+export async function getAdminDashboardOverviewAction(
+  adminUid: string
+): Promise<{ success: boolean; data?: AdminDashboardOverviewData; error?: string }> {
+  try {
+    const overview = await getAdminDashboardOverview(adminUid);
+    return {
+      success: true,
+      data: {
+        ...overview,
+        recentAuditEvents: overview.recentAuditEvents.map(serializeAuditEventDoc),
+      },
+    };
+  } catch (error: unknown) {
+    console.error('Error on getAdminDashboardOverviewAction:', error);
+    return {
+      success: false,
+      error: getErrorMessage(error, 'Gagal memuat ringkasan operasional dashboard admin.'),
     };
   }
 }

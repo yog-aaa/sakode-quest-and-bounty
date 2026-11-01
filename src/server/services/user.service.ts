@@ -15,6 +15,7 @@ import { USER_APPROVAL_STATUS, USER_ROLES, NOTIFICATION_CATEGORIES } from '@/lib
 import {
   profileCompletionSchema,
   type ProfileCompletionInput,
+  type AdminProfileUpdateInput,
 } from '@/lib/validations/auth';
 import {
   encryptBankAccount,
@@ -394,4 +395,71 @@ export async function revealUserPaymentAccount(
   });
 
   return decrypted;
+}
+
+/**
+ * Memperbarui profil mandiri pengguna (Admin / Member).
+ * Mematuhi invariants: enkripsi AES-256-GCM jika rekening diubah dan append audit log.
+ */
+export async function updateSelfUserProfile(
+  uid: string,
+  input: AdminProfileUpdateInput
+): Promise<UserDocument> {
+  const db = getAdminFirestore();
+  const userRef = db.collection('users').doc(uid);
+  const snap = await userRef.get();
+
+  if (!snap.exists) {
+    throw new Error('Data pengguna tidak ditemukan.');
+  }
+
+  const existingData = snap.data() as UserDocument;
+  const updatePayload: Record<string, unknown> = {
+    displayName: input.displayName.trim(),
+    contactNumber: input.contactNumber.trim(),
+    updatedAt: FieldValue.serverTimestamp(),
+  };
+
+  // Jika menyertakan update rekening baru secara lengkap
+  if (input.bankName && input.accountNumber && input.accountHolderName) {
+    const encrypted = encryptBankAccount({
+      bankName: input.bankName,
+      accountNumber: input.accountNumber.trim(),
+      accountHolderName: input.accountHolderName.trim(),
+    });
+    const masked = formatMaskedPaymentAccount(
+      input.bankName,
+      input.accountNumber.trim(),
+      input.accountHolderName.trim()
+    );
+
+    updatePayload.paymentAccountEncrypted = encrypted;
+    updatePayload.paymentAccountMasked = masked;
+  }
+
+  await userRef.update(updatePayload);
+
+  // Catat audit event profil mandiri diperbarui
+  await db.collection('auditEvents').add({
+    actorId: uid,
+    actorRole: existingData.role,
+    action: 'USER_PROFILE_UPDATED',
+    entityType: 'USER',
+    entityId: uid,
+    beforeSnapshot: {
+      displayName: existingData.displayName,
+      contactNumber: existingData.contactNumber,
+      paymentAccountMasked: existingData.paymentAccountMasked || null,
+    },
+    afterSnapshot: {
+      displayName: updatePayload.displayName,
+      contactNumber: updatePayload.contactNumber,
+      paymentAccountMasked: updatePayload.paymentAccountMasked || existingData.paymentAccountMasked || null,
+    },
+    reason: `Pengguna memperbarui informasi profil mandiri.`,
+    timestamp: FieldValue.serverTimestamp(),
+  });
+
+  const updatedSnap = await userRef.get();
+  return updatedSnap.data() as UserDocument;
 }

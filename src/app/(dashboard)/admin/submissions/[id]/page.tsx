@@ -342,27 +342,27 @@ function SubmissionDetailInner() {
     submission.status === SUBMISSION_STATUS.IN_REVIEW;
 
   return (
-    <div className="min-h-screen bg-sakode-bg py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#070A10] text-slate-900 dark:text-slate-100 py-6 px-4 sm:px-6 lg:px-8 transition-colors">
       <div className="max-w-5xl mx-auto space-y-6">
         {/* Navigation Breadcrumb */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800/80 pb-4">
           <Link
             href="/admin/submissions"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-sakode-text-muted hover:text-sakode-text transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             <span>Kembali ke Antrean Evaluasi</span>
           </Link>
 
-          <span className="text-xs text-sakode-text-muted">
-            Submission ID: <span className="font-mono">{submission.id.slice(0, 8)}...</span>
+          <span className="text-xs text-slate-400 dark:text-slate-500 font-mono">
+            Submission ID: #{submission.id.slice(0, 8)}
           </span>
         </div>
 
         {/* Review Lock Banner */}
         {isLockedByOther ? (
-          <div className="p-4 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 flex items-start gap-3">
-            <Lock className="h-5 w-5 text-amber-700 shrink-0 mt-0.5" />
+          <div className="p-4 rounded-2xl border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 flex items-start gap-3 shadow-xs">
+            <Lock className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
             <div className="space-y-0.5 text-xs">
               <h4 className="font-bold text-sm">
                 Sedang Ditinjau oleh {lockedByAdminName || 'Admin Lain'}
@@ -374,14 +374,14 @@ function SubmissionDetailInner() {
             </div>
           </div>
         ) : isLockedByMe && isPending ? (
-          <div className="p-4 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-900 flex items-center justify-between gap-3">
+          <div className="p-4 rounded-2xl border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 flex items-center justify-between gap-3 shadow-xs">
             <div className="flex items-center gap-2.5">
-              <Unlock className="h-5 w-5 text-emerald-700 shrink-0" />
+              <Unlock className="h-5 w-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <div>
                 <h4 className="font-bold text-xs sm:text-sm">
                   Kunci Evaluasi Aktif Anda (Sisa: {formatLockTimer(lockRemainingSeconds)})
                 </h4>
-                <p className="text-[11px] text-emerald-800">
+                <p className="text-[11px] text-emerald-800 dark:text-emerald-300">
                   Kunci sementara 15 menit mencegah admin lain mengevaluasi submission ini bersamaan.
                 </p>
               </div>
@@ -396,7 +396,7 @@ function SubmissionDetailInner() {
                   router.push('/admin/submissions');
                 }
               }}
-              className="text-xs bg-white text-emerald-800 border-emerald-300 hover:bg-emerald-100/50 shrink-0"
+              className="text-xs bg-white dark:bg-slate-900 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 shrink-0"
             >
               Lepas Kunci & Kembali
             </Button>
@@ -405,27 +405,27 @@ function SubmissionDetailInner() {
 
         {/* Feedback Banners */}
         {errorMsg && (
-          <div className="p-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm flex items-center justify-between gap-2">
+          <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-800 dark:text-rose-200 text-xs sm:text-sm flex items-center justify-between gap-2 shadow-xs">
             <div className="flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
+              <AlertCircle className="h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
               <span>{errorMsg}</span>
             </div>
-            <button onClick={() => setErrorMsg(null)} className="text-rose-600 hover:text-rose-900">
+            <button onClick={() => setErrorMsg(null)} className="text-rose-600 dark:text-rose-400 hover:text-rose-900 dark:hover:text-rose-200 cursor-pointer">
               <X className="h-4 w-4" />
             </button>
           </div>
         )}
 
         {successMsg && (
-          <div className="p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+          <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 text-emerald-800 dark:text-emerald-200 text-xs sm:text-sm flex items-center gap-2 shadow-xs">
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
             <span>{successMsg}</span>
           </div>
         )}
 
         {/* Task & Submitter Overview */}
-        <Card className="p-5 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 border-b border-sakode-border pb-4">
+        <Card className="p-5 space-y-4 rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80 shadow-2xs">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
             <div className="space-y-1.5 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant={task.mode === 'SOLO' ? 'cyan' : 'purple'}>
@@ -434,16 +434,16 @@ function SubmissionDetailInner() {
                 <Badge variant="outline">Versi {submission.version}</Badge>
                 <StatusPill status={submission.status} size="sm" />
               </div>
-              <h1 className="text-xl sm:text-2xl font-black text-sakode-text tracking-tight">
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                 {task.title}
               </h1>
-              <p className="text-xs text-sakode-text-muted">
-                Bounty Total: <strong className="text-sakode-text font-bold">{formatCurrencyIDR(task.totalReward)}</strong>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Bounty Total: <strong className="text-slate-900 dark:text-white font-bold">{formatCurrencyIDR(task.totalReward)}</strong>
               </p>
             </div>
 
             <Link href={`/member/tasks/${task.id}`} target="_blank">
-              <Button variant="ghost" size="sm" className="text-xs gap-1 text-slate-500">
+              <Button variant="ghost" size="sm" className="text-xs gap-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
                 <span>Lihat Detail Task Asli</span>
                 <ExternalLink className="h-3.5 w-3.5" />
               </Button>
@@ -452,27 +452,27 @@ function SubmissionDetailInner() {
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
             <div>
-              <span className="text-slate-400 block text-[11px] font-semibold">Pengirim</span>
-              <span className="font-bold text-sakode-text mt-0.5 block">
+              <span className="text-slate-400 dark:text-slate-500 block text-[11px] font-semibold">Pengirim</span>
+              <span className="font-bold text-slate-900 dark:text-white mt-0.5 block">
                 {submission.submitterDisplayName || submission.submittedByUserId}
               </span>
               <span className="text-[10px] text-slate-400">{submission.submitterEmail}</span>
             </div>
             <div>
-              <span className="text-slate-400 block text-[11px] font-semibold">Waktu Kirim</span>
-              <span className="font-bold text-slate-700 mt-0.5 block">
+              <span className="text-slate-400 dark:text-slate-500 block text-[11px] font-semibold">Waktu Kirim</span>
+              <span className="font-bold text-slate-700 dark:text-slate-300 mt-0.5 block">
                 {formatDateWIB(submission.createdAt)}
               </span>
             </div>
             <div>
-              <span className="text-slate-400 block text-[11px] font-semibold">Batas Waktu Task</span>
-              <span className="font-bold text-slate-700 mt-0.5 block">
+              <span className="text-slate-400 dark:text-slate-500 block text-[11px] font-semibold">Batas Waktu Task</span>
+              <span className="font-bold text-slate-700 dark:text-slate-300 mt-0.5 block">
                 {formatDateWIB(task.deadlineAt)}
               </span>
             </div>
             <div>
-              <span className="text-slate-400 block text-[11px] font-semibold">Evaluator</span>
-              <span className="font-bold text-slate-700 mt-0.5 block">
+              <span className="text-slate-400 dark:text-slate-500 block text-[11px] font-semibold">Evaluator</span>
+              <span className="font-bold text-slate-700 dark:text-slate-300 mt-0.5 block">
                 {submission.reviewedByAdminId ? 'Selesai dievaluasi' : isLockedByMe ? 'Anda (Sedang Menilai)' : 'Belum selesai'}
               </span>
             </div>
@@ -480,106 +480,126 @@ function SubmissionDetailInner() {
         </Card>
 
         {/* Section 1: Deliverable Notes */}
-        <Card className="p-5 space-y-2.5">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-sakode-text-muted">
+        <Card className="p-5 space-y-2.5 rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80 shadow-2xs">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
             Catatan Deliverable & Laporan Hasil
           </h3>
-          <div className="p-4 rounded-lg bg-slate-50 border border-slate-200/80 text-xs sm:text-sm text-slate-800 whitespace-pre-line leading-relaxed">
+          <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 text-xs sm:text-sm text-slate-800 dark:text-slate-200 whitespace-pre-line leading-relaxed">
             {submission.notes}
           </div>
         </Card>
 
         {/* Section 2: Deliverable Links */}
-        <Card className="p-5 space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-sakode-text-muted">
+        <Card className="p-5 space-y-3 rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80 shadow-2xs">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
             Tautan Hasil Pekerjaan ({submission.deliverableLinks?.length || 0})
           </h3>
-          <div className="space-y-2">
-            {submission.deliverableLinks?.map((link, idx) => (
-              <a
-                key={idx}
-                href={link}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center justify-between p-3 rounded-lg border border-sakode-border bg-white hover:border-sky-300 hover:bg-sky-50/30 transition-colors group"
-              >
-                <div className="flex items-center gap-2.5 overflow-hidden">
-                  <div className="w-7 h-7 rounded bg-sky-100 text-sky-600 flex items-center justify-center shrink-0">
-                    <ExternalLink className="h-3.5 w-3.5" />
+          {!submission.deliverableLinks || submission.deliverableLinks.length === 0 ? (
+            <p className="text-xs text-slate-400 dark:text-slate-500 py-3 text-center">
+              Tidak ada tautan yang dilampirkan (pekerjaan diserahkan via berkas bukti).
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {submission.deliverableLinks.map((link, idx) => (
+                <a
+                  key={idx}
+                  href={link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-sky-300 dark:hover:border-sky-700 hover:bg-sky-50/30 dark:hover:bg-sky-950/20 transition-colors group"
+                >
+                  <div className="flex items-center gap-2.5 overflow-hidden">
+                    <div className="w-7 h-7 rounded-lg bg-sky-100 dark:bg-sky-950/80 text-sky-600 dark:text-sky-300 flex items-center justify-center shrink-0">
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </div>
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors truncate">
+                      {link}
+                    </span>
                   </div>
-                  <span className="text-xs font-semibold text-sakode-text group-hover:text-sky-600 transition-colors truncate">
-                    {link}
-                  </span>
-                </div>
-                <span className="text-[11px] text-sky-600 font-bold shrink-0">Buka Tautan ↗</span>
-              </a>
-            ))}
-          </div>
+                  <span className="text-[11px] text-sky-600 dark:text-sky-400 font-bold shrink-0">Buka Tautan ↗</span>
+                </a>
+              ))}
+            </div>
+          )}
         </Card>
 
         {/* Section 3: Evidence Files Gallery */}
-        <Card className="p-5 space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-sakode-text-muted">
+        <Card className="p-5 space-y-3 rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80 shadow-2xs">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
             Berkas Bukti Pekerjaan ({submission.evidenceFiles?.length || 0})
           </h3>
 
           {!submission.evidenceFiles || submission.evidenceFiles.length === 0 ? (
-            <p className="text-xs text-sakode-text-muted py-4 text-center">
-              Tidak ada berkas bukti yang dilampirkan.
+            <p className="text-xs text-slate-400 dark:text-slate-500 py-4 text-center">
+              Tidak ada berkas bukti yang dilampirkan (pekerjaan diserahkan via tautan online).
             </p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
               {submission.evidenceFiles.map((file) => {
-                const isPdf =
-                  file.fileName.toLowerCase().endsWith('.pdf') ||
-                  file.fileType.toLowerCase().includes('pdf');
+                const lowerName = file.fileName.toLowerCase();
+                const lowerType = file.fileType?.toLowerCase() || '';
+                const isPdf = lowerName.endsWith('.pdf') || lowerType.includes('pdf');
+                const isWord = lowerName.endsWith('.doc') || lowerName.endsWith('.docx') || lowerType.includes('word') || lowerType.includes('officedocument.wordprocessingml');
+                const isPpt = lowerName.endsWith('.ppt') || lowerName.endsWith('.pptx') || lowerType.includes('presentation') || lowerType.includes('powerpoint');
+                const isDoc = isPdf || isWord || isPpt;
+                const fileDownloadUrl = file.url;
+
+                let docTypeLabel = 'Dokumen Lampiran';
+                let docColorClass = 'text-cyan-600 dark:text-cyan-400 bg-cyan-100 dark:bg-cyan-950/80';
+                if (isPdf) {
+                  docTypeLabel = 'Dokumen PDF';
+                  docColorClass = 'text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-950/80';
+                } else if (isWord) {
+                  docTypeLabel = 'Dokumen Word';
+                  docColorClass = 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-950/80';
+                } else if (isPpt) {
+                  docTypeLabel = 'Presentasi PPT';
+                  docColorClass = 'text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-950/80';
+                }
 
                 return (
                   <div
                     key={file.publicId}
-                    className="p-3 rounded-lg border border-sakode-border bg-white space-y-2 flex flex-col justify-between"
+                    className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-2.5 flex flex-col justify-between shadow-2xs"
                   >
                     <div className="flex items-center gap-2 overflow-hidden">
-                      <div className="w-8 h-8 rounded bg-slate-100 flex items-center justify-center shrink-0">
-                        {isPdf ? (
-                          <FileText className="h-4 w-4 text-rose-500" />
-                        ) : (
-                          <ImageIcon className="h-4 w-4 text-sky-500" />
-                        )}
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDoc ? docColorClass : 'bg-slate-100 dark:bg-slate-800 text-sky-500'}`}>
+                        {isDoc ? <FileText className="h-4 w-4" /> : <ImageIcon className="h-4 w-4" />}
                       </div>
-                      <div className="overflow-hidden">
-                        <p className="text-xs font-bold text-sakode-text truncate" title={file.fileName}>
+                      <div className="overflow-hidden min-w-0">
+                        <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate" title={file.fileName}>
                           {file.fileName}
                         </p>
-                        <p className="text-[10px] text-slate-400">
-                          {isPdf ? 'Dokumen PDF' : 'Tangkapan Layar'}
+                        <p className="text-[10px] text-slate-400 font-mono">
+                          {docTypeLabel} • {Math.round((file.fileSize || 0) / 1024)} KB
                         </p>
                       </div>
                     </div>
 
-                    {!isPdf ? (
+                    {!isDoc ? (
                       <div
-                        onClick={() => setPreviewImage(file.url)}
-                        className="relative h-28 w-full bg-slate-100 rounded overflow-hidden cursor-pointer group"
+                        onClick={() => setPreviewImage(fileDownloadUrl)}
+                        className="relative h-28 w-full bg-slate-100 dark:bg-slate-800 rounded-lg overflow-hidden cursor-pointer group"
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                          src={file.url}
+                          src={fileDownloadUrl}
                           alt={file.fileName}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                         />
-                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[11px] font-bold transition-opacity">
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[11px] font-bold transition-opacity">
                           Klik untuk Perbesar
                         </div>
                       </div>
                     ) : (
                       <a
-                        href={file.url}
+                        href={fileDownloadUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="p-2.5 rounded bg-slate-50 hover:bg-slate-100 text-center block text-xs font-semibold text-rose-600 transition-colors"
+                        download={file.fileName}
+                        className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-center block text-xs font-bold text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700 transition-colors"
                       >
-                        Lihat Dokumen PDF ↗
+                        Buka / Unduh Berkas ↗
                       </a>
                     )}
                   </div>
@@ -591,10 +611,10 @@ function SubmissionDetailInner() {
 
         {/* Section 4: Admin Decision Panel */}
         {isPending && (
-          <Card className="p-5 border-t-4 border-t-sakode-cyan space-y-4">
+          <Card className="p-5 border-t-4 border-t-sky-500 rounded-2xl border-x border-b border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80 shadow-2xs space-y-4">
             <div>
-              <h3 className="text-sm font-black text-sakode-text">Keputusan Evaluasi Admin</h3>
-              <p className="text-xs text-sakode-text-muted mt-0.5">
+              <h3 className="text-sm font-black text-slate-900 dark:text-white">Keputusan Evaluasi Admin</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Pilih salah satu dari 5 tindakan evaluasi resmi SAKODE Academy. Keputusan dicatat permanen di audit trail.
               </p>
             </div>
@@ -619,9 +639,9 @@ function SubmissionDetailInner() {
                   setPartialRewardAmount(Math.floor(task.totalReward * 0.5));
                   setActiveModal('PARTIAL');
                 }}
-                className="font-bold text-xs gap-1.5 h-11 text-blue-700 border-blue-300 hover:bg-blue-50"
+                className="font-bold text-xs gap-1.5 h-11 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/40"
               >
-                <PieChart className="h-4 w-4 text-blue-600" />
+                <PieChart className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                 <span>Selesai Sebagian</span>
               </Button>
 
@@ -630,9 +650,9 @@ function SubmissionDetailInner() {
                 variant="outline"
                 disabled={isLockedByOther || isProcessing}
                 onClick={() => setActiveModal('REVISION')}
-                className="font-bold text-xs gap-1.5 h-11 text-amber-800 border-amber-300 hover:bg-amber-50"
+                className="font-bold text-xs gap-1.5 h-11 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/40"
               >
-                <RotateCcw className="h-4 w-4 text-amber-600" />
+                <RotateCcw className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                 <span>Minta Revisi</span>
               </Button>
 
@@ -641,9 +661,9 @@ function SubmissionDetailInner() {
                 variant="outline"
                 disabled={isLockedByOther || isProcessing}
                 onClick={() => setActiveModal('EXTEND')}
-                className="font-bold text-xs gap-1.5 h-11 text-sky-800 border-sky-300 hover:bg-sky-50"
+                className="font-bold text-xs gap-1.5 h-11 text-sky-800 dark:text-sky-300 border-sky-300 dark:border-sky-700 hover:bg-sky-50 dark:hover:bg-sky-950/40"
               >
-                <Calendar className="h-4 w-4 text-sky-600" />
+                <Calendar className="h-4 w-4 text-sky-600 dark:text-sky-400" />
                 <span>Perpanjang Waktu</span>
               </Button>
 
@@ -652,9 +672,9 @@ function SubmissionDetailInner() {
                 variant="outline"
                 disabled={isLockedByOther || isProcessing}
                 onClick={() => setActiveModal('REJECT')}
-                className="font-bold text-xs gap-1.5 h-11 text-rose-700 border-rose-300 hover:bg-rose-50"
+                className="font-bold text-xs gap-1.5 h-11 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40"
               >
-                <XCircle className="h-4 w-4 text-rose-600" />
+                <XCircle className="h-4 w-4 text-rose-600 dark:text-rose-400" />
                 <span>Tolak Hasil</span>
               </Button>
             </div>
@@ -663,20 +683,24 @@ function SubmissionDetailInner() {
 
         {/* Section: Continuation Task Banner if Partial */}
         {task.continuationTaskId && (
-          <div className="p-4 rounded-xl border border-blue-200 bg-blue-50 flex items-center justify-between gap-3">
+          <div className="p-4 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/30 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
-              <PieChart className="h-5 w-5 text-blue-600 shrink-0" />
+              <PieChart className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0" />
               <div>
-                <h4 className="font-bold text-xs sm:text-sm text-blue-950">
+                <h4 className="font-bold text-xs sm:text-sm text-blue-950 dark:text-blue-200">
                   Task Ini Telah Diselesaikan Sebagian (Partial Completion)
                 </h4>
-                <p className="text-[11px] text-blue-800">
+                <p className="text-[11px] text-blue-800 dark:text-blue-300">
                   Continuation Task telah diterbitkan secara otomatis dengan sisa reward dan ruang lingkup tersisa.
                 </p>
               </div>
             </div>
             <Link href={`/member/tasks/${task.continuationTaskId}`} target="_blank">
-              <Button variant="outline" size="sm" className="text-xs bg-white text-blue-700 border-blue-300 hover:bg-blue-100/50">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/60 shadow-2xs"
+              >
                 <span>Lihat Task Lanjutan</span>
                 <ArrowUpRight className="h-3.5 w-3.5 ml-1" />
               </Button>
@@ -686,26 +710,26 @@ function SubmissionDetailInner() {
 
         {/* Section: Active Appeal Review Panel (if APPEALED) */}
         {task.status === TASK_STATUS.APPEALED && submission.appeal && (
-          <Card className="p-5 border-2 border-violet-400 bg-violet-50/30 space-y-4">
-            <div className="flex items-start justify-between gap-3 border-b border-violet-200 pb-3">
+          <Card className="p-5 border-2 border-purple-400 dark:border-purple-700 bg-purple-50/30 dark:bg-purple-950/20 space-y-4 rounded-2xl">
+            <div className="flex items-start justify-between gap-3 border-b border-purple-200 dark:border-purple-800/60 pb-3">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-violet-100 text-violet-700 flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 flex items-center justify-center shrink-0">
                   <Scale className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-black text-violet-950 flex items-center gap-1.5">
+                  <h3 className="text-sm font-black text-purple-950 dark:text-purple-200 flex items-center gap-1.5">
                     <span>Sanggahan Member (One-Time Appeal Engine)</span>
                     <Badge variant="purple">Aktif</Badge>
                   </h3>
-                  <p className="text-[11px] text-violet-700 mt-0.5">
+                  <p className="text-[11px] text-purple-700 dark:text-purple-300 mt-0.5">
                     Diajukan pada: {formatDateWIB(submission.appeal.filedAt)}
                   </p>
                 </div>
               </div>
 
-              <div className="text-right text-[11px] text-slate-500">
+              <div className="text-right text-[11px] text-slate-500 dark:text-slate-400">
                 <span>Evaluator Awal: </span>
-                <span className="font-mono font-bold text-slate-700">
+                <span className="font-mono font-bold text-slate-700 dark:text-slate-300">
                   {submission.firstReviewerAdminId || submission.reviewedByAdminId || 'Admin'}
                 </span>
               </div>
@@ -713,10 +737,10 @@ function SubmissionDetailInner() {
 
             {/* Appeal Reason */}
             <div className="space-y-1">
-              <label className="text-[11px] font-bold text-violet-900 uppercase tracking-wider">
-                Alasan & Kronologi Sanggahan dari Member:
+              <label className="text-[11px] font-bold text-purple-900 dark:text-purple-300 uppercase tracking-wider">
+                Alasan &amp; Kronologi Sanggahan dari Member:
               </label>
-              <div className="p-3.5 rounded-lg bg-white border border-violet-200 text-xs text-slate-800 whitespace-pre-line leading-relaxed">
+              <div className="p-3.5 rounded-lg bg-white dark:bg-slate-900 border border-purple-200 dark:border-purple-800 text-xs text-slate-800 dark:text-slate-200 whitespace-pre-line leading-relaxed">
                 {submission.appeal.reason}
               </div>
             </div>
@@ -724,7 +748,7 @@ function SubmissionDetailInner() {
             {/* Evidence files attached to appeal */}
             {submission.appeal.evidenceFiles && submission.appeal.evidenceFiles.length > 0 && (
               <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-violet-900 uppercase tracking-wider">
+                <label className="text-[11px] font-bold text-purple-900 dark:text-purple-300 uppercase tracking-wider">
                   Berkas Bukti Sanggahan Tambahan:
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -734,7 +758,7 @@ function SubmissionDetailInner() {
                       href={f.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-violet-200 text-xs font-semibold text-violet-700 hover:bg-violet-100/50 transition-colors"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-purple-200 dark:border-purple-800 text-xs font-semibold text-purple-700 dark:text-purple-300 hover:bg-purple-100/50 dark:hover:bg-purple-900/40 transition-colors"
                     >
                       <ExternalLink className="h-3 w-3" />
                       <span>{f.fileName}</span>
@@ -798,23 +822,23 @@ function SubmissionDetailInner() {
 
         {/* Modal: Approve Confirmation */}
         {activeModal === 'APPROVE' && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-            <div className="bg-white rounded-xl shadow-2xl border border-sakode-border w-full max-w-md p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-md p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                <div className="w-9 h-9 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                   <CheckCircle2 className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-sakode-text">Setujui Hasil Pekerjaan</h3>
-                  <p className="text-xs text-sakode-text-muted">Konfirmasi evaluasi deliverable</p>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">Setujui Hasil Pekerjaan</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Konfirmasi evaluasi deliverable</p>
                 </div>
               </div>
 
-              <p className="text-xs text-slate-700 leading-relaxed">
-                Apakah Anda yakin ingin menyetujui submission ini? Status task akan diperbarui menjadi <strong>APPROVED</strong> dan membuka hak pencairan reward bagi member.
+              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                Apakah Anda yakin ingin menyetujui submission ini? Status task akan diperbarui menjadi <strong className="text-slate-900 dark:text-white">APPROVED</strong> dan membuka hak pencairan reward bagi member.
               </p>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-sakode-border">
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
                 <Button variant="ghost" size="sm" onClick={() => setActiveModal(null)} disabled={isProcessing} className="text-xs">
                   Batal
                 </Button>
@@ -823,7 +847,7 @@ function SubmissionDetailInner() {
                   size="sm"
                   disabled={isProcessing}
                   onClick={() => handleExecuteReview('APPROVE')}
-                  className="bg-emerald-600 hover:bg-emerald-700 font-bold text-xs gap-1.5"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs gap-1.5 shadow-sm"
                 >
                   {isProcessing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
                   <span>Ya, Setujui Sekarang</span>
@@ -835,21 +859,21 @@ function SubmissionDetailInner() {
 
         {/* Modal: Request Revision */}
         {activeModal === 'REVISION' && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-            <div className="bg-white rounded-xl shadow-2xl border border-sakode-border w-full max-w-lg p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
-              <div className="flex items-center justify-between border-b border-sakode-border pb-3">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
                 <div className="flex items-center gap-2">
-                  <RotateCcw className="h-5 w-5 text-amber-600" />
-                  <h3 className="text-base font-bold text-sakode-text">Minta Perbaikan / Revisi</h3>
+                  <RotateCcw className="h-5 w-5 text-amber-500" />
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">Minta Perbaikan / Revisi</h3>
                 </div>
-                <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-slate-700">
+                <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Catatan Perbaikan (Wajib, minimal 10 karakter)
                   </label>
                   <textarea
@@ -859,24 +883,24 @@ function SubmissionDetailInner() {
                     value={revisionNotes}
                     onChange={(e) => setRevisionNotes(e.target.value)}
                     placeholder="Sebutkan bagian atau kriteria yang belum terpenuhi dan apa yang perlu diperbaiki..."
-                    className="w-full text-xs p-3 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                    className="w-full text-xs p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Batas Waktu Revisi Baru (Opsional)
                   </label>
                   <input
                     type="datetime-local"
                     value={revisionDeadline}
                     onChange={(e) => setRevisionDeadline(e.target.value)}
-                    className="w-full text-xs p-2.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-sakode-border">
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
                 <Button variant="ghost" size="sm" onClick={() => setActiveModal(null)} disabled={isProcessing} className="text-xs">
                   Batal
                 </Button>
@@ -885,7 +909,7 @@ function SubmissionDetailInner() {
                   size="sm"
                   disabled={isProcessing || revisionNotes.trim().length < 10}
                   onClick={() => handleExecuteReview('REQUEST_REVISION')}
-                  className="bg-amber-600 hover:bg-amber-700 font-bold text-xs gap-1.5"
+                  className="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs gap-1.5 shadow-sm"
                 >
                   {isProcessing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RotateCcw className="h-3.5 w-3.5" />}
                   <span>Kirim Permintaan Revisi</span>
@@ -897,21 +921,21 @@ function SubmissionDetailInner() {
 
         {/* Modal: Extend Deadline */}
         {activeModal === 'EXTEND' && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-            <div className="bg-white rounded-xl shadow-2xl border border-sakode-border w-full max-w-lg p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
-              <div className="flex items-center justify-between border-b border-sakode-border pb-3">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
                 <div className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-sky-600" />
-                  <h3 className="text-base font-bold text-sakode-text">Beri Perpanjangan Waktu Task</h3>
+                  <Calendar className="h-5 w-5 text-sky-500" />
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">Beri Perpanjangan Waktu Task</h3>
                 </div>
-                <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-slate-700">
+                <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Tambahan Hari (1 - 30 Hari)
                   </label>
                   <input
@@ -920,12 +944,12 @@ function SubmissionDetailInner() {
                     max={30}
                     value={extensionDays}
                     onChange={(e) => setExtensionDays(parseInt(e.target.value) || 1)}
-                    className="w-full text-xs p-2.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-sky-500"
+                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Alasan Perpanjangan (Audit Trail, minimal 10 karakter)
                   </label>
                   <textarea
@@ -935,12 +959,12 @@ function SubmissionDetailInner() {
                     value={extensionReason}
                     onChange={(e) => setExtensionReason(e.target.value)}
                     placeholder="Contoh: Mengakomodasi kendala integrasi API eksternal yang di luar kendali member..."
-                    className="w-full text-xs p-2.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-sky-500"
+                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-sakode-border">
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
                 <Button variant="ghost" size="sm" onClick={() => setActiveModal(null)} disabled={isProcessing} className="text-xs">
                   Batal
                 </Button>
@@ -949,7 +973,7 @@ function SubmissionDetailInner() {
                   size="sm"
                   disabled={isProcessing || extensionReason.trim().length < 10 || extensionDays < 1}
                   onClick={() => handleExecuteReview('EXTEND_DEADLINE')}
-                  className="bg-sky-600 hover:bg-sky-700 font-bold text-xs gap-1.5"
+                  className="bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs gap-1.5 shadow-sm"
                 >
                   {isProcessing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Calendar className="h-3.5 w-3.5" />}
                   <span>Terapkan Perpanjangan</span>
@@ -961,24 +985,24 @@ function SubmissionDetailInner() {
 
         {/* Modal: Reject Confirmation */}
         {activeModal === 'REJECT' && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-            <div className="bg-white rounded-xl shadow-2xl border border-rose-200 w-full max-w-lg p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
-              <div className="flex items-center justify-between border-b border-sakode-border pb-3">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-rose-200 dark:border-rose-900/40 w-full max-w-lg p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
                 <div className="flex items-center gap-2">
-                  <XCircle className="h-5 w-5 text-rose-600" />
-                  <h3 className="text-base font-bold text-rose-900">Tolak Hasil Pekerjaan</h3>
+                  <XCircle className="h-5 w-5 text-rose-600 dark:text-rose-400" />
+                  <h3 className="text-base font-bold text-rose-950 dark:text-rose-200">Tolak Hasil Pekerjaan</h3>
                 </div>
-                <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-slate-700">
+                <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
-              <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-800 leading-relaxed">
+              <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 text-xs text-rose-800 dark:text-rose-300 leading-relaxed">
                 <strong>Perhatian:</strong> Penolakan submission akan menggagalkan task ini (status <strong>FAILED</strong>). Member akan mendapatkan hak mengajukan sanggah (appeal).
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                   Alasan Penolakan (Wajib, minimal 10 karakter)
                 </label>
                 <textarea
@@ -988,11 +1012,11 @@ function SubmissionDetailInner() {
                   value={rejectReason}
                   onChange={(e) => setRejectReason(e.target.value)}
                   placeholder="Jelaskan secara transparan mengapa hasil pekerjaan tidak dapat diterima..."
-                  className="w-full text-xs p-3 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="w-full text-xs p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-rose-500"
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-sakode-border">
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
                 <Button variant="ghost" size="sm" onClick={() => setActiveModal(null)} disabled={isProcessing} className="text-xs">
                   Batal
                 </Button>
@@ -1001,7 +1025,7 @@ function SubmissionDetailInner() {
                   size="sm"
                   disabled={isProcessing || rejectReason.trim().length < 10}
                   onClick={() => handleExecuteReview('REJECT')}
-                  className="bg-rose-600 hover:bg-rose-700 font-bold text-xs gap-1.5"
+                  className="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs gap-1.5 shadow-sm"
                 >
                   {isProcessing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
                   <span>Tolak Hasil Sekarang</span>
@@ -1013,43 +1037,43 @@ function SubmissionDetailInner() {
 
         {/* Modal: Partial Completion */}
         {activeModal === 'PARTIAL' && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-            <div className="bg-white rounded-xl shadow-2xl border border-blue-200 w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-              <div className="p-4 border-b border-sakode-border flex items-center justify-between bg-blue-50/50">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-blue-200 dark:border-blue-900/40 w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+              <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-blue-50/50 dark:bg-blue-950/30">
                 <div className="flex items-center gap-2">
-                  <PieChart className="h-5 w-5 text-blue-600" />
+                  <PieChart className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   <div>
-                    <h3 className="text-base font-bold text-blue-950">Selesai Sebagian (Partial Completion)</h3>
-                    <p className="text-xs text-blue-800">Evaluasi parsial & pembentukan Continuation Task</p>
+                    <h3 className="text-base font-bold text-blue-950 dark:text-blue-200">Selesai Sebagian (Partial Completion)</h3>
+                    <p className="text-xs text-blue-800 dark:text-blue-300">Evaluasi parsial & pembentukan Continuation Task</p>
                   </div>
                 </div>
-                <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-slate-700">
+                <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
               <div className="p-5 overflow-y-auto space-y-4 flex-1">
                 {/* Live Reward Calculation Banner */}
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 grid grid-cols-3 gap-2 text-center text-xs">
+                <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 grid grid-cols-3 gap-2 text-center text-xs">
                   <div>
                     <span className="text-[10px] font-bold text-slate-500 uppercase block">Bounty Awal</span>
-                    <span className="font-black text-sakode-text text-sm block mt-0.5">
+                    <span className="font-black text-slate-900 dark:text-white text-sm block mt-0.5">
                       {formatCurrencyIDR(task.totalReward)}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold text-blue-600 uppercase block">Reward Parsial</span>
-                    <span className="font-black text-blue-700 text-sm block mt-0.5">
+                    <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase block">Reward Parsial</span>
+                    <span className="font-black text-blue-700 dark:text-blue-400 text-sm block mt-0.5">
                       {formatCurrencyIDR(partialRewardAmount || 0)}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold text-emerald-600 uppercase block">Sisa Task Lanjutan</span>
+                    <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase block">Sisa Task Lanjutan</span>
                     <span
                       className={`font-black text-sm block mt-0.5 ${
                         task.totalReward - partialRewardAmount <= 0
-                          ? 'text-rose-600'
-                          : 'text-emerald-700'
+                          ? 'text-rose-600 dark:text-rose-400'
+                          : 'text-emerald-700 dark:text-emerald-400'
                       }`}
                     >
                       {formatCurrencyIDR(Math.max(0, task.totalReward - partialRewardAmount))}
@@ -1058,14 +1082,14 @@ function SubmissionDetailInner() {
                 </div>
 
                 {partialRewardAmount >= task.totalReward && (
-                  <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs">
+                  <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 text-rose-800 dark:text-rose-300 text-xs">
                     <strong>Peringatan Invariant:</strong> Nilai reward parsial harus lebih kecil dari total bounty task ({formatCurrencyIDR(task.totalReward)}). Jika diterima penuh, gunakan aksi &quot;Setujui Hasil&quot;.
                   </div>
                 )}
 
                 {/* Accepted notes */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Bagian Pekerjaan yang Diterima (Accepted Deliverable) <span className="text-rose-500">*</span>
                   </label>
                   <textarea
@@ -1075,7 +1099,7 @@ function SubmissionDetailInner() {
                     value={partialAcceptedNotes}
                     onChange={(e) => setPartialAcceptedNotes(e.target.value)}
                     placeholder="Sebutkan fitur/komponen apa saja yang telah selesai dan dapat diterima kualitasnya..."
-                    className="w-full text-xs p-2.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <div className="text-right text-[10px] text-slate-400 mt-0.5">
                     {partialAcceptedNotes.length} karakter (min. 15)
@@ -1084,7 +1108,7 @@ function SubmissionDetailInner() {
 
                 {/* Remaining scope for continuation task */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Ruang Lingkup Tersisa untuk Task Lanjutan (Continuation Scope) <span className="text-rose-500">*</span>
                   </label>
                   <textarea
@@ -1094,7 +1118,7 @@ function SubmissionDetailInner() {
                     value={partialRemainingScope}
                     onChange={(e) => setPartialRemainingScope(e.target.value)}
                     placeholder="Jelaskan sisa scope pekerjaan yang belum tuntas yang akan dikerjakan pada Continuation Task..."
-                    className="w-full text-xs p-2.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <div className="text-right text-[10px] text-slate-400 mt-0.5">
                     {partialRemainingScope.length} karakter (min. 15)
@@ -1103,7 +1127,7 @@ function SubmissionDetailInner() {
 
                 {/* Partial reward input */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Nominal Reward Parsial untuk Member (Integer Rupiah) <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -1113,13 +1137,13 @@ function SubmissionDetailInner() {
                     max={task.totalReward - 1000}
                     value={partialRewardAmount}
                     onChange={(e) => setPartialRewardAmount(parseInt(e.target.value) || 0)}
-                    className="w-full text-xs font-bold p-2.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full text-xs font-bold p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
                   />
                 </div>
 
                 {/* Reason */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Alasan Evaluasi Parsial (Audit Trail) <span className="text-rose-500">*</span>
                   </label>
                   <textarea
@@ -1129,7 +1153,7 @@ function SubmissionDetailInner() {
                     value={partialReason}
                     onChange={(e) => setPartialReason(e.target.value)}
                     placeholder="Alasan mengapa diputuskan selesai sebagian..."
-                    className="w-full text-xs p-2.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
@@ -1141,13 +1165,13 @@ function SubmissionDetailInner() {
                     onChange={(e) => setPublishContinuationNow(e.target.checked)}
                     className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                   />
-                  <span className="text-xs font-semibold text-slate-800">
+                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
                     Langsung terbitkan Continuation Task ke status OPEN (Terbuka untuk pelamar baru)
                   </span>
                 </label>
               </div>
 
-              <div className="p-4 border-t border-sakode-border bg-slate-50 flex justify-end gap-2">
+              <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/70 flex justify-end gap-2">
                 <Button variant="ghost" size="sm" onClick={() => setActiveModal(null)} disabled={isProcessing} className="text-xs">
                   Batal
                 </Button>
@@ -1163,7 +1187,7 @@ function SubmissionDetailInner() {
                     partialRewardAmount >= task.totalReward
                   }
                   onClick={handleExecutePartialCompletion}
-                  className="bg-blue-600 hover:bg-blue-700 font-bold text-xs gap-1.5 text-white"
+                  className="bg-blue-600 hover:bg-blue-700 font-bold text-xs gap-1.5 text-white shadow-sm"
                 >
                   {isProcessing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <PieChart className="h-3.5 w-3.5" />}
                   <span>Terapkan Selesai Sebagian</span>
@@ -1175,24 +1199,24 @@ function SubmissionDetailInner() {
 
         {/* Modal: Decide Appeal (APPROVE) */}
         {activeModal === 'DECIDE_APPEAL_APPROVE' && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-            <div className="bg-white rounded-xl shadow-2xl border border-sakode-border w-full max-w-lg p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
-              <div className="flex items-center gap-2.5 border-b border-sakode-border pb-3">
-                <div className="w-9 h-9 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-center gap-2.5 border-b border-slate-200 dark:border-slate-800 pb-3">
+                <div className="w-9 h-9 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                   <CheckCircle2 className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-sakode-text">Terima Sanggahan Member (Approve)</h3>
-                  <p className="text-xs text-sakode-text-muted">Keputusan peninjauan independen</p>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">Terima Sanggahan Member (Approve)</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Keputusan peninjauan independen</p>
                 </div>
               </div>
 
-              <p className="text-xs text-slate-700 leading-relaxed">
-                Menerima sanggahan ini akan membatalkan penolakan sebelumnya dan mengubah status task &amp; submission menjadi <strong>APPROVED</strong>.
+              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                Menerima sanggahan ini akan membatalkan penolakan sebelumnya dan mengubah status task &amp; submission menjadi <strong className="text-slate-900 dark:text-white">APPROVED</strong>.
               </p>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                   Catatan Resolusi Banding (Wajib, minimal 15 karakter)
                 </label>
                 <textarea
@@ -1202,11 +1226,11 @@ function SubmissionDetailInner() {
                   value={appealResolutionNotes}
                   onChange={(e) => setAppealResolutionNotes(e.target.value)}
                   placeholder="Jelaskan pertimbangan mengapa bukti atau penjelasan tambahan member dapat diterima..."
-                  className="w-full text-xs p-3 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  className="w-full text-xs p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-sakode-border">
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
                 <Button variant="ghost" size="sm" onClick={() => setActiveModal(null)} disabled={isProcessing} className="text-xs">
                   Batal
                 </Button>
@@ -1215,7 +1239,7 @@ function SubmissionDetailInner() {
                   size="sm"
                   disabled={isProcessing || appealResolutionNotes.trim().length < 15}
                   onClick={() => handleExecuteAppealDecision('APPROVE')}
-                  className="bg-emerald-600 hover:bg-emerald-700 font-bold text-xs gap-1.5 text-white"
+                  className="bg-emerald-600 hover:bg-emerald-700 font-bold text-xs gap-1.5 text-white shadow-sm"
                 >
                   {isProcessing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
                   <span>Terima Sanggahan Sekarang</span>
@@ -1227,24 +1251,24 @@ function SubmissionDetailInner() {
 
         {/* Modal: Decide Appeal (REJECT) */}
         {activeModal === 'DECIDE_APPEAL_REJECT' && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-            <div className="bg-white rounded-xl shadow-2xl border border-rose-200 w-full max-w-lg p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
-              <div className="flex items-center gap-2.5 border-b border-sakode-border pb-3">
-                <div className="w-9 h-9 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-rose-200 dark:border-rose-900/40 w-full max-w-lg p-5 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-center gap-2.5 border-b border-slate-200 dark:border-slate-800 pb-3">
+                <div className="w-9 h-9 rounded-full bg-rose-100 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
                   <XCircle className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-rose-900">Tolak Sanggahan Member (Final Reject)</h3>
-                  <p className="text-xs text-rose-700">Keputusan akhir yang tidak dapat diajukan banding lagi</p>
+                  <h3 className="text-base font-bold text-rose-950 dark:text-rose-200">Tolak Sanggahan Member (Final Reject)</h3>
+                  <p className="text-xs text-rose-700 dark:text-rose-400">Keputusan akhir yang tidak dapat diajukan banding lagi</p>
                 </div>
               </div>
 
-              <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-800 leading-relaxed">
+              <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 text-xs text-rose-800 dark:text-rose-300 leading-relaxed">
                 Penolakan ini bersifat final. Status task akan tetap <strong>FAILED</strong> atau <strong>PARTIAL</strong> dan hak sanggah 1-time appeal untuk submission ini ditutup secara permanen.
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                   Catatan Alasan Penolakan Banding (Wajib, minimal 15 karakter)
                 </label>
                 <textarea
@@ -1254,11 +1278,11 @@ function SubmissionDetailInner() {
                   value={appealResolutionNotes}
                   onChange={(e) => setAppealResolutionNotes(e.target.value)}
                   placeholder="Jelaskan secara transparan pertimbangan objektif mengapa sanggahan ini tidak dapat diterima..."
-                  className="w-full text-xs p-3 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="w-full text-xs p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-rose-500"
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-sakode-border">
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
                 <Button variant="ghost" size="sm" onClick={() => setActiveModal(null)} disabled={isProcessing} className="text-xs">
                   Batal
                 </Button>
@@ -1267,7 +1291,7 @@ function SubmissionDetailInner() {
                   size="sm"
                   disabled={isProcessing || appealResolutionNotes.trim().length < 15}
                   onClick={() => handleExecuteAppealDecision('REJECT')}
-                  className="bg-rose-600 hover:bg-rose-700 font-bold text-xs gap-1.5 text-white"
+                  className="bg-rose-600 hover:bg-rose-700 font-bold text-xs gap-1.5 text-white shadow-sm"
                 >
                   {isProcessing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
                   <span>Tolak Sanggahan Secara Final</span>

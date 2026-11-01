@@ -25,21 +25,21 @@ export const Badge: React.FC<BadgeProps> = ({
 }) => {
   const variantStyles: Record<BadgeVariant, string> = {
     default:
-      'bg-sakode-cyan/20 text-[#0c6b94] border-sakode-cyan/40',
+      'bg-sakode-cyan/15 dark:bg-sakode-cyan/20 text-[#0c6b94] dark:text-sakode-cyan border-sakode-cyan/30 dark:border-sakode-cyan/40',
     cyan:
-      'bg-sakode-cyan/20 text-[#0c6b94] border-sakode-cyan/40',
+      'bg-sakode-cyan/15 dark:bg-sakode-cyan/20 text-[#0c6b94] dark:text-sakode-cyan border-sakode-cyan/30 dark:border-sakode-cyan/40',
     purple:
-      'bg-sakode-purple/15 text-[#7329be] border-sakode-purple/30',
+      'bg-sakode-purple/15 dark:bg-sakode-purple/20 text-[#7329be] dark:text-purple-300 border-sakode-purple/30 dark:border-purple-500/30',
     orange:
-      'bg-sakode-orange/15 text-[#b93f0b] border-sakode-orange/30',
+      'bg-sakode-orange/15 dark:bg-sakode-orange/20 text-[#b93f0b] dark:text-amber-300 border-sakode-orange/30 dark:border-amber-500/30',
     outline:
-      'bg-sakode-card text-sakode-text border-sakode-border',
+      'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800',
     success:
-      'bg-emerald-50 text-emerald-800 border-emerald-200',
+      'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
     secondary:
-      'bg-slate-100 text-slate-700 border-slate-200',
+      'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700',
     dark:
-      'bg-sakode-text text-white border-sakode-text',
+      'bg-slate-900 dark:bg-slate-800 text-white border-slate-900 dark:border-slate-700',
   };
 
   return (

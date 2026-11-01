@@ -12,6 +12,7 @@ import {
   markAllNotificationsReadAction,
 } from '@/server/actions/notification.actions';
 import { formatDateWIB, formatRelativeTime } from '@/lib/utils';
+import { ViewModeToggle, type ViewMode } from '@/components/ui/ViewModeToggle';
 import type { NotificationDocument, NotificationCategory } from '@/types/database';
 import {
   Bell,
@@ -41,6 +42,13 @@ export default function AdminNotificationsPage() {
   const [loading, setLoading] = useState(true);
   const [filterRead, setFilterRead] = useState<'ALL' | 'UNREAD'>('ALL');
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('sakode_admin_notifications_view_mode') as ViewMode | null;
+      if (saved === 'grid' || saved === 'list' || saved === 'table') return saved;
+    }
+    return 'list';
+  });
   const [isPending, startTransition] = useTransition();
 
   const fetchNotifications = useCallback(async () => {
@@ -120,63 +128,63 @@ export default function AdminNotificationsPage() {
     switch (cat) {
       case 'ACCOUNT':
         return {
-          icon: <UserCheck className="h-4 w-4 text-emerald-600" />,
-          badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+          icon: <UserCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />,
+          badgeClass: 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
           label: 'Pendaftaran Member',
         };
       case 'APPLICATION':
         return {
-          icon: <FileText className="h-4 w-4 text-sky-600" />,
-          badgeClass: 'bg-sky-50 text-sky-700 border-sky-200',
+          icon: <FileText className="h-4 w-4 text-sky-600 dark:text-sky-400" />,
+          badgeClass: 'bg-sky-50 dark:bg-sky-950/50 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-800',
           label: 'Aplikasi Task',
         };
       case 'TEAM':
         return {
-          icon: <Users className="h-4 w-4 text-purple-600" />,
-          badgeClass: 'bg-purple-50 text-purple-700 border-purple-200',
+          icon: <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />,
+          badgeClass: 'bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800',
           label: 'Tim & Roster',
         };
       case 'SUBMISSION':
         return {
-          icon: <UploadCloud className="h-4 w-4 text-blue-600" />,
-          badgeClass: 'bg-blue-50 text-blue-700 border-blue-200',
+          icon: <UploadCloud className="h-4 w-4 text-blue-600 dark:text-blue-400" />,
+          badgeClass: 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800',
           label: 'Submission Masuk',
         };
       case 'REVISION':
         return {
-          icon: <RotateCcw className="h-4 w-4 text-amber-600" />,
-          badgeClass: 'bg-amber-50 text-amber-700 border-amber-200',
+          icon: <RotateCcw className="h-4 w-4 text-amber-600 dark:text-amber-400" />,
+          badgeClass: 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800',
           label: 'Revisi Terkirim',
         };
       case 'APPEAL':
         return {
-          icon: <Scale className="h-4 w-4 text-indigo-600" />,
-          badgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+          icon: <Scale className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />,
+          badgeClass: 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800',
           label: 'Sanggahan Appeal',
         };
       case 'REWARD':
       case 'CLAIM':
         return {
-          icon: <CreditCard className="h-4 w-4 text-emerald-600" />,
-          badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+          icon: <CreditCard className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />,
+          badgeClass: 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
           label: 'Permintaan Klaim Dana',
         };
       case 'CONSENSUS':
         return {
-          icon: <Handshake className="h-4 w-4 text-purple-600" />,
-          badgeClass: 'bg-purple-50 text-purple-700 border-purple-200',
+          icon: <Handshake className="h-4 w-4 text-purple-600 dark:text-purple-400" />,
+          badgeClass: 'bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800',
           label: 'Konsensus Tim',
         };
       case 'REPORT':
         return {
-          icon: <AlertTriangle className="h-4 w-4 text-rose-600" />,
-          badgeClass: 'bg-rose-50 text-rose-700 border-rose-200',
+          icon: <AlertTriangle className="h-4 w-4 text-rose-600 dark:text-rose-400" />,
+          badgeClass: 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800',
           label: 'Laporan Sengketa',
         };
       default:
         return {
-          icon: <Bell className="h-4 w-4 text-slate-600" />,
-          badgeClass: 'bg-slate-50 text-slate-700 border-slate-200',
+          icon: <Bell className="h-4 w-4 text-slate-600 dark:text-slate-400" />,
+          badgeClass: 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700',
           label: 'Sistem Admin',
         };
     }
@@ -184,124 +192,297 @@ export default function AdminNotificationsPage() {
 
   return (
     <AuthGuard requireAdmin>
-      <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto space-y-6">
-        {/* Header Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-sakode-border pb-5">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
-                Pusat Notifikasi Administrator
-              </span>
-              <span className="text-xs text-sakode-text-muted">SAKODE Academy</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-sakode-text tracking-tight mt-1">
-              Notifikasi Staf Admin
-            </h1>
-            <p className="text-xs sm:text-sm text-sakode-text-muted mt-1">
-              Pemberitahuan masuk: submission deliverable baru, sanggahan appeal, antrean klaim honor, dan laporan sengketa.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {unreadCount > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleMarkAllAsRead}
-                disabled={isPending}
-                className="gap-2 text-xs font-bold border-sakode-border"
-              >
-                {isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin text-sakode-cyan" />
-                ) : (
-                  <CheckCheck className="h-4 w-4 text-sakode-cyan" />
-                )}
-                <span>Tandai Semua Dibaca ({unreadCount})</span>
-              </Button>
-            )}
-          </div>
-        </div>
-
-        {/* Filter Controls */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          {/* Read / Unread Tabs */}
-          <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-lg">
-            <button
-              type="button"
-              onClick={() => setFilterRead('ALL')}
-              className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
-                filterRead === 'ALL'
-                  ? 'bg-white text-sakode-text shadow-sm'
-                  : 'text-sakode-text-muted hover:text-sakode-text'
-              }`}
-            >
-              Semua ({notifications.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setFilterRead('UNREAD')}
-              className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 ${
-                filterRead === 'UNREAD'
-                  ? 'bg-white text-sakode-text shadow-sm'
-                  : 'text-sakode-text-muted hover:text-sakode-text'
-              }`}
-            >
-              <span>Belum Dibaca</span>
-              {unreadCount > 0 && (
-                <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-sakode-orange text-white font-extrabold">
-                  {unreadCount}
+      <div className="min-h-screen bg-slate-50 dark:bg-[#070C14] text-slate-900 dark:text-slate-100 py-8 px-4 sm:px-6 lg:px-8 transition-colors">
+        <div className="max-w-5xl mx-auto space-y-6">
+          {/* Header Bar */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-5">
+            <div>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/80">
+                  <Bell className="h-3 w-3" />
+                  <span>Pusat Notifikasi Administrator</span>
                 </span>
+                <span className="text-slate-400 dark:text-slate-600">•</span>
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  Real-Time Staff Inbound
+                </span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                Notifikasi Staf Admin
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
+                Pemberitahuan masuk: submission deliverable baru, sanggahan appeal, antrean klaim honor, dan laporan sengketa.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              {unreadCount > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleMarkAllAsRead}
+                  disabled={isPending}
+                  className="gap-2 text-xs font-bold border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
+                >
+                  {isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-cyan-500" />
+                  ) : (
+                    <CheckCheck className="h-4 w-4 text-cyan-500" />
+                  )}
+                  <span>Tandai Semua Dibaca ({unreadCount})</span>
+                </Button>
               )}
-            </button>
+            </div>
           </div>
 
-          {/* Category Filter Pills */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 text-xs">
-            <span className="text-slate-400 flex items-center gap-1 font-semibold pl-1 pr-2">
-              <Filter className="h-3 w-3" />
-              <span>Filter:</span>
-            </span>
-            {[
-              { id: 'ALL', label: 'Semua' },
-              { id: 'SUBMISSION', label: 'Submission' },
-              { id: 'APPEAL', label: 'Appeal' },
-              { id: 'CLAIM', label: 'Klaim Honor' },
-              { id: 'REPORT', label: 'Laporan' },
-              { id: 'ACCOUNT', label: 'Pendaftaran' },
-            ].map((cat) => (
+        {/* Filter Controls & View Mode */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Read / Unread Tabs */}
+            <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900/80 p-1 rounded-xl border border-slate-200/80 dark:border-slate-800">
               <button
-                key={cat.id}
                 type="button"
-                onClick={() => setCategoryFilter(cat.id)}
-                className={`px-2.5 py-1 rounded-lg font-bold transition-colors whitespace-nowrap ${
-                  categoryFilter === cat.id
-                    ? 'bg-sakode-text text-white'
-                    : 'bg-white border border-sakode-border text-sakode-text-muted hover:text-sakode-text hover:bg-slate-50'
+                onClick={() => setFilterRead('ALL')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  filterRead === 'ALL'
+                    ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-2xs'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
-                {cat.label}
+                Semua ({notifications.length})
               </button>
-            ))}
+              <button
+                type="button"
+                onClick={() => setFilterRead('UNREAD')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  filterRead === 'UNREAD'
+                    ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-2xs'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                <span>Belum Dibaca</span>
+                {unreadCount > 0 && (
+                  <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-amber-500 text-white font-extrabold">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+            </div>
+
+            {/* Category Filter Pills */}
+            <div className="flex items-center gap-1.5 overflow-x-auto text-xs">
+              <span className="text-slate-400 dark:text-slate-500 flex items-center gap-1 font-semibold pl-1 pr-1">
+                <Filter className="h-3 w-3" />
+              </span>
+              {[
+                { id: 'ALL', label: 'Semua' },
+                { id: 'SUBMISSION', label: 'Submission' },
+                { id: 'APPEAL', label: 'Appeal' },
+                { id: 'CLAIM', label: 'Klaim' },
+                { id: 'REPORT', label: 'Laporan' },
+                { id: 'ACCOUNT', label: 'Pendaftaran' },
+              ].map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setCategoryFilter(cat.id)}
+                  className={`px-2.5 py-1.5 rounded-xl font-bold transition-all whitespace-nowrap cursor-pointer text-xs ${
+                    categoryFilter === cat.id
+                      ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-950 shadow-2xs'
+                      : 'bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="shrink-0 self-end md:self-auto">
+            <ViewModeToggle
+              currentMode={viewMode}
+              onChange={setViewMode}
+              storageKey="sakode_admin_notifications_view_mode"
+            />
           </div>
         </div>
 
         {/* Content List */}
         {loading ? (
-          <div className="py-20 text-center bg-white rounded-xl border border-sakode-border">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto text-sakode-cyan" />
-            <p className="text-xs text-sakode-text-muted mt-3">Memuat notifikasi admin...</p>
+          <div className="py-20 text-center bg-white dark:bg-slate-900/80 rounded-2xl border border-slate-200/90 dark:border-slate-800">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto text-sky-500" />
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-3 font-medium">Memuat notifikasi admin...</p>
           </div>
         ) : filteredNotifications.length === 0 ? (
-          <div className="py-20 text-center bg-white rounded-xl border border-sakode-border px-4">
-            <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3 text-slate-400">
+          <div className="py-20 text-center bg-white dark:bg-slate-900/80 rounded-2xl border border-slate-200/90 dark:border-slate-800 px-4">
+            <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-3 text-slate-400 dark:text-slate-500">
               <Inbox className="h-7 w-7" />
             </div>
-            <h3 className="font-bold text-base text-sakode-text">Tidak Ada Notifikasi Tertunda</h3>
-            <p className="text-xs text-sakode-text-muted max-w-sm mx-auto mt-1">
+            <h3 className="font-bold text-base text-slate-900 dark:text-white">Tidak Ada Notifikasi Tertunda</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto mt-1">
               {filterRead === 'UNREAD'
                 ? 'Semua notifikasi staf telah ditinjau.'
                 : 'Belum ada notifikasi pada kategori yang Anda pilih.'}
             </p>
+          </div>
+        ) : viewMode === 'grid' ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {filteredNotifications.map((notif) => {
+              const meta = getCategoryMeta(notif.category);
+              return (
+                <Card
+                  key={notif.id}
+                  onClick={() => handleOpenLink(notif)}
+                  className={`p-5 transition-all cursor-pointer hover:shadow-md relative rounded-2xl border flex flex-col justify-between ${
+                    !notif.isRead
+                      ? 'border-sky-400 dark:border-sky-500/50 bg-gradient-to-r from-sky-50/50 via-white to-white dark:from-sky-950/20 dark:via-slate-900 dark:to-slate-900'
+                      : 'border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80 hover:border-slate-300 dark:hover:border-slate-700'
+                  }`}
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800/80 flex items-center justify-center border border-slate-200 dark:border-slate-700">
+                          {meta.icon}
+                        </div>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${meta.badgeClass}`}>
+                          {meta.label}
+                        </span>
+                      </div>
+
+                      {!notif.isRead && (
+                        <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
+                      )}
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-900 dark:text-white line-clamp-1">
+                        {notif.title}
+                      </h3>
+                      <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-3 mt-1">
+                        {notif.message}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2 text-xs">
+                    <span className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+                      {formatRelativeTime(notif.createdAt)}
+                    </span>
+
+                    <div className="flex items-center gap-2">
+                      {!notif.isRead && (
+                        <button
+                          type="button"
+                          onClick={(e) => handleMarkAsRead(notif.id, e)}
+                          disabled={isPending}
+                          className="px-2 py-0.5 text-[11px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors flex items-center gap-1 cursor-pointer"
+                        >
+                          <Check className="h-3 w-3 text-slate-400" />
+                          <span>Tandai</span>
+                        </button>
+                      )}
+
+                      {notif.link && (
+                        <span className="text-xs font-bold text-sky-600 dark:text-cyan-400 flex items-center gap-0.5">
+                          <span>Buka</span>
+                          <ArrowRight className="h-3 w-3" />
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        ) : viewMode === 'table' ? (
+          <div className="border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900/90 overflow-hidden shadow-2xs">
+            <div className="overflow-x-auto">
+              <table className="table-auto w-full text-left text-xs">
+                <thead className="bg-slate-50 dark:bg-slate-950/60 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 font-bold uppercase text-[10px] tracking-wider">
+                  <tr>
+                    <th className="p-3.5">Kategori</th>
+                    <th className="p-3.5">Judul & Pesan</th>
+                    <th className="p-3.5">Waktu Masuk</th>
+                    <th className="p-3.5">Status</th>
+                    <th className="p-3.5 text-right">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                  {filteredNotifications.map((notif) => {
+                    const meta = getCategoryMeta(notif.category);
+                    return (
+                      <tr
+                        key={notif.id}
+                        onClick={() => handleOpenLink(notif)}
+                        className={`transition-colors cursor-pointer ${
+                          !notif.isRead
+                            ? 'bg-sky-50/40 dark:bg-sky-950/20 hover:bg-sky-50 dark:hover:bg-sky-950/30'
+                            : 'hover:bg-slate-50/70 dark:hover:bg-slate-800/40'
+                        }`}
+                      >
+                        <td className="p-3.5 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <span className="p-1 rounded-md bg-slate-100 dark:bg-slate-800">{meta.icon}</span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${meta.badgeClass}`}>
+                              {meta.label}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="p-3.5 max-w-md">
+                          <span className="font-bold text-slate-900 dark:text-slate-100 block">
+                            {notif.title}
+                          </span>
+                          <p className="truncate text-slate-600 dark:text-slate-400 text-xs">
+                            {notif.message}
+                          </p>
+                        </td>
+                        <td className="p-3.5 whitespace-nowrap text-[11px] text-slate-500 font-mono">
+                          {formatRelativeTime(notif.createdAt)}
+                        </td>
+                        <td className="p-3.5 whitespace-nowrap">
+                          {!notif.isRead ? (
+                            <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800">
+                              <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                              <span>Baru</span>
+                            </span>
+                          ) : (
+                            <span className="text-[10px] font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
+                              Dibaca
+                            </span>
+                          )}
+                        </td>
+                        <td className="p-3.5 whitespace-nowrap text-right">
+                          <div className="inline-flex items-center gap-2 justify-end" onClick={(e) => e.stopPropagation()}>
+                            {!notif.isRead && (
+                              <button
+                                type="button"
+                                onClick={(e) => handleMarkAsRead(notif.id, e)}
+                                disabled={isPending}
+                                className="p-1.5 text-slate-500 hover:text-slate-800 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                                title="Tandai Dibaca"
+                              >
+                                <Check className="h-3.5 w-3.5" />
+                              </button>
+                            )}
+                            {notif.link && (
+                              <button
+                                type="button"
+                                onClick={() => handleOpenLink(notif)}
+                                className="p-1.5 text-sky-600 dark:text-cyan-400 hover:bg-sky-50 dark:hover:bg-sky-950/50 rounded-lg cursor-pointer"
+                                title="Buka Detail"
+                              >
+                                <ArrowRight className="h-3.5 w-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         ) : (
           <div className="space-y-3">
@@ -311,22 +492,22 @@ export default function AdminNotificationsPage() {
                 <Card
                   key={notif.id}
                   onClick={() => handleOpenLink(notif)}
-                  className={`p-4 sm:p-5 transition-all cursor-pointer hover:shadow-md relative border ${
+                  className={`p-4 sm:p-5 transition-all cursor-pointer hover:shadow-md relative rounded-2xl border ${
                     !notif.isRead
-                      ? 'border-sakode-cyan/50 bg-gradient-to-r from-amber-50/20 via-white to-white'
-                      : 'border-sakode-border bg-white hover:border-slate-300'
+                      ? 'border-sky-400 dark:border-sky-500/50 bg-gradient-to-r from-sky-50/50 via-white to-white dark:from-sky-950/20 dark:via-slate-900 dark:to-slate-900'
+                      : 'border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80 hover:border-slate-300 dark:hover:border-slate-700'
                   }`}
                 >
                   {/* Indicator Dot for Unread */}
                   {!notif.isRead && (
-                    <span className="absolute top-5 left-2 h-2 w-2 rounded-full bg-sakode-orange" />
+                    <span className="absolute top-5 left-3 h-2 w-2 rounded-full bg-amber-500" />
                   )}
 
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pl-2 sm:pl-3">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pl-3 sm:pl-4">
                     <div className="flex gap-3">
                       {/* Icon */}
                       <div className="flex-shrink-0 mt-0.5">
-                        <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-200">
+                        <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800/80 flex items-center justify-center border border-slate-200 dark:border-slate-700">
                           {meta.icon}
                         </div>
                       </div>
@@ -339,16 +520,16 @@ export default function AdminNotificationsPage() {
                           >
                             {meta.label}
                           </span>
-                          <span className="text-xs text-slate-400 font-medium">
+                          <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">
                             {formatRelativeTime(notif.createdAt)} • {formatDateWIB(notif.createdAt)}
                           </span>
                         </div>
 
-                        <h3 className="text-sm sm:text-base font-bold text-sakode-text">
+                        <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
                           {notif.title}
                         </h3>
 
-                        <p className="text-xs sm:text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+                        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">
                           {notif.message}
                         </p>
                       </div>
@@ -361,16 +542,16 @@ export default function AdminNotificationsPage() {
                           type="button"
                           onClick={(e) => handleMarkAsRead(notif.id, e)}
                           disabled={isPending}
-                          className="px-2.5 py-1 text-xs font-semibold text-slate-600 hover:text-sakode-text hover:bg-slate-100 rounded-lg transition-colors flex items-center gap-1"
+                          className="px-2.5 py-1 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
                           title="Tandai telah dibaca"
                         >
-                          <Check className="h-3.5 w-3.5 text-slate-500" />
+                          <Check className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400" />
                           <span className="hidden sm:inline">Tandai Dibaca</span>
                         </button>
                       )}
 
                       {notif.link && (
-                        <span className="text-xs font-bold text-sakode-cyan hover:underline flex items-center gap-1">
+                        <span className="text-xs font-bold text-sky-600 dark:text-cyan-400 hover:underline flex items-center gap-1">
                           <span>Buka Antrean</span>
                           <ArrowRight className="h-3.5 w-3.5" />
                         </span>
@@ -382,6 +563,7 @@ export default function AdminNotificationsPage() {
             })}
           </div>
         )}
+        </div>
       </div>
     </AuthGuard>
   );

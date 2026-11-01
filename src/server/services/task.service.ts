@@ -59,6 +59,8 @@ export async function createTask(
       content: validated.termsContent,
       capturedAt: FieldValue.serverTimestamp() as unknown as FirestoreDate,
     },
+    attachments: validated.attachments || [],
+    links: validated.links || [],
     assignedUserId: null,
     assignedTeamId: null,
     reviewLockedByAdminId: null,

@@ -19,6 +19,13 @@ import { USER_ROLES, USER_APPROVAL_STATUS, type UserRole, type UserApprovalStatu
 import { syncUserAction } from '@/server/actions/auth.actions';
 import { getUserProfileAction } from '@/server/actions/user.actions';
 
+export interface GoogleAuthResult {
+  success: boolean;
+  notRegistered?: boolean;
+  email?: string | null;
+  displayName?: string | null;
+}
+
 export interface AuthContextType {
   user: AuthUserProfile | null;
   firebaseUser: FirebaseUser | null;
@@ -27,7 +34,7 @@ export interface AuthContextType {
   emailVerificationSent: boolean;
   signInWithEmail: (email: string, pass: string) => Promise<boolean>;
   signUpWithEmail: (email: string, pass: string) => Promise<boolean>;
-  signInWithGoogle: () => Promise<boolean>;
+  signInWithGoogle: (mode?: 'login' | 'register') => Promise<GoogleAuthResult>;
   logout: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   sendVerificationEmailAgain: () => Promise<boolean>;
@@ -195,9 +202,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
     } catch (err: unknown) {
       console.warn('Firebase Client Auth belum dikonfigurasi aktif:', err);
-      if (isMounted) {
-        setIsLoading(false);
-      }
+      queueMicrotask(() => {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      });
     }
 
     return () => {
@@ -302,27 +311,91 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Masuk dengan Google OAuth
-  const signInWithGoogle = async (): Promise<boolean> => {
+  // Masuk / Daftar dengan Google OAuth
+  const signInWithGoogle = async (
+    mode: 'login' | 'register' = 'login'
+  ): Promise<GoogleAuthResult> => {
     setIsLoading(true);
     setError(null);
     try {
       const provider = new GoogleAuthProvider();
       const cred = await signInWithPopup(firebaseAuth, provider);
+      const uid = cred.user.uid;
+      const email = cred.user.email || '';
+      const displayName = cred.user.displayName || '';
 
-      await loadProfile(cred.user.uid, cred.user.email || '', cred.user.displayName);
-      return true;
+      // Periksa apakah profil user sudah terdaftar di Firestore
+      let exists = false;
+      try {
+        const res = await getUserProfileAction(uid);
+        if (res.success && res.user) {
+          exists = true;
+        } else {
+          const db = getClientFirestore();
+          const snap = await getDoc(doc(db, 'users', uid));
+          if (snap.exists()) {
+            exists = true;
+          }
+        }
+      } catch {
+        const db = getClientFirestore();
+        const snap = await getDoc(doc(db, 'users', uid));
+        exists = snap.exists();
+      }
+
+      // Skenario 1: User mencoba LOGIN dengan Google tetapi belum terdaftar
+      if (mode === 'login' && !exists) {
+        // Sign out segera agar tidak menggantung sebagai akun tak lengkap
+        await signOut(firebaseAuth);
+        setUser(null);
+        setFirebaseUser(null);
+        setIsLoading(false);
+        return {
+          success: false,
+          notRegistered: true,
+          email,
+          displayName,
+        };
+      }
+
+      // Skenario 2: User REGISTRASI dengan Google dan dokumen belum ada di Firestore
+      if (!exists) {
+        try {
+          await syncUserAction({
+            uid,
+            email: email || 'user@sakode.id',
+            displayName: displayName || '',
+            photoURL: cred.user.photoURL || '',
+          });
+        } catch (syncErr) {
+          console.warn('Sync user action error, creating client doc fallback:', syncErr);
+          const db = getClientFirestore();
+          const defaultDoc = buildDefaultUserDoc(uid, email, displayName);
+          await setDoc(doc(db, 'users', uid), {
+            ...defaultDoc,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          });
+        }
+      }
+
+      await loadProfile(uid, email, displayName);
+      return { success: true };
     } catch (err: unknown) {
       console.error('Google Sign-in Error:', err);
       const code = (err as { code?: string })?.code;
       if (code === 'auth/unauthorized-domain') {
-        setError('Domain ini belum didaftarkan di Firebase Console. Silakan tambahkan domain ini ke Firebase Authentication -> Settings -> Authorized Domains.');
+        setError(
+          'Domain ini belum didaftarkan di Firebase Console. Silakan tambahkan domain ini ke Firebase Authentication -> Settings -> Authorized Domains.'
+        );
       } else if (code === 'auth/popup-blocked') {
-        setError('Jendela popup diblokir oleh browser. Harap izinkan popup untuk masuk dengan Google.');
+        setError(
+          'Jendela popup diblokir oleh browser. Harap izinkan popup untuk masuk dengan Google.'
+        );
       } else if (code !== 'auth/popup-closed-by-user') {
         setError('Gagal masuk dengan Google. Silakan coba lagi.');
       }
-      return false;
+      return { success: false };
     } finally {
       setIsLoading(false);
     }

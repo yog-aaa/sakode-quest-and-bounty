@@ -1,0 +1,73 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background Radial Gradient -->
+    <radialGradient id="bg-golden-ledger" cx="50%" cy="38%" r="65%">
+      <stop offset="0%" stop-color="#1A2536" />
+      <stop offset="65%" stop-color="#0E1624" />
+      <stop offset="100%" stop-color="#070C14" />
+    </radialGradient>
+
+    <!-- Outer Rim Linear Gradient -->
+    <linearGradient id="rim-golden-ledger" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF08A" />
+      <stop offset="50%" stop-color="#EDAC1C" />
+      <stop offset="100%" stop-color="#EDAC1C" stop-opacity="0.7" />
+    </linearGradient>
+
+    <!-- Subtle Drop Shadow -->
+    <filter id="shadow-golden-ledger" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
+  </defs>
+
+  <!-- LAYER 1: BASE MEDALLION (SQUIRCLE WITH DOUBLE BORDER) -->
+  <g filter="url(#shadow-golden-ledger)">
+    <!-- Outer Medallion Body -->
+    <rect x="10" y="8" width="108" height="108" rx="28" fill="url(#bg-golden-ledger)" stroke="url(#rim-golden-ledger)" stroke-width="2.5" />
+    <!-- Inner Accent Border -->
+    <rect x="15" y="13" width="98" height="98" rx="23" fill="none" stroke="white" stroke-opacity="0.1" stroke-width="1.2" />
+  </g>
+
+  <!-- Ambient Radar Arc -->
+  <path d="M 32 30 A 48 48 0 0 1 96 30" stroke="#EDAC1C" stroke-opacity="0.18" stroke-width="1.5" stroke-dasharray="3 3" />
+
+  <!-- LAYER 2: ICONOGRAPHY (DISCIPLINE SPECIFIC) -->
+  <g id="icon-golden-ledger">
+    <g transform="translate(64, 57)">
+      <!-- Golden Document / Ledger Base -->
+      <rect x="-18" y="-22" width="36" height="42" rx="4" fill="#1E293B" stroke="#EDAC1C" stroke-width="2" />
+      <rect x="-14" y="-18" width="28" height="34" rx="2" fill="#0E1624" stroke="white" stroke-opacity="0.1" stroke-width="1" />
+      
+      <!-- Ledger Header Ribbon & Rows -->
+      <line x1="-10" y1="-12" x2="10" y2="-12" stroke="#FEF08A" stroke-width="2" stroke-linecap="round" />
+      <line x1="-10" y1="-6" x2="6" y2="-6" stroke="#EDAC1C" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.7" />
+      <line x1="-10" y1="-1" x2="8" y2="-1" stroke="#EDAC1C" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.7" />
+      <line x1="-10" y1="4" x2="4" y2="4" stroke="#EDAC1C" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.7" />
+
+      <!-- Golden Seal of Approval (Circular Rosette with checkmark) -->
+      <g transform="translate(6, 10)">
+        <circle cx="0" cy="0" r="11" fill="#EDAC1C" stroke="#FEF08A" stroke-width="1.5" />
+        <!-- Inner checkmark -->
+        <path d="M -5 -0.5 L -2 2.5 L 5 -4" fill="none" stroke="#0B0F19" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+      </g>
+
+      <!-- 5 Golden Micro Stars (Symbolizing 5 Perfect Streak Deliverables) -->
+      <g transform="translate(0, -28)">
+        <polygon points="-16,-2 -15,-4 -14,-2 -12,-2 -13.5,-0.5 -13,1.5 -15,0 -17,1.5 -16.5,-0.5 -18,-2" fill="#FEF08A" />
+        <polygon points="-8,-4 -7,-6 -6,-4 -4,-4 -5.5,-2.5 -5,-0.5 -7,-2 -9,-0.5 -8.5,-2.5 -10,-4" fill="#FEF08A" />
+        <polygon points="0,-6 1,-8 2,-6 4,-6 2.5,-4.5 3,-2.5 1,-4 -1,-2.5 -0.5,-4.5 -2,-6" fill="#EDAC1C" />
+        <polygon points="8,-4 9,-6 10,-4 12,-4 10.5,-2.5 11,-0.5 9,-2 7,-0.5 7.5,-2.5 6,-4" fill="#FEF08A" />
+        <polygon points="16,-2 17,-4 18,-2 20,-2 18.5,-0.5 19,1.5 17,0 15,1.5 15.5,-0.5 14,-2" fill="#FEF08A" />
+      </g>
+    </g>
+  </g>
+
+  <!-- LAYER 3: SAKODE SIGNATURE GOLD SMILE ARC -->
+  <g id="smile-golden-ledger">
+    <!-- Signature Smile Arc at bottom -->
+    <path d="M 48 102 C 54 107.5 74 107.5 80 102" stroke="#EDAC1C" stroke-width="2.8" stroke-linecap="round" />
+    <!-- Small Smile Dots -->
+    <circle cx="48" cy="102" r="1.2" fill="#EDAC1C" />
+    <circle cx="80" cy="102" r="1.2" fill="#EDAC1C" />
+  </g>
+</svg>

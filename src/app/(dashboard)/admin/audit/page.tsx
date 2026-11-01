@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { formatDateWIB } from '@/lib/utils';
 import { getAuditEventsAction } from '@/server/actions/admin-manage.actions';
+import { ViewModeToggle, type ViewMode } from '@/components/ui/ViewModeToggle';
 import type { AuditEventDocument } from '@/types/database';
 import {
   FileText,
@@ -27,6 +28,13 @@ export default function AdminAuditTrailPage() {
   const { user } = useAuth();
 
   const [events, setEvents] = useState<AuditEventDocument[]>([]);
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('sakode_admin_audit_view_mode') as ViewMode | null;
+      if (saved === 'grid' || saved === 'list' || saved === 'table') return saved;
+    }
+    return 'table';
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -94,38 +102,36 @@ export default function AdminAuditTrailPage() {
 
   return (
     <AuthGuard requireAdmin>
-      <div className="min-h-screen bg-sakode-bg py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#070C14] text-slate-900 dark:text-slate-100 py-8 px-4 sm:px-6 lg:px-8 transition-colors">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-5">
             <div>
-              <div className="flex items-center gap-2">
-                <Badge variant="cyan" leftIcon={<Lock className="h-3.5 w-3.5" />}>
-                  Append-Only & Immutable
-                </Badge>
-                <span className="text-xs text-sakode-text-muted">Forensic Audit Log</span>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700">
+                  <Lock className="h-3 w-3" />
+                  <span>Append-Only & Immutable</span>
+                </span>
+                <span className="text-slate-400 dark:text-slate-600">•</span>
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  Forensic Audit Log
+                </span>
               </div>
-              <h1 className="text-2xl font-black text-sakode-text tracking-tight mt-1">
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
                 Audit Trail Platform SAKODE
               </h1>
-              <p className="text-xs text-sakode-text-muted">
-                Rekaman historis mutasi sensitif, persetujuan klaim, keputusan review, dan penjatuhan sanksi.
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-2xl">
+                Rekaman historis mutasi sensitif, persetujuan klaim dana, keputusan evaluasi review, dan penjatuhan sanksi.
               </p>
             </div>
 
             <div className="flex items-center gap-2">
-              <Link href="/admin">
-                <Button variant="outline" size="sm" className="text-xs font-bold gap-1">
-                  <ArrowLeft className="h-3.5 w-3.5" />
-                  <span>Dashboard Admin</span>
-                </Button>
-              </Link>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={loadAuditLogs}
                 disabled={isLoading}
-                className="text-xs font-bold gap-1.5"
+                className="text-xs font-bold gap-1.5 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
               >
                 <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} />
                 <span>Segarkan Log</span>
@@ -162,13 +168,13 @@ export default function AdminAuditTrailPage() {
           )}
 
           {/* Controls: Action Select & Search Input */}
-          <div className="p-4 rounded-xl bg-white border border-sakode-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+          <div className="p-3 sm:p-4 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
             <div className="flex items-center gap-2 overflow-x-auto">
-              <span className="text-xs font-bold text-slate-500 whitespace-nowrap">Aksi:</span>
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap">Aksi:</span>
               <select
                 value={selectedAction}
                 onChange={(e) => setSelectedAction(e.target.value)}
-                className="px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-sakode-cyan"
+                className="px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-sky-500 cursor-pointer"
               >
                 <option value="ALL">Semua Aksi</option>
                 <option value="REPORT_SUBMITTED">REPORT_SUBMITTED</option>
@@ -184,37 +190,179 @@ export default function AdminAuditTrailPage() {
               </select>
             </div>
 
-            <div className="relative w-full sm:w-72">
-              <Search className="h-4 w-4 absolute left-3 top-2.5 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Cari aktor, entitas, atau alasan..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-sakode-cyan"
-              />
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 w-full sm:w-auto">
+              <div className="relative w-full sm:w-72 shrink-0">
+                <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Cari aktor, entitas, atau alasan..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                />
+              </div>
+
+              <div className="shrink-0 self-end sm:self-auto">
+                <ViewModeToggle
+                  currentMode={viewMode}
+                  onChange={setViewMode}
+                  storageKey="sakode_admin_audit_view_mode"
+                />
+              </div>
             </div>
           </div>
 
-          {/* Audit Logs Table */}
+          {/* Audit Logs Content */}
           {isLoading ? (
             <div className="py-20 text-center">
-              <Loader2 className="h-8 w-8 animate-spin mx-auto text-sakode-cyan" />
-              <p className="text-xs text-sakode-text-muted mt-2 font-medium">Memuat log audit...</p>
+              <Loader2 className="h-8 w-8 animate-spin mx-auto text-sky-500" />
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">Memuat log audit...</p>
             </div>
           ) : filteredEvents.length === 0 ? (
-            <Card className="p-12 text-center bg-white space-y-3">
-              <FileText className="h-12 w-12 text-slate-300 mx-auto" />
-              <h3 className="text-base font-extrabold text-sakode-text">Tidak Ada Log Audit</h3>
-              <p className="text-xs text-slate-500">
+            <Card className="p-12 text-center bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 space-y-3">
+              <FileText className="h-12 w-12 text-slate-300 dark:text-slate-700 mx-auto" />
+              <h3 className="text-base font-extrabold text-slate-900 dark:text-white">Tidak Ada Log Audit</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Belum ada aktivitas mutasi yang tercatat untuk filter ini.
               </p>
             </Card>
+          ) : viewMode === 'grid' ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filteredEvents.map((ev) => {
+                const hasSnapshot = Boolean(ev.beforeSnapshot || ev.afterSnapshot);
+                return (
+                  <Card
+                    key={ev.id}
+                    className="p-5 border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80 space-y-3 rounded-2xl shadow-2xs flex flex-col justify-between"
+                  >
+                    <div className="space-y-2.5">
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <span
+                          className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
+                            ev.action.includes('PENALTY') || ev.action.includes('DEMOTED')
+                              ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-900/60'
+                              : ev.action.includes('PROMOTED') || ev.action.includes('RESOLVED')
+                              ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/60'
+                              : ev.action.includes('CLAIM')
+                              ? 'bg-cyan-50 dark:bg-cyan-950/40 text-cyan-800 dark:text-cyan-300 border-cyan-200 dark:border-cyan-900/60'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                          }`}
+                        >
+                          {ev.action}
+                        </span>
+                        <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500">
+                          {formatDateWIB(ev.timestamp)}
+                        </span>
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-slate-900 dark:text-slate-100 text-sm">
+                            {ev.actorName || ev.actorId}
+                          </span>
+                          <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">
+                            Role: {ev.actorRole}
+                          </span>
+                        </div>
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
+                          Target: <strong className="text-slate-700 dark:text-slate-300">{ev.entityType}</strong> ({ev.entityId.slice(0, 16)}...)
+                        </div>
+                      </div>
+
+                      <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 text-xs text-slate-600 dark:text-slate-400 line-clamp-2">
+                        {ev.reason || 'Tidak ada catatan tambahan.'}
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-[10px] text-slate-400 font-mono">ID: {ev.id.slice(0, 10)}</span>
+                      {hasSnapshot ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setActiveSnapshotEvent(ev)}
+                          className="text-[11px] font-bold h-7 px-2.5 gap-1.5"
+                        >
+                          <Eye className="h-3 w-3 text-sky-500" />
+                          <span>Lihat Snapshot Diff</span>
+                        </Button>
+                      ) : (
+                        <span className="text-[10px] text-slate-400 italic">No snapshot</span>
+                      )}
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          ) : viewMode === 'list' ? (
+            <div className="space-y-3">
+              {filteredEvents.map((ev) => {
+                const hasSnapshot = Boolean(ev.beforeSnapshot || ev.afterSnapshot);
+                return (
+                  <Card
+                    key={ev.id}
+                    className="p-4 border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80 rounded-2xl shadow-2xs hover:border-slate-300 dark:hover:border-slate-700 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                  >
+                    <div className="space-y-1.5 flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                            ev.action.includes('PENALTY') || ev.action.includes('DEMOTED')
+                              ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-900/60'
+                              : ev.action.includes('PROMOTED') || ev.action.includes('RESOLVED')
+                              ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/60'
+                              : ev.action.includes('CLAIM')
+                              ? 'bg-cyan-50 dark:bg-cyan-950/40 text-cyan-800 dark:text-cyan-300 border-cyan-200 dark:border-cyan-900/60'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                          }`}
+                        >
+                          {ev.action}
+                        </span>
+                        <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                          {ev.actorName || ev.actorId}
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-mono">({ev.actorRole})</span>
+                        <span className="text-slate-400">•</span>
+                        <span className="text-[11px] font-mono text-slate-400">
+                          {formatDateWIB(ev.timestamp)}
+                        </span>
+                      </div>
+
+                      <div className="text-xs text-slate-600 dark:text-slate-400">
+                        Target: <span className="font-bold text-slate-800 dark:text-slate-200">{ev.entityType}</span>{' '}
+                        <span className="font-mono text-[11px] text-slate-400">({ev.entityId})</span>
+                        {ev.reason && (
+                          <span className="block text-slate-500 dark:text-slate-400 mt-0.5 text-[11px] truncate">
+                            Catatan: {ev.reason}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="shrink-0 text-right">
+                      {hasSnapshot ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setActiveSnapshotEvent(ev)}
+                          className="text-xs font-bold gap-1.5"
+                        >
+                          <Eye className="h-3.5 w-3.5 text-sky-500" />
+                          <span>Lihat Diff</span>
+                        </Button>
+                      ) : (
+                        <span className="text-[11px] text-slate-400 italic">Tanpa Snapshot</span>
+                      )}
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
           ) : (
-            <div className="border border-slate-200 rounded-xl bg-white overflow-hidden shadow-xs">
+            <div className="border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900/80 overflow-hidden shadow-xs">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[10px] tracking-wider">
+                  <thead className="bg-slate-50 dark:bg-slate-950/60 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 font-bold uppercase text-[10px] tracking-wider">
                     <tr>
                       <th className="p-3.5">Waktu (WIB)</th>
                       <th className="p-3.5">Aktor</th>
@@ -224,19 +372,19 @@ export default function AdminAuditTrailPage() {
                       <th className="p-3.5 text-right">Snapshot Diff</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
                     {filteredEvents.map((ev) => {
                       const hasSnapshot = Boolean(ev.beforeSnapshot || ev.afterSnapshot);
                       return (
-                        <tr key={ev.id} className="hover:bg-slate-50/70 transition-colors">
-                          <td className="p-3.5 whitespace-nowrap text-slate-500 font-mono text-[11px]">
+                        <tr key={ev.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
+                          <td className="p-3.5 whitespace-nowrap text-slate-500 dark:text-slate-400 font-mono text-[11px]">
                             {formatDateWIB(ev.timestamp)}
                           </td>
                           <td className="p-3.5 whitespace-nowrap">
-                            <span className="font-bold text-sakode-text block">
+                            <span className="font-bold text-slate-900 dark:text-slate-100 block">
                               {ev.actorName || ev.actorId}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-mono">
+                            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">
                               Role: {ev.actorRole}
                             </span>
                           </td>
@@ -244,27 +392,27 @@ export default function AdminAuditTrailPage() {
                             <span
                               className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                                 ev.action.includes('PENALTY') || ev.action.includes('DEMOTED')
-                                  ? 'bg-rose-50 text-rose-800 border-rose-200'
+                                  ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-900/60'
                                   : ev.action.includes('PROMOTED') || ev.action.includes('RESOLVED')
-                                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                                  ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/60'
                                   : ev.action.includes('CLAIM')
-                                  ? 'bg-cyan-50 text-cyan-800 border-cyan-200'
-                                  : 'bg-slate-100 text-slate-700 border-slate-200'
+                                  ? 'bg-cyan-50 dark:bg-cyan-950/40 text-cyan-800 dark:text-cyan-300 border-cyan-200 dark:border-cyan-900/60'
+                                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
                               }`}
                             >
                               {ev.action}
                             </span>
                           </td>
                           <td className="p-3.5 whitespace-nowrap">
-                            <span className="font-bold text-slate-800 block text-[11px]">
+                            <span className="font-bold text-slate-800 dark:text-slate-200 block text-[11px]">
                               {ev.entityType}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-mono truncate block max-w-[140px]">
+                            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono truncate block max-w-[140px]">
                               {ev.entityId}
                             </span>
                           </td>
                           <td className="p-3.5 max-w-xs">
-                            <p className="truncate text-slate-700 text-[11px]">
+                            <p className="truncate text-slate-700 dark:text-slate-300 text-[11px]">
                               {ev.reason || '-'}
                             </p>
                           </td>
@@ -274,13 +422,13 @@ export default function AdminAuditTrailPage() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => setActiveSnapshotEvent(ev)}
-                                className="text-[11px] font-bold h-7 px-2 gap-1"
+                                className="text-[11px] font-bold h-7 px-2.5 gap-1.5 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
                               >
-                                <Eye className="h-3 w-3 text-sakode-cyan" />
+                                <Eye className="h-3 w-3 text-sky-500" />
                                 <span>Lihat Diff</span>
                               </Button>
                             ) : (
-                              <span className="text-[10px] text-slate-400 italic">No snapshot</span>
+                              <span className="text-[10px] text-slate-400 dark:text-slate-600 italic">No snapshot</span>
                             )}
                           </td>
                         </tr>
@@ -295,20 +443,20 @@ export default function AdminAuditTrailPage() {
           {/* SNAPSHOT DIFF VIEWER MODAL */}
           {activeSnapshotEvent && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-              <div className="bg-white rounded-2xl shadow-2xl border border-sakode-border w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
-                <div className="p-4 border-b border-sakode-border bg-sakode-bg flex items-center justify-between">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+                <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-bold text-sakode-text flex items-center gap-1.5">
-                      <FileText className="h-4 w-4 text-sakode-cyan" />
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                      <FileText className="h-4 w-4 text-sky-500" />
                       <span>Snapshot Diff: {activeSnapshotEvent.action}</span>
                     </h3>
-                    <span className="text-[11px] text-slate-500 font-mono">
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
                       Entitas: {activeSnapshotEvent.entityType} #{activeSnapshotEvent.entityId}
                     </span>
                   </div>
                   <button
                     onClick={() => setActiveSnapshotEvent(null)}
-                    className="p-1 text-slate-400 hover:text-slate-700"
+                    className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg transition-colors cursor-pointer"
                   >
                     <X className="h-5 w-5" />
                   </button>
@@ -316,8 +464,8 @@ export default function AdminAuditTrailPage() {
 
                 <div className="p-5 space-y-4 overflow-y-auto">
                   {activeSnapshotEvent.reason && (
-                    <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700">
-                      <strong>Catatan / Alasan Mutasi:</strong>
+                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-200">
+                      <strong className="text-slate-900 dark:text-white font-semibold">Catatan / Alasan Mutasi:</strong>
                       <p className="mt-0.5">{activeSnapshotEvent.reason}</p>
                     </div>
                   )}
@@ -325,10 +473,10 @@ export default function AdminAuditTrailPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {/* Before */}
                     <div className="space-y-1">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-rose-700 block">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-rose-700 dark:text-rose-400 block">
                         Before Snapshot:
                       </span>
-                      <pre className="p-3 rounded-lg bg-rose-50/50 border border-rose-200 font-mono text-[10px] text-slate-800 overflow-x-auto max-h-60 leading-relaxed">
+                      <pre className="p-3 rounded-xl bg-rose-50/60 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 font-mono text-[10px] text-slate-800 dark:text-slate-200 overflow-x-auto max-h-60 leading-relaxed">
                         {activeSnapshotEvent.beforeSnapshot
                           ? JSON.stringify(activeSnapshotEvent.beforeSnapshot, null, 2)
                           : 'null (Initial Creation)'}
@@ -337,10 +485,10 @@ export default function AdminAuditTrailPage() {
 
                     {/* After */}
                     <div className="space-y-1">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 block">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 block">
                         After Snapshot:
                       </span>
-                      <pre className="p-3 rounded-lg bg-emerald-50/50 border border-emerald-200 font-mono text-[10px] text-slate-800 overflow-x-auto max-h-60 leading-relaxed">
+                      <pre className="p-3 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 font-mono text-[10px] text-slate-800 dark:text-slate-200 overflow-x-auto max-h-60 leading-relaxed">
                         {activeSnapshotEvent.afterSnapshot
                           ? JSON.stringify(activeSnapshotEvent.afterSnapshot, null, 2)
                           : 'null'}
@@ -349,8 +497,13 @@ export default function AdminAuditTrailPage() {
                   </div>
                 </div>
 
-                <div className="p-3 border-t border-sakode-border bg-sakode-bg flex justify-end">
-                  <Button variant="outline" size="sm" onClick={() => setActiveSnapshotEvent(null)} className="text-xs">
+                <div className="p-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 flex justify-end">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setActiveSnapshotEvent(null)}
+                    className="text-xs font-bold border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 cursor-pointer"
+                  >
                     Tutup
                   </Button>
                 </div>

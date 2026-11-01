@@ -52,15 +52,15 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             disabled={disabled}
             className={cn(
-              'flex h-11 w-full rounded-lg border bg-sakode-card px-3.5 text-sm text-sakode-text transition-colors',
-              'placeholder:text-sakode-text-muted/60',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1',
+              'flex h-11 w-full rounded-xl border bg-white dark:bg-slate-900/90 px-3.5 text-sm text-slate-900 dark:text-white transition-all duration-150',
+              'placeholder:text-slate-400 dark:placeholder:text-slate-500',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-slate-950',
               leftIcon && 'pl-10',
               rightIcon && 'pr-10',
               error
-                ? 'border-sakode-orange focus-visible:ring-sakode-orange'
-                : 'border-sakode-border focus-visible:border-sakode-cyan focus-visible:ring-sakode-cyan',
-              disabled && 'cursor-not-allowed opacity-50 bg-slate-50',
+                ? 'border-rose-500 focus-visible:ring-rose-500 text-rose-900 dark:text-rose-200 animate-shake'
+                : 'border-slate-200/90 dark:border-slate-800 focus-visible:border-sky-500 focus-visible:ring-sky-500',
+              disabled && 'cursor-not-allowed opacity-50 bg-slate-50 dark:bg-slate-800/50',
               className
             )}
             aria-invalid={!!error}
@@ -69,15 +69,15 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           />
 
           {rightIcon && (
-            <div className="absolute right-3.5 flex items-center text-sakode-text-muted">
+            <div className="absolute right-3.5 flex items-center text-slate-400 dark:text-slate-500">
               {rightIcon}
             </div>
           )}
         </div>
 
         {error && (
-          <p id={`${inputId}-error`} className="text-xs font-semibold text-sakode-orange">
-            {error}
+          <p id={`${inputId}-error`} className="text-xs font-semibold text-rose-600 dark:text-rose-400 animate-fade-in-up flex items-center gap-1">
+            <span>{error}</span>
           </p>
         )}
 

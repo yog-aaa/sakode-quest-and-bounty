@@ -1,0 +1,54 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background Radial Gradient -->
+    <radialGradient id="bg-master-curator" cx="50%" cy="38%" r="65%">
+      <stop offset="0%" stop-color="#1A2536" />
+      <stop offset="65%" stop-color="#0E1624" />
+      <stop offset="100%" stop-color="#070C14" />
+    </radialGradient>
+
+    <!-- Outer Rim Linear Gradient -->
+    <linearGradient id="rim-master-curator" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E9D5FF" />
+      <stop offset="50%" stop-color="#BC71FE" />
+      <stop offset="100%" stop-color="#BC71FE" stop-opacity="0.7" />
+    </linearGradient>
+
+    <!-- Subtle Drop Shadow -->
+    <filter id="shadow-master-curator" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
+  </defs>
+
+  <!-- LAYER 1: BASE MEDALLION (SQUIRCLE WITH DOUBLE BORDER) -->
+  <g filter="url(#shadow-master-curator)">
+    <rect x="10" y="8" width="108" height="108" rx="28" fill="url(#bg-master-curator)" stroke="url(#rim-master-curator)" stroke-width="2.5" />
+    <rect x="15" y="13" width="98" height="98" rx="23" fill="none" stroke="white" stroke-opacity="0.1" stroke-width="1.2" />
+  </g>
+
+  <!-- Ambient Radar Arc -->
+  <path d="M 32 30 A 48 48 0 0 1 96 30" stroke="#BC71FE" stroke-opacity="0.18" stroke-width="1.5" stroke-dasharray="3 3" />
+
+
+
+  <!-- LAYER 2: ICONOGRAPHY -->
+  <g id="icon-master-curator">
+    <!-- Golden Compass & Triple Curated Scrolls -->
+    <g transform="translate(64, 58)">
+      <!-- Triple Scroll Shelf -->
+      <rect x="-18" y="-14" width="36" height="7" rx="3.5" fill="#BC71FE" stroke="#E9D5FF" stroke-width="1.5" />
+      <rect x="-14" y="-4" width="28" height="7" rx="3.5" fill="#9333EA" stroke="#E9D5FF" stroke-width="1.5" />
+      <rect x="-18" y="6" width="36" height="7" rx="3.5" fill="#7E22CE" stroke="#E9D5FF" stroke-width="1.5" />
+      <!-- Curatorial Seal -->
+      <circle cx="0" cy="18" r="5" fill="#EDAC1C" />
+      <circle cx="0" cy="18" r="2" fill="#78350F" />
+    </g>
+  </g>
+
+  <!-- LAYER 3: SAKODE SIGNATURE GOLD SMILE ARC -->
+  <g id="smile-master-curator">
+    <path d="M 48 102 C 54 107.5 74 107.5 80 102" stroke="#EDAC1C" stroke-width="2.8" stroke-linecap="round" />
+    <circle cx="48" cy="102" r="1.2" fill="#EDAC1C" />
+    <circle cx="80" cy="102" r="1.2" fill="#EDAC1C" />
+  </g>
+</svg>

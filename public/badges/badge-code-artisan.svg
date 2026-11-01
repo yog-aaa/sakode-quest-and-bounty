@@ -1,0 +1,63 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background Radial Gradient -->
+    <radialGradient id="bg-code-artisan" cx="50%" cy="38%" r="65%">
+      <stop offset="0%" stop-color="#1A2536" />
+      <stop offset="65%" stop-color="#0E1624" />
+      <stop offset="100%" stop-color="#070C14" />
+    </radialGradient>
+
+    <!-- Outer Rim Linear Gradient -->
+    <linearGradient id="rim-code-artisan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#BAE6FD" />
+      <stop offset="50%" stop-color="#71CFFE" />
+      <stop offset="100%" stop-color="#71CFFE" stop-opacity="0.7" />
+    </linearGradient>
+
+    <!-- Subtle Drop Shadow -->
+    <filter id="shadow-code-artisan" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
+  </defs>
+
+  <!-- LAYER 1: BASE MEDALLION (SQUIRCLE WITH DOUBLE BORDER) -->
+  <g filter="url(#shadow-code-artisan)">
+    <!-- Outer Medallion Body -->
+    <rect x="10" y="8" width="108" height="108" rx="28" fill="url(#bg-code-artisan)" stroke="url(#rim-code-artisan)" stroke-width="2.5" />
+    <!-- Inner Accent Border -->
+    <rect x="15" y="13" width="98" height="98" rx="23" fill="none" stroke="white" stroke-opacity="0.1" stroke-width="1.2" />
+  </g>
+
+  <!-- Ambient Radar Arc -->
+  <path d="M 32 30 A 48 48 0 0 1 96 30" stroke="#71CFFE" stroke-opacity="0.18" stroke-width="1.5" stroke-dasharray="3 3" />
+
+  <!-- LAYER 2: ICONOGRAPHY (DISCIPLINE SPECIFIC) -->
+  <g id="icon-code-artisan">
+    <!-- Left Curly Brace { -->
+    <path d="M 38 42 C 33 42, 31 46, 31 52 C 31 57, 27 59, 23 59 C 27 59, 31 61, 31 66 C 31 72, 33 76, 38 76" stroke="#71CFFE" stroke-width="3" stroke-linecap="round" fill="none" />
+    
+    <!-- Right Curly Brace } -->
+    <path d="M 90 42 C 95 42, 97 46, 97 52 C 97 57, 101 59, 105 59 C 101 59, 97 61, 97 66 C 97 72, 95 76, 90 76" stroke="#71CFFE" stroke-width="3" stroke-linecap="round" fill="none" />
+
+    <!-- Central Artisan Gemstone / Diamond -->
+    <g transform="translate(64, 59)">
+      <!-- Diamond Top Table -->
+      <polygon points="0,-22 14,-10 0,0 -14,-10" fill="#BAE6FD" />
+      <!-- Diamond Bottom Facet -->
+      <polygon points="-14,-10 0,0 0,20 -14,-10" fill="#71CFFE" />
+      <polygon points="0,0 14,-10 0,20" fill="#38BDF8" />
+      <!-- Top Center Sparkle -->
+      <circle cx="0" cy="-22" r="2" fill="white" />
+      <polygon points="18,-18 20,-24 22,-18 28,-16 22,-14 20,-8 18,-14 12,-16" fill="#EDAC1C" />
+    </g>
+  </g>
+
+  <!-- LAYER 3: SAKODE SIGNATURE GOLD SMILE ARC -->
+  <g id="smile-code-artisan">
+    <!-- Signature Smile Arc at bottom -->
+    <path d="M 48 102 C 54 107.5 74 107.5 80 102" stroke="#EDAC1C" stroke-width="2.8" stroke-linecap="round" />
+    <!-- Small Smile Dots -->
+    <circle cx="48" cy="102" r="1.2" fill="#EDAC1C" />
+    <circle cx="80" cy="102" r="1.2" fill="#EDAC1C" />
+  </g>
+</svg>

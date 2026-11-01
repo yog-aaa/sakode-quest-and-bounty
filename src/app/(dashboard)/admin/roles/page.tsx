@@ -12,6 +12,7 @@ import {
   getEligibleMembersForPromotionAction,
   manageAdminRoleAction,
 } from '@/server/actions/admin-manage.actions';
+import { ViewModeToggle, type ViewMode } from '@/components/ui/ViewModeToggle';
 import type { UserDocument } from '@/types/database';
 import {
   ShieldCheck,
@@ -45,6 +46,13 @@ export default function SuperAdminRolesPage() {
 
   // Search Filter
   const [searchTerm, setSearchTerm] = useState('');
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('sakode_admin_roles_view_mode') as ViewMode | null;
+      if (saved === 'grid' || saved === 'list' || saved === 'table') return saved;
+    }
+    return 'list';
+  });
 
   const loadData = useCallback(async () => {
     if (!user) return;
@@ -140,38 +148,36 @@ export default function SuperAdminRolesPage() {
 
   return (
     <AuthGuard requireSuperAdmin>
-      <div className="min-h-screen bg-sakode-bg py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#070C14] text-slate-900 dark:text-slate-100 py-8 px-4 sm:px-6 lg:px-8 transition-colors">
         <div className="max-w-6xl mx-auto space-y-6">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-5">
             <div>
-              <div className="flex items-center gap-2">
-                <Badge variant="purple" leftIcon={<Lock className="h-3.5 w-3.5" />}>
-                  Wewenang Eksklusif Super Admin
-                </Badge>
-                <span className="text-xs text-sakode-text-muted">SAKODE Academy Management</span>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/80">
+                  <Lock className="h-3 w-3" />
+                  <span>Wewenang Eksklusif Super Admin</span>
+                </span>
+                <span className="text-slate-400 dark:text-slate-600">•</span>
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  Delegasi Hak Akses Staf
+                </span>
               </div>
-              <h1 className="text-2xl font-black text-sakode-text tracking-tight mt-1">
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
                 Manajemen Role Administrator
               </h1>
-              <p className="text-xs text-sakode-text-muted">
-                Angkat staf baru menjadi Admin atau cabut hak akses dengan kewajiban mencantumkan alasan tertulis pada log audit.
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-2xl">
+                Angkat staf baru menjadi Admin atau cabut hak akses dengan kewajiban mencantumkan alasan tertulis pada log audit permanen.
               </p>
             </div>
 
             <div className="flex items-center gap-2">
-              <Link href="/admin">
-                <Button variant="outline" size="sm" className="text-xs font-bold gap-1">
-                  <ArrowLeft className="h-3.5 w-3.5" />
-                  <span>Kembali ke Dashboard</span>
-                </Button>
-              </Link>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={loadData}
                 disabled={isLoading}
-                className="text-xs font-bold gap-1.5"
+                className="text-xs font-bold gap-1.5 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
               >
                 <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} />
                 <span>Segarkan Data</span>
@@ -207,8 +213,8 @@ export default function SuperAdminRolesPage() {
           {/* Section 1: Active Staff List */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-extrabold text-sakode-text uppercase tracking-wider flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-sakode-purple" />
+              <h2 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                 <span>Daftar Administrator Aktif ({staff.length})</span>
               </h2>
             </div>
@@ -219,20 +225,20 @@ export default function SuperAdminRolesPage() {
                 const isSuperAdminRole = member.role === 'SUPER_ADMIN';
 
                 return (
-                  <Card key={member.id} className="p-4 border-sakode-border bg-white flex flex-col justify-between space-y-3">
+                  <Card key={member.id} className="p-4 border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80 rounded-2xl flex flex-col justify-between space-y-3 shadow-2xs">
                     <div className="flex items-start justify-between gap-2">
                       <div className="space-y-0.5">
                         <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-bold text-sakode-text">
+                          <span className="text-xs font-bold text-slate-900 dark:text-white">
                             {member.displayName || member.email}
                           </span>
                           {isMe && (
-                            <span className="text-[10px] bg-sakode-cyan/20 text-[#076991] font-bold px-1.5 py-0.2 rounded">
+                            <span className="text-[10px] bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 font-bold px-1.5 py-0.2 rounded">
                               Anda
                             </span>
                           )}
                         </div>
-                        <span className="text-[11px] text-slate-500 block truncate">{member.email}</span>
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">{member.email}</span>
                       </div>
 
                       <Badge variant={isSuperAdminRole ? 'purple' : 'cyan'}>
@@ -240,8 +246,8 @@ export default function SuperAdminRolesPage() {
                       </Badge>
                     </div>
 
-                    <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
-                      <span className="text-[11px] font-mono text-slate-400 truncate max-w-[150px]">
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/80 text-xs">
+                      <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500 truncate max-w-[150px]">
                         UID: {member.id}
                       </span>
 
@@ -250,13 +256,13 @@ export default function SuperAdminRolesPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => handleOpenModal(member, 'DEMOTE')}
-                          className="text-xs font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200 h-8"
+                          className="text-xs font-bold text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 border-rose-200 dark:border-rose-900/60 h-8 cursor-pointer"
                         >
                           <UserX className="h-3.5 w-3.5 mr-1" />
                           <span>Cabut Akses Admin</span>
                         </Button>
                       ) : (
-                        <span className="text-[10px] text-slate-400 font-bold bg-slate-100 px-2 py-0.5 rounded">
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
                           Akses Utama Dilindungi
                         </span>
                       )}
@@ -268,56 +274,171 @@ export default function SuperAdminRolesPage() {
           </div>
 
           {/* Section 2: Promote Eligible Members */}
-          <div className="space-y-3 pt-4 border-t border-sakode-border">
+          <div className="space-y-3 pt-6 border-t border-slate-200 dark:border-slate-800">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h2 className="text-sm font-extrabold text-sakode-text uppercase tracking-wider flex items-center gap-2">
-                  <Users className="h-4 w-4 text-sakode-cyan" />
+                <h2 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                  <Users className="h-4 w-4 text-sky-500" />
                   <span>Anggota Terverifikasi untuk Promosi</span>
                 </h2>
-                <p className="text-[11px] text-slate-500">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
                   Hanya anggota yang telah berstatus APPROVED yang dapat diangkat menjadi staf Admin.
                 </p>
               </div>
 
-              {/* Search Box */}
-              <div className="relative w-full sm:w-64">
-                <Search className="h-4 w-4 absolute left-3 top-2.5 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="Cari nama / email member..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-sakode-border bg-white focus:outline-none focus:ring-1 focus:ring-sakode-cyan"
-                />
+              {/* Search Box & View Mode Toggle */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 w-full sm:w-auto">
+                <div className="relative w-full sm:w-64">
+                  <Search className="h-4 w-4 absolute left-3 top-2.5 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Cari nama / email member..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                  />
+                </div>
+
+                <div className="shrink-0 self-end sm:self-auto">
+                  <ViewModeToggle
+                    currentMode={viewMode}
+                    onChange={setViewMode}
+                    storageKey="sakode_admin_roles_view_mode"
+                  />
+                </div>
               </div>
             </div>
 
             {filteredMembers.length === 0 ? (
-              <p className="text-xs text-slate-400 italic py-4">
+              <p className="text-xs text-slate-400 dark:text-slate-500 italic py-4">
                 Tidak ada anggota terverifikasi yang cocok dengan pencarian.
               </p>
-            ) : (
-              <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl bg-white overflow-hidden">
+            ) : viewMode === 'grid' ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {filteredMembers.map((m) => (
-                  <div
+                  <Card
                     key={m.id}
-                    className="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/60 transition-colors"
+                    className="p-4 border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80 rounded-2xl shadow-2xs flex flex-col justify-between space-y-3"
                   >
                     <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-sakode-text">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs font-bold text-slate-900 dark:text-white">
                           {m.displayName || m.email}
                         </span>
                         <Badge variant="outline">{m.approvalStatus}</Badge>
                       </div>
-                      <span className="text-[11px] text-slate-500">{m.email}</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate mt-0.5">
+                        {m.email}
+                      </span>
+                      {m.skills && m.skills.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {m.skills.slice(0, 3).map((s) => (
+                            <span
+                              key={s}
+                              className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-1.5 py-0.2 rounded"
+                            >
+                              {s}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+                      <span className="text-[10px] font-mono text-slate-400 truncate max-w-[120px]">
+                        {m.id.slice(0, 10)}...
+                      </span>
+                      <Button
+                        variant="team"
+                        size="sm"
+                        onClick={() => handleOpenModal(m, 'PROMOTE')}
+                        className="text-xs font-bold gap-1 h-7 cursor-pointer"
+                      >
+                        <UserCheck className="h-3 w-3" />
+                        <span>Angkat Admin</span>
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            ) : viewMode === 'table' ? (
+              <div className="border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900/80 overflow-hidden shadow-2xs">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-slate-50 dark:bg-slate-950/60 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 font-bold uppercase text-[10px] tracking-wider">
+                      <tr>
+                        <th className="p-3.5">Nama & Email</th>
+                        <th className="p-3.5">Skills / Spesialisasi</th>
+                        <th className="p-3.5">Status</th>
+                        <th className="p-3.5 text-right">Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                      {filteredMembers.map((m) => (
+                        <tr key={m.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
+                          <td className="p-3.5 whitespace-nowrap">
+                            <span className="font-bold text-slate-900 dark:text-white block">
+                              {m.displayName || m.email}
+                            </span>
+                            <span className="text-[11px] text-slate-500 font-mono">{m.email}</span>
+                          </td>
+                          <td className="p-3.5">
+                            {m.skills && m.skills.length > 0 ? (
+                              <div className="flex flex-wrap gap-1">
+                                {m.skills.slice(0, 3).map((s) => (
+                                  <span
+                                    key={s}
+                                    className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-1.5 py-0.2 rounded"
+                                  >
+                                    {s}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : (
+                              <span className="text-[11px] text-slate-400 italic">Belum ada skill</span>
+                            )}
+                          </td>
+                          <td className="p-3.5 whitespace-nowrap">
+                            <Badge variant="outline">{m.approvalStatus}</Badge>
+                          </td>
+                          <td className="p-3.5 whitespace-nowrap text-right">
+                            <Button
+                              variant="team"
+                              size="sm"
+                              onClick={() => handleOpenModal(m, 'PROMOTE')}
+                              className="text-xs font-bold gap-1 h-7 cursor-pointer"
+                            >
+                              <UserCheck className="h-3 w-3" />
+                              <span>Promosikan</span>
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-100 dark:divide-slate-800/80 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900/80 overflow-hidden shadow-2xs">
+                {filteredMembers.map((m) => (
+                  <div
+                    key={m.id}
+                    className="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
+                  >
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-slate-900 dark:text-white">
+                          {m.displayName || m.email}
+                        </span>
+                        <Badge variant="outline">{m.approvalStatus}</Badge>
+                      </div>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">{m.email}</span>
                       {m.skills && m.skills.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-1">
                           {m.skills.slice(0, 3).map((s) => (
                             <span
                               key={s}
-                              className="text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.2 rounded"
+                              className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-1.5 py-0.2 rounded"
                             >
                               {s}
                             </span>
@@ -331,7 +452,7 @@ export default function SuperAdminRolesPage() {
                         variant="team"
                         size="sm"
                         onClick={() => handleOpenModal(m, 'PROMOTE')}
-                        className="text-xs font-bold gap-1 h-8"
+                        className="text-xs font-bold gap-1 h-8 cursor-pointer"
                       >
                         <UserCheck className="h-3.5 w-3.5" />
                         <span>Angkat Jadi Admin</span>
@@ -346,38 +467,41 @@ export default function SuperAdminRolesPage() {
           {/* Modal Konfirmasi Mutasi Role */}
           {activeModalUser && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-              <div className="bg-white rounded-2xl shadow-2xl border border-sakode-border w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-                <div className="p-4 sm:p-5 border-b border-sakode-border bg-sakode-bg flex items-center justify-between">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+                <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     {modalAction === 'PROMOTE' ? (
-                      <UserCheck className="h-5 w-5 text-sakode-purple" />
+                      <UserCheck className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                     ) : (
-                      <UserX className="h-5 w-5 text-rose-600" />
+                      <UserX className="h-5 w-5 text-rose-600 dark:text-rose-400" />
                     )}
-                    <h3 className="text-base font-extrabold text-sakode-text">
+                    <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
                       {modalAction === 'PROMOTE'
                         ? 'Pengangkatan Staf Administrator'
                         : 'Pencabutan Akses Administrator'}
                     </h3>
                   </div>
-                  <button onClick={() => setActiveModalUser(null)} className="p-1 text-slate-400 hover:text-slate-700">
+                  <button
+                    onClick={() => setActiveModalUser(null)}
+                    className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg transition-colors cursor-pointer"
+                  >
                     <X className="h-5 w-5" />
                   </button>
                 </div>
 
                 <form onSubmit={handleConfirmRoleChange} className="p-5 space-y-4">
-                  <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs space-y-1">
-                    <span className="text-slate-500 block">Target Pengguna:</span>
-                    <strong className="text-slate-900 block font-bold">
+                  <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1">
+                    <span className="text-slate-500 dark:text-slate-400 block font-medium">Target Pengguna:</span>
+                    <strong className="text-slate-900 dark:text-white block font-bold">
                       {activeModalUser.displayName || activeModalUser.email}
                     </strong>
-                    <span className="font-mono text-[11px] text-slate-500 block">
+                    <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400 block">
                       {activeModalUser.email}
                     </span>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-sakode-text uppercase tracking-wider mb-1">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                       Alasan Mutasi Role (Min. 15 Karakter - Wajib Audit):
                     </label>
                     <textarea
@@ -385,17 +509,17 @@ export default function SuperAdminRolesPage() {
                       value={reason}
                       onChange={(e) => setReason(e.target.value)}
                       placeholder="Jelaskan kebutuhan penambahan staf admin atau dasar evaluasi pencabutan wewenang..."
-                      className="w-full p-3 text-xs rounded-lg border border-sakode-border bg-white text-sakode-text focus:outline-none focus:ring-1 focus:ring-sakode-purple leading-relaxed"
+                      className="w-full p-3 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-purple-500 leading-relaxed"
                     />
                   </div>
 
-                  <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+                  <div className="pt-3 flex items-center justify-end gap-2 border-t border-slate-200 dark:border-slate-800">
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       onClick={() => setActiveModalUser(null)}
-                      className="text-xs"
+                      className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer"
                     >
                       Batal
                     </Button>
@@ -404,7 +528,7 @@ export default function SuperAdminRolesPage() {
                       variant={modalAction === 'PROMOTE' ? 'team' : 'danger'}
                       size="sm"
                       disabled={isSubmitting || reason.trim().length < 15}
-                      className="font-bold text-xs gap-1.5"
+                      className="font-bold text-xs gap-1.5 cursor-pointer"
                     >
                       {isSubmitting ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />

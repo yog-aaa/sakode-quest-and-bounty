@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { TASK_MODES, TASK_ASSIGNMENT_TYPES, TASK_DEADLINE_TYPES, TASK_STATUS } from '@/lib/constants';
+import { evidenceFileSchema } from './submission';
 
 /**
  * 1. Skema Pembuatan & Pembaruan Task oleh Admin (createTaskSchema)
@@ -51,6 +52,16 @@ export const createTaskSchema = z
       .string()
       .trim()
       .min(10, 'Terms & Conditions snapshot minimal 10 karakter'),
+    attachments: z.array(evidenceFileSchema).optional().default([]),
+    links: z
+      .array(
+        z
+          .string()
+          .trim()
+          .url('Format URL tautan pendukung tidak valid (wajib menyertakan http:// atau https://)')
+      )
+      .optional()
+      .default([]),
     status: z.enum([TASK_STATUS.DRAFT, TASK_STATUS.OPEN]).default(TASK_STATUS.DRAFT),
   })
   .refine(

@@ -11,9 +11,9 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
       <div
         ref={ref}
         className={cn(
-          'rounded-lg border border-sakode-border bg-sakode-card text-sakode-text shadow-sm',
+          'rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-sm transition-colors',
           hoverable &&
-            'transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-sakode-cyan/60',
+            'transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-cyan-500/60 dark:hover:border-cyan-400/60',
           className
         )}
         {...props}
@@ -45,7 +45,7 @@ export const CardTitle = React.forwardRef<
     <h3
       ref={ref}
       className={cn(
-        'font-bold text-lg md:text-xl leading-tight text-sakode-text tracking-tight',
+        'font-bold text-lg md:text-xl leading-tight text-slate-900 dark:text-white tracking-tight',
         className
       )}
       {...props}
@@ -61,7 +61,7 @@ export const CardDescription = React.forwardRef<
   return (
     <p
       ref={ref}
-      className={cn('text-sm text-sakode-text-muted leading-relaxed', className)}
+      className={cn('text-sm text-slate-500 dark:text-slate-400 leading-relaxed', className)}
       {...props}
     />
   );
@@ -86,7 +86,7 @@ export const CardFooter = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        'flex items-center p-5 md:p-6 pt-0 md:pt-0 border-t border-sakode-border/50 mt-4',
+        'flex items-center p-5 md:p-6 pt-0 md:pt-0 border-t border-slate-100 dark:border-slate-800 mt-4',
         className
       )}
       {...props}

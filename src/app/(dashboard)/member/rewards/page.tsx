@@ -46,6 +46,7 @@ export default function MemberRewardsPage() {
   // Selection state
   const [selectedLedgerIds, setSelectedLedgerIds] = useState<string[]>([]);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showAccountInfoModal, setShowAccountInfoModal] = useState(false);
   const [isSubmittingClaim, setIsSubmittingClaim] = useState(false);
 
   // Transfer Proof Viewer State
@@ -194,21 +195,21 @@ export default function MemberRewardsPage() {
 
   return (
     <AuthGuard requireApproved>
-      <div className="min-h-screen bg-sakode-bg py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-6 px-4 sm:px-6 lg:px-8 text-slate-900 dark:text-slate-100 transition-colors">
         <div className="max-w-6xl mx-auto space-y-6">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/90 dark:border-slate-800/80 pb-4">
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 mb-1">
                 <Badge variant="cyan" leftIcon={<Coins className="h-3.5 w-3.5" />}>
                   Dompet Reward
                 </Badge>
-                <span className="text-xs text-sakode-text-muted">SAKODE Academy</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">SAKODE Academy</span>
               </div>
-              <h1 className="text-2xl font-black text-sakode-text tracking-tight mt-1">
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
                 Klaim & Saldo Reward
               </h1>
-              <p className="text-xs text-sakode-text-muted">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
                 Kelola pencairan honor pengerjaan task solo dan reward hasil kolaborasi tim Anda.
               </p>
             </div>
@@ -218,7 +219,7 @@ export default function MemberRewardsPage() {
               size="sm"
               onClick={loadData}
               disabled={isLoading}
-              className="text-xs font-bold gap-1.5 self-start sm:self-auto"
+              className="text-xs font-semibold gap-1.5 self-start sm:self-auto h-9 cursor-pointer"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} />
               <span>Segarkan Data</span>
@@ -227,26 +228,26 @@ export default function MemberRewardsPage() {
 
           {/* Feedback Messages */}
           {errorMsg && (
-            <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm flex items-center justify-between gap-2">
+            <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 text-rose-800 dark:text-rose-200 text-xs sm:text-sm flex items-center justify-between gap-2 shadow-2xs">
               <div className="flex items-center gap-2">
-                <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
+                <AlertCircle className="h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
                 <span>{errorMsg}</span>
               </div>
-              <button onClick={() => setErrorMsg(null)} className="text-rose-600 hover:text-rose-900">
+              <button onClick={() => setErrorMsg(null)} className="text-rose-600 dark:text-rose-400 hover:text-rose-800 p-1 cursor-pointer">
                 <X className="h-4 w-4" />
               </button>
             </div>
           )}
 
           {successMsg && (
-            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm flex items-center justify-between gap-2">
+            <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-200 text-xs sm:text-sm flex items-center justify-between gap-2 shadow-2xs">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
                 <span>{successMsg}</span>
               </div>
               <button
                 onClick={() => setSuccessMsg(null)}
-                className="text-emerald-600 hover:text-emerald-900"
+                className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 p-1 cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -254,59 +255,59 @@ export default function MemberRewardsPage() {
           )}
 
           {/* 3 Metric Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Card className="p-5 border-l-4 border-l-sakode-cyan bg-white">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+            <Card className="p-5 border-l-4 border-l-sky-500 bg-white dark:bg-slate-900/80 border-slate-200/90 dark:border-slate-800 shadow-2xs">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-sakode-text-muted uppercase tracking-wider">
+                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   Siap Dicairkan
                 </span>
-                <div className="h-8 w-8 rounded-lg bg-sakode-cyan/20 text-[#076991] flex items-center justify-center">
+                <div className="h-8 w-8 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center">
                   <Wallet className="h-4 w-4" />
                 </div>
               </div>
               <div className="mt-2">
-                <div className="text-2xl font-black text-sakode-text">
+                <div className="text-2xl font-black text-slate-900 dark:text-white font-mono">
                   {formatCurrencyIDR(balanceReadyToClaim)}
                 </div>
-                <span className="text-[11px] text-slate-500 font-medium">
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                   {availableLedgers.length} item reward tersedia
                 </span>
               </div>
             </Card>
 
-            <Card className="p-5 border-l-4 border-l-amber-500 bg-white">
+            <Card className="p-5 border-l-4 border-l-amber-500 bg-white dark:bg-slate-900/80 border-slate-200/90 dark:border-slate-800 shadow-2xs">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-sakode-text-muted uppercase tracking-wider">
+                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   Sedang Diproses
                 </span>
-                <div className="h-8 w-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
+                <div className="h-8 w-8 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
                   <Clock className="h-4 w-4" />
                 </div>
               </div>
               <div className="mt-2">
-                <div className="text-2xl font-black text-sakode-text">
+                <div className="text-2xl font-black text-slate-900 dark:text-white font-mono">
                   {formatCurrencyIDR(balanceProcessing)}
                 </div>
-                <span className="text-[11px] text-slate-500 font-medium">
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                   Dalam antrean transfer admin
                 </span>
               </div>
             </Card>
 
-            <Card className="p-5 border-l-4 border-l-emerald-500 bg-white">
+            <Card className="p-5 border-l-4 border-l-emerald-500 bg-white dark:bg-slate-900/80 border-slate-200/90 dark:border-slate-800 shadow-2xs">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-sakode-text-muted uppercase tracking-wider">
+                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   Total Diterima
                 </span>
-                <div className="h-8 w-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                <div className="h-8 w-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                   <CheckCircle2 className="h-4 w-4" />
                 </div>
               </div>
               <div className="mt-2">
-                <div className="text-2xl font-black text-sakode-text">
+                <div className="text-2xl font-black text-slate-900 dark:text-white font-mono">
                   {formatCurrencyIDR(balancePaidConfirmed)}
                 </div>
-                <span className="text-[11px] text-slate-500 font-medium">
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                   Telah berhasil dicairkan
                 </span>
               </div>
@@ -314,37 +315,40 @@ export default function MemberRewardsPage() {
           </div>
 
           {/* Bank Account Banner */}
-          <div className="p-4 rounded-xl border border-sakode-border bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+          <div className="p-4 rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+              <div className="h-10 w-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center shrink-0">
                 <Building className="h-5 w-5" />
               </div>
               <div>
-                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
                   Rekening Penerima Terdaftar:
                 </span>
-                <span className="text-sm font-black text-sakode-text">
+                <span className="text-sm font-black text-slate-900 dark:text-white font-mono">
                   {user?.paymentAccountMasked || 'Belum diatur'}
                 </span>
               </div>
             </div>
 
-            <Link href="/member/settings">
-              <Button variant="ghost" size="sm" className="text-xs font-bold text-sakode-cyan">
-                <span>Ubah Rekening</span>
-                <ArrowRight className="h-3.5 w-3.5 ml-1" />
-              </Button>
-            </Link>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowAccountInfoModal(true)}
+              className="text-xs font-semibold text-sky-600 dark:text-sky-400 border-slate-200 dark:border-slate-700 h-8 cursor-pointer"
+            >
+              <span>Info Rekening & Bantuan</span>
+              <ArrowRight className="h-3.5 w-3.5 ml-1" />
+            </Button>
           </div>
 
           {/* Tabs Control */}
-          <div className="flex items-center gap-2 border-b border-sakode-border">
+          <div className="flex items-center gap-2 border-b border-slate-200/90 dark:border-slate-800/80">
             <button
               onClick={() => setActiveTab('available')}
-              className={`pb-3 px-3 text-xs font-bold border-b-2 transition-all flex items-center gap-1.5 ${
+              className={`pb-3 px-3 text-xs font-bold border-b-2 transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'available'
-                  ? 'border-sakode-cyan text-sakode-text'
-                  : 'border-transparent text-slate-500 hover:text-slate-800'
+                  ? 'border-sky-500 text-sky-600 dark:text-sky-400'
+                  : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
               <Coins className="h-4 w-4" />
@@ -353,10 +357,10 @@ export default function MemberRewardsPage() {
 
             <button
               onClick={() => setActiveTab('history')}
-              className={`pb-3 px-3 text-xs font-bold border-b-2 transition-all flex items-center gap-1.5 ${
+              className={`pb-3 px-3 text-xs font-bold border-b-2 transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'history'
-                  ? 'border-sakode-cyan text-sakode-text'
-                  : 'border-transparent text-slate-500 hover:text-slate-800'
+                  ? 'border-sky-500 text-sky-600 dark:text-sky-400'
+                  : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
               <Clock className="h-4 w-4" />
@@ -772,6 +776,58 @@ export default function MemberRewardsPage() {
                     className="text-xs"
                   >
                     Tutup
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+          {/* ACCOUNT INFO & SUPPORT MODAL */}
+          {showAccountInfoModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-md overflow-hidden flex flex-col">
+                <div className="p-4 sm:p-5 border-b border-slate-200/90 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Building className="h-5 w-5 text-sky-500" />
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                      Informasi Rekening & Keamanan
+                    </h3>
+                  </div>
+                  <button
+                    onClick={() => setShowAccountInfoModal(false)}
+                    className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg cursor-pointer"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+
+                <div className="p-5 space-y-4 text-xs text-slate-600 dark:text-slate-300">
+                  <div className="p-3.5 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/60 text-sky-900 dark:text-sky-200">
+                    <span className="font-bold block mb-1">Rekening Terdaftar:</span>
+                    <span className="font-mono text-sm font-black block text-slate-900 dark:text-white">
+                      {user?.paymentAccountMasked || 'Belum diatur'}
+                    </span>
+                  </div>
+
+                  <p className="leading-relaxed">
+                    Demi integritas dan keamanan finansial anggota, data perbankan Anda dienkripsi menggunakan standar <strong>AES-256</strong> dan diverifikasi manual oleh Admin SAKODE saat pendaftaran akun.
+                  </p>
+
+                  <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200">
+                    <span className="font-bold block mb-0.5">Ingin Mengubah Rekening?</span>
+                    <span>
+                      Untuk mencegah pencairan tidak sah, perubahan nomor rekening memerlukan verifikasi identitas ulang. Silakan hubungi admin atau buka tiket sengketa/bantuan.
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-4 border-t border-slate-200/90 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 flex items-center justify-end">
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => setShowAccountInfoModal(false)}
+                    className="text-xs font-bold px-4 cursor-pointer"
+                  >
+                    Mengerti
                   </Button>
                 </div>
               </div>
