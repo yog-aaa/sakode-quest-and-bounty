@@ -122,6 +122,33 @@ body {
   }
 }
 
+@keyframes shake-horizontal {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20%, 60% {
+    transform: translateX(-4px);
+  }
+  40%, 80% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes pop-in-spring {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(6px);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.02) translateY(-1px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 .animate-micro-pulse {
   animation: micro-pulse 3.2s ease-in-out infinite;
 }
@@ -133,6 +160,14 @@ body {
 
 .animate-fade-in-up {
   animation: fade-in-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-shake {
+  animation: shake-horizontal 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+.animate-pop-in {
+  animation: pop-in-spring 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
 .animate-float-slow {
