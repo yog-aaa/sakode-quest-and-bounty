@@ -494,27 +494,33 @@ function SubmissionDetailInner() {
           <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
             Tautan Hasil Pekerjaan ({submission.deliverableLinks?.length || 0})
           </h3>
-          <div className="space-y-2">
-            {submission.deliverableLinks?.map((link, idx) => (
-              <a
-                key={idx}
-                href={link}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-sky-300 dark:hover:border-sky-700 hover:bg-sky-50/30 dark:hover:bg-sky-950/20 transition-colors group"
-              >
-                <div className="flex items-center gap-2.5 overflow-hidden">
-                  <div className="w-7 h-7 rounded-lg bg-sky-100 dark:bg-sky-950/80 text-sky-600 dark:text-sky-300 flex items-center justify-center shrink-0">
-                    <ExternalLink className="h-3.5 w-3.5" />
+          {!submission.deliverableLinks || submission.deliverableLinks.length === 0 ? (
+            <p className="text-xs text-slate-400 dark:text-slate-500 py-3 text-center">
+              Tidak ada tautan yang dilampirkan (pekerjaan diserahkan via berkas bukti).
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {submission.deliverableLinks.map((link, idx) => (
+                <a
+                  key={idx}
+                  href={link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-sky-300 dark:hover:border-sky-700 hover:bg-sky-50/30 dark:hover:bg-sky-950/20 transition-colors group"
+                >
+                  <div className="flex items-center gap-2.5 overflow-hidden">
+                    <div className="w-7 h-7 rounded-lg bg-sky-100 dark:bg-sky-950/80 text-sky-600 dark:text-sky-300 flex items-center justify-center shrink-0">
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </div>
+                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors truncate">
+                      {link}
+                    </span>
                   </div>
-                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors truncate">
-                    {link}
-                  </span>
-                </div>
-                <span className="text-[11px] text-sky-600 dark:text-sky-400 font-bold shrink-0">Buka Tautan ↗</span>
-              </a>
-            ))}
-          </div>
+                  <span className="text-[11px] text-sky-600 dark:text-sky-400 font-bold shrink-0">Buka Tautan ↗</span>
+                </a>
+              ))}
+            </div>
+          )}
         </Card>
 
         {/* Section 3: Evidence Files Gallery */}
@@ -525,46 +531,59 @@ function SubmissionDetailInner() {
 
           {!submission.evidenceFiles || submission.evidenceFiles.length === 0 ? (
             <p className="text-xs text-slate-400 dark:text-slate-500 py-4 text-center">
-              Tidak ada berkas bukti yang dilampirkan.
+              Tidak ada berkas bukti yang dilampirkan (pekerjaan diserahkan via tautan online).
             </p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
               {submission.evidenceFiles.map((file) => {
-                const isPdf =
-                  file.fileName.toLowerCase().endsWith('.pdf') ||
-                  file.fileType.toLowerCase().includes('pdf');
+                const lowerName = file.fileName.toLowerCase();
+                const lowerType = file.fileType?.toLowerCase() || '';
+                const isPdf = lowerName.endsWith('.pdf') || lowerType.includes('pdf');
+                const isWord = lowerName.endsWith('.doc') || lowerName.endsWith('.docx') || lowerType.includes('word') || lowerType.includes('officedocument.wordprocessingml');
+                const isPpt = lowerName.endsWith('.ppt') || lowerName.endsWith('.pptx') || lowerType.includes('presentation') || lowerType.includes('powerpoint');
+                const isDoc = isPdf || isWord || isPpt;
+                const fileDownloadUrl = file.url;
+
+                let docTypeLabel = 'Dokumen Lampiran';
+                let docColorClass = 'text-cyan-600 dark:text-cyan-400 bg-cyan-100 dark:bg-cyan-950/80';
+                if (isPdf) {
+                  docTypeLabel = 'Dokumen PDF';
+                  docColorClass = 'text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-950/80';
+                } else if (isWord) {
+                  docTypeLabel = 'Dokumen Word';
+                  docColorClass = 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-950/80';
+                } else if (isPpt) {
+                  docTypeLabel = 'Presentasi PPT';
+                  docColorClass = 'text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-950/80';
+                }
 
                 return (
                   <div
                     key={file.publicId}
-                    className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-2 flex flex-col justify-between"
+                    className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-2.5 flex flex-col justify-between shadow-2xs"
                   >
                     <div className="flex items-center gap-2 overflow-hidden">
-                      <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
-                        {isPdf ? (
-                          <FileText className="h-4 w-4 text-rose-500" />
-                        ) : (
-                          <ImageIcon className="h-4 w-4 text-sky-500" />
-                        )}
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDoc ? docColorClass : 'bg-slate-100 dark:bg-slate-800 text-sky-500'}`}>
+                        {isDoc ? <FileText className="h-4 w-4" /> : <ImageIcon className="h-4 w-4" />}
                       </div>
-                      <div className="overflow-hidden">
+                      <div className="overflow-hidden min-w-0">
                         <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate" title={file.fileName}>
                           {file.fileName}
                         </p>
-                        <p className="text-[10px] text-slate-400">
-                          {isPdf ? 'Dokumen PDF' : 'Tangkapan Layar'}
+                        <p className="text-[10px] text-slate-400 font-mono">
+                          {docTypeLabel} • {Math.round((file.fileSize || 0) / 1024)} KB
                         </p>
                       </div>
                     </div>
 
-                    {!isPdf ? (
+                    {!isDoc ? (
                       <div
-                        onClick={() => setPreviewImage(file.url)}
+                        onClick={() => setPreviewImage(fileDownloadUrl)}
                         className="relative h-28 w-full bg-slate-100 dark:bg-slate-800 rounded-lg overflow-hidden cursor-pointer group"
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                          src={file.url}
+                          src={fileDownloadUrl}
                           alt={file.fileName}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                         />
@@ -574,12 +593,13 @@ function SubmissionDetailInner() {
                       </div>
                     ) : (
                       <a
-                        href={file.url}
+                        href={fileDownloadUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-750 text-center block text-xs font-semibold text-rose-600 dark:text-rose-400 transition-colors"
+                        download={file.fileName}
+                        className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-center block text-xs font-bold text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700 transition-colors"
                       >
-                        Lihat Dokumen PDF ↗
+                        Buka / Unduh Berkas ↗
                       </a>
                     )}
                   </div>

@@ -1,16 +1,17 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { BountyCard } from '@/components/task/BountyCard';
+import { FileUploadDropzone } from '@/components/submission/FileUploadDropzone';
 import { createTaskAction } from '@/server/actions/task.actions';
 import { createTaskSchema, type CreateTaskInput } from '@/lib/validations/task';
 import { TASK_STATUS } from '@/lib/constants';
 import { formatCurrencyIDR } from '@/lib/utils';
-import type { TaskDocument } from '@/types/database';
+import type { TaskDocument, EvidenceFile } from '@/types/database';
 import {
   ArrowLeft,
   Plus,
@@ -31,6 +32,11 @@ import {
   ChevronRight,
   ChevronLeft,
   Check,
+  Link as LinkIcon,
+  Paperclip,
+  ExternalLink,
+  FileText,
+  Globe,
 } from 'lucide-react';
 
 const STEPS = [
@@ -85,6 +91,43 @@ export default function AdminCreateTaskPage() {
   const [termsContent, setTermsContent] = useState<string>(DEFAULT_TERMS);
   const [isTermsExpanded, setIsTermsExpanded] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState<number>(1);
+
+  // Lampiran Berkas & Tautan Pendukung (Multi-File & Multi-Link)
+  const [draftTaskId, setDraftTaskId] = useState('admin_task_draft_init');
+  const [attachments, setAttachments] = useState<EvidenceFile[]>([]);
+  const [links, setLinks] = useState<string[]>([]);
+  const [newLinkInput, setNewLinkInput] = useState('');
+  const [linkError, setLinkError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setDraftTaskId(`admin_task_draft_${Date.now()}`);
+  }, []);
+
+  // Link Management Helpers
+  const handleAddLink = () => {
+    const trimmed = newLinkInput.trim();
+    if (!trimmed) return;
+    try {
+      new URL(trimmed);
+      if (!/^https?:\/\//i.test(trimmed)) {
+        setLinkError('Tautan harus diawali dengan http:// atau https://');
+        return;
+      }
+      if (links.includes(trimmed)) {
+        setLinkError('Tautan ini sudah ada di dalam daftar');
+        return;
+      }
+      setLinks((prev) => [...prev, trimmed]);
+      setNewLinkInput('');
+      setLinkError(null);
+    } catch {
+      setLinkError('Format URL tautan tidak valid (misal: https://github.com/...)');
+    }
+  };
+
+  const handleRemoveLink = (idx: number) => {
+    setLinks((prev) => prev.filter((_, i) => i !== idx));
+  };
 
   // Submission State
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -242,6 +285,8 @@ export default function AdminCreateTaskPage() {
       durationMinutes: deadlineType === 'DURATION' ? Number(durationMinutes) : undefined,
       fixedDeadline: deadlineType === 'FIXED' ? new Date(fixedDeadline).toISOString() : undefined,
       termsContent,
+      attachments,
+      links,
       status: targetStatus,
     };
 
@@ -318,6 +363,8 @@ export default function AdminCreateTaskPage() {
       content: termsContent,
       capturedAt: '2026-10-24T12:00:00.000Z',
     },
+    attachments,
+    links,
     createdByAdminId: user?.id || 'admin',
     createdAt: '2026-10-24T12:00:00.000Z',
     updatedAt: '2026-10-24T12:00:00.000Z',
@@ -599,6 +646,108 @@ export default function AdminCreateTaskPage() {
                           </p>
                         )}
                       </div>
+                    </div>
+
+                    {/* Section Tautan Referensi / Eksternal (Multi-Link) */}
+                    <div className="pt-3 border-t border-slate-200/70 dark:border-slate-800 space-y-3">
+                      <div>
+                        <label className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                          <Globe className="h-3.5 w-3.5 text-cyan-600 dark:text-cyan-400" />
+                          <span>Tautan Referensi & Sumber Daya (Opsional)</span>
+                        </label>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                          Lampirkan link Figma, GitHub Repository, Google Docs, atau referensi online lainnya.
+                        </p>
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <div className="relative flex-1">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            <LinkIcon className="h-3.5 w-3.5" />
+                          </div>
+                          <input
+                            type="url"
+                            placeholder="https://example.com/brief-atau-figma"
+                            value={newLinkInput}
+                            onChange={(e) => {
+                              setNewLinkInput(e.target.value);
+                              if (linkError) setLinkError(null);
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleAddLink();
+                              }
+                            }}
+                            className="w-full pl-9 pr-3.5 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-950/40 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 font-mono"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleAddLink}
+                          className="h-9 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shrink-0"
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                          <span>Tambah Tautan</span>
+                        </button>
+                      </div>
+
+                      {linkError && (
+                        <p className="text-[11px] text-rose-600 dark:text-rose-400 font-semibold flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" /> {linkError}
+                        </p>
+                      )}
+
+                      {links.length > 0 && (
+                        <div className="space-y-1.5 pt-1">
+                          {links.map((link, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center justify-between gap-3 px-3 py-2 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 text-xs group"
+                            >
+                              <a
+                                href={link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 text-cyan-600 dark:text-cyan-400 hover:underline truncate max-w-xl font-mono text-[11px]"
+                              >
+                                <ExternalLink className="h-3 w-3 shrink-0" />
+                                <span className="truncate">{link}</span>
+                              </a>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveLink(idx)}
+                                className="h-6 w-6 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center justify-center transition-colors shrink-0"
+                                title="Hapus tautan ini"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Section Berkas & Lampiran Pendukung (Multi-File) */}
+                    <div className="pt-3 border-t border-slate-200/70 dark:border-slate-800 space-y-3">
+                      <div>
+                        <label className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                          <Paperclip className="h-3.5 w-3.5 text-cyan-600 dark:text-cyan-400" />
+                          <span>Berkas & Dokumen Pendukung (Opsional)</span>
+                        </label>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                          Unggah dokumen brief, spesifikasi teknis, atau aset panduan (PDF, DOC/DOCX, PPT/PPTX, JPG/PNG, WebP).
+                        </p>
+                      </div>
+
+                      <FileUploadDropzone
+                        taskId={draftTaskId}
+                        files={attachments}
+                        onFilesChange={setAttachments}
+                        maxFiles={5}
+                        title="Unggah Dokumen / Panduan Pendukung"
+                        description="Format yang didukung: PDF, Word (DOC/DOCX), PowerPoint (PPT/PPTX), atau Gambar (JPG/PNG/WebP). Maks 5 berkas."
+                      />
                     </div>
                   </div>
                 )}
@@ -995,6 +1144,62 @@ export default function AdminCreateTaskPage() {
                         <BountyCard task={previewTask} userIsApproved={true} />
                       </div>
                     </div>
+
+                    {/* Ringkasan Berkas & Tautan Pendukung */}
+                    {(attachments.length > 0 || links.length > 0) && (
+                      <div className="p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white/70 dark:bg-slate-900/40 space-y-3">
+                        <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                          <Paperclip className="h-3.5 w-3.5 text-cyan-600 dark:text-cyan-400" />
+                          <span>Lampiran & Sumber Daya Tambahan ({attachments.length} Berkas, {links.length} Tautan)</span>
+                        </h4>
+
+                        {links.length > 0 && (
+                          <div className="space-y-1">
+                            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                              Tautan Referensi:
+                            </span>
+                            <div className="flex flex-wrap gap-2 pt-1">
+                              {links.map((link, idx) => (
+                                <a
+                                  key={idx}
+                                  href={link}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono bg-slate-100 dark:bg-slate-800 text-cyan-600 dark:text-cyan-400 hover:underline border border-slate-200 dark:border-slate-700 truncate max-w-xs"
+                                >
+                                  <ExternalLink className="h-3 w-3 shrink-0" />
+                                  <span className="truncate">{link}</span>
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {attachments.length > 0 && (
+                          <div className="space-y-1 pt-1">
+                            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                              Berkas Pendukung:
+                            </span>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                              {attachments.map((file, idx) => (
+                                <div
+                                  key={idx}
+                                  className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/60 text-xs"
+                                >
+                                  <FileText className="h-4 w-4 text-cyan-600 dark:text-cyan-400 shrink-0" />
+                                  <span className="font-medium text-slate-800 dark:text-slate-200 truncate flex-1">
+                                    {file.fileName}
+                                  </span>
+                                  <span className="text-[10px] text-slate-400 uppercase shrink-0 font-mono">
+                                    {Math.round(file.fileSize / 1024)} KB
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                     {/* Status Kelengkapan Form Sebelum Terbit */}
                     {!isStep5Complete() ? (

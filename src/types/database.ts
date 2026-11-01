@@ -79,6 +79,7 @@ export interface TaskTermsSnapshot {
 
 export interface EvidenceFile {
   url: string;
+  secureUrl?: string;
   publicId: string;
   fileName: string;
   fileType: string;
@@ -171,6 +172,8 @@ export interface TaskDocument {
   deadlineAt: FirestoreDate | null; // Batas aktual terhitung
   status: TaskStatus;
   termsSnapshot: TaskTermsSnapshot;
+  attachments?: EvidenceFile[]; // Berkas pendukung task dari Admin (PDF, DOC, PPT, Gambar)
+  links?: string[]; // Tautan pendukung/referensi task dari Admin
   assignedUserId: string | null;
   assignedTeamId: string | null;
   reviewLockedByAdminId: string | null;

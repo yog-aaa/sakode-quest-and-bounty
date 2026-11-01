@@ -55,14 +55,23 @@ export function validateEvidenceFileProperties(
 
   // Allowed whitelist
   const isAllowedMime = ALLOWED_EVIDENCE_MIME_TYPES.some((t) => lowerType === t);
-  const isAllowedExtension = ['.jpg', '.jpeg', '.png', '.webp', '.pdf'].some((ext) =>
-    lowerName.endsWith(ext)
-  );
+  const isAllowedExtension = [
+    '.jpg',
+    '.jpeg',
+    '.png',
+    '.webp',
+    '.pdf',
+    '.doc',
+    '.docx',
+    '.ppt',
+    '.pptx',
+  ].some((ext) => lowerName.endsWith(ext));
 
   if (!isAllowedMime && !isAllowedExtension) {
     return {
       valid: false,
-      error: 'Format berkas tidak diizinkan. Hanya berkas JPG, PNG, WebP, atau PDF yang didukung.',
+      error:
+        'Format berkas tidak didukung. Format yang diizinkan: JPG, PNG, WebP, PDF, DOC/DOCX, atau PPT/PPTX.',
     };
   }
 

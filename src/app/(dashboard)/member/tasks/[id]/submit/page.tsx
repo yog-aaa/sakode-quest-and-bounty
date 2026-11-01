@@ -155,8 +155,8 @@ function TaskSubmitInner() {
       .map((l) => l.trim())
       .filter((l) => l.length > 0);
 
-    if (cleanLinks.length === 0) {
-      setErrorMsg('Wajib menyertakan minimal 1 tautan hasil pekerjaan (misal: GitHub repo, staging URL).');
+    if (cleanLinks.length === 0 && evidenceFiles.length === 0) {
+      setErrorMsg('Wajib menyertakan minimal salah satu bukti pengerjaan: tautan hasil pekerjaan ATAU berkas bukti (gambar/PDF/dokumen).');
       return;
     }
 
@@ -373,10 +373,10 @@ function TaskSubmitInner() {
               <div className="flex items-center justify-between">
                 <div>
                   <label className="block text-xs font-bold text-sakode-text uppercase tracking-wider mb-0.5">
-                    Tautan Hasil Pekerjaan (Deliverable Links) <span className="text-rose-500">*</span>
+                    Tautan Hasil Pekerjaan (Deliverable Links)
                   </label>
                   <p className="text-[11px] text-sakode-text-muted">
-                    Sertakan tautan repository Git, live staging deployment, atau demo video drive publik (min. 1 tautan).
+                    Sertakan tautan repository Git, live staging deployment, atau demo video drive publik (bisa lebih dari 1 tautan).
                   </p>
                 </div>
 
@@ -401,15 +401,14 @@ function TaskSubmitInner() {
                       <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
                       <input
                         type="url"
-                        required={idx === 0}
                         placeholder={
                           idx === 0
-                            ? 'https://github.com/username/project-repo'
+                            ? 'Contoh: https://github.com/username/project-repo (Opsional jika upload berkas)'
                             : 'https://staging.sakode.id/demo'
                         }
                         value={link}
                         onChange={(e) => handleUpdateLink(idx, e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-sakode-border bg-white focus:outline-none focus:ring-1 focus:ring-sakode-cyan"
+                        className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-sakode-border bg-white focus:outline-none focus:ring-1 focus:ring-sakode-cyan font-mono"
                       />
                     </div>
                     {deliverableLinks.length > 1 && (
@@ -434,7 +433,7 @@ function TaskSubmitInner() {
                   Berkas Bukti Pekerjaan (Evidence Files)
                 </label>
                 <p className="text-[11px] text-sakode-text-muted mb-3">
-                  Unggah tangkapan layar antarmuka, laporan uji coba, atau dokumen arsitektur dalam format JPG, PNG, WebP, atau PDF (maks. 5 berkas, maks. 10 MB per berkas).
+                  Unggah tangkapan layar antarmuka, laporan uji coba, dokumen, atau berkas pendukung dalam format PDF, Word (DOC/DOCX), PowerPoint (PPT/PPTX), atau Gambar (JPG, PNG, WebP) (maks. 5 berkas, hingga 10 MB per berkas).
                 </p>
               </div>
 
@@ -443,6 +442,9 @@ function TaskSubmitInner() {
                 files={evidenceFiles}
                 onFilesChange={setEvidenceFiles}
                 disabled={isSubmitting}
+                maxFiles={5}
+                title="Unggah Bukti Hasil Pekerjaan"
+                description="Format yang didukung: PDF, Word (DOC/DOCX), PowerPoint (PPT/PPTX), atau Gambar (JPG/PNG/WebP). Bisa lebih dari 1 file."
               />
             </Card>
 

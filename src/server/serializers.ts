@@ -74,6 +74,8 @@ export function serializeTaskDoc(task: TaskDocument): TaskDocument {
         },
     assignedUserId: task.assignedUserId || null,
     assignedTeamId: task.assignedTeamId || null,
+    attachments: Array.isArray(task.attachments) ? task.attachments : [],
+    links: Array.isArray(task.links) ? task.links : [],
     reviewLockedByAdminId: task.reviewLockedByAdminId || null,
     reviewLockedUntil: serializeNullableDate(task.reviewLockedUntil),
     createdByAdminId: task.createdByAdminId || 'admin',

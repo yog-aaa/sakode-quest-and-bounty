@@ -38,6 +38,10 @@ import {
   ExternalLink,
   Scale,
   PieChart,
+  Paperclip,
+  Download,
+  Globe,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 function TaskDetailContent() {
@@ -402,6 +406,81 @@ function TaskDetailContent() {
                     </div>
                   </div>
 
+                  {/* Berkas Pendukung & Tautan Referensi dari Admin */}
+                  {((task.attachments && task.attachments.length > 0) || (task.links && task.links.length > 0)) && (
+                    <div className="p-4 rounded-xl border border-cyan-200/80 dark:border-cyan-900/40 bg-gradient-to-br from-cyan-50/50 to-sky-50/30 dark:from-cyan-950/20 dark:to-sky-950/10 space-y-3.5">
+                      <div className="flex items-center gap-2">
+                        <Paperclip className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+                        <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                          Berkas Pendukung & Tautan Referensi Task
+                        </h3>
+                      </div>
+
+                      {/* Tautan Referensi */}
+                      {task.links && task.links.length > 0 && (
+                        <div className="space-y-1.5">
+                          <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                            <Globe className="h-3 w-3 text-cyan-500" /> Tautan Terkait ({task.links.length}):
+                          </span>
+                          <div className="flex flex-wrap gap-2">
+                            {task.links.map((link, idx) => (
+                              <a
+                                key={idx}
+                                href={link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-cyan-700 dark:text-cyan-300 hover:text-cyan-600 hover:border-cyan-400 dark:hover:border-cyan-600 shadow-2xs transition-all max-w-sm truncate"
+                                title={link}
+                              >
+                                <ExternalLink className="h-3 w-3 shrink-0" />
+                                <span className="truncate">{link}</span>
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Lampiran Dokumen/Gambar */}
+                      {task.attachments && task.attachments.length > 0 && (
+                        <div className="space-y-1.5">
+                          <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                            <FileText className="h-3 w-3 text-cyan-500" /> Dokumen & Panduan ({task.attachments.length} Berkas):
+                          </span>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {task.attachments.map((file, idx) => {
+                              const ext = file.fileName.split('.').pop()?.toUpperCase() || 'FILE';
+                              return (
+                                <a
+                                  key={idx}
+                                  href={file.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  download={file.fileName}
+                                  className="flex items-center justify-between gap-2.5 p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-cyan-400 dark:hover:border-cyan-500 hover:shadow-2xs transition-all group"
+                                >
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <div className="h-8 w-8 rounded-lg bg-cyan-50 dark:bg-cyan-950/60 border border-cyan-200/60 dark:border-cyan-800 flex items-center justify-center shrink-0">
+                                      <FileText className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+                                    </div>
+                                    <div className="min-w-0">
+                                      <p className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 truncate">
+                                        {file.fileName}
+                                      </p>
+                                      <p className="text-[10px] text-slate-400 font-mono">
+                                        {ext} • {Math.round(file.fileSize / 1024)} KB
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <Download className="h-3.5 w-3.5 text-slate-400 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 shrink-0" />
+                                </a>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {/* Required Skills */}
                   <div>
                     <h3 className="text-xs font-bold text-sakode-text uppercase tracking-wider mb-2">
@@ -483,8 +562,36 @@ function TaskDetailContent() {
                         )}
 
                         {sub.evidenceFiles && sub.evidenceFiles.length > 0 && (
-                          <div className="text-[11px] text-slate-500 font-medium">
-                            Lampiran Bukti: {sub.evidenceFiles.length} berkas
+                          <div className="space-y-1.5 pt-1">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                              Berkas Bukti Pengerjaan ({sub.evidenceFiles.length}):
+                            </span>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              {sub.evidenceFiles.map((file, fIdx) => {
+                                const ext = file.fileName.split('.').pop()?.toUpperCase() || 'FILE';
+                                return (
+                                  <a
+                                    key={fIdx}
+                                    href={file.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    download={file.fileName}
+                                    className="flex items-center justify-between gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 hover:border-cyan-400 text-xs group transition-all"
+                                  >
+                                    <div className="flex items-center gap-2 min-w-0">
+                                      <FileText className="h-3.5 w-3.5 text-cyan-600 dark:text-cyan-400 shrink-0" />
+                                      <span className="font-medium text-slate-800 dark:text-slate-200 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 truncate">
+                                        {file.fileName}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-1 shrink-0 text-[10px] text-slate-400 font-mono">
+                                      <span>{ext}</span>
+                                      <Download className="h-3 w-3" />
+                                    </div>
+                                  </a>
+                                );
+                              })}
+                            </div>
                           </div>
                         )}
 
