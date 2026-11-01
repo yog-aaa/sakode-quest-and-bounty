@@ -55,22 +55,27 @@ export default function MemberDashboardPage() {
     if (!user) return;
     setLoadingActiveTask(true);
     try {
-      // 1. Coba lewat Client SDK langsung jika user punya activeTaskId
-      if (user.activeTaskId) {
-        try {
-          const db = getClientFirestore();
-          const snap = await getDoc(doc(db, 'tasks', user.activeTaskId));
-          if (snap.exists()) {
-            setActiveTask({ ...(snap.data() as TaskDocument), id: snap.id });
-            setLoadingActiveTask(false);
-            return;
-          }
-        } catch (clientErr) {
-          console.warn('Client load active task fallback:', clientErr);
-        }
+      // Jika member tidak sedang memegang activeTaskId, langsung set null tanpa network roundtrip
+      if (!user.activeTaskId) {
+        setActiveTask(null);
+        setLoadingActiveTask(false);
+        return;
       }
 
-      // 2. Fallback Server Action
+      // 1. Coba lewat Client SDK langsung jika user punya activeTaskId
+      try {
+        const db = getClientFirestore();
+        const snap = await getDoc(doc(db, 'tasks', user.activeTaskId));
+        if (snap.exists()) {
+          setActiveTask({ ...(snap.data() as TaskDocument), id: snap.id });
+          setLoadingActiveTask(false);
+          return;
+        }
+      } catch (clientErr) {
+        console.warn('Client load active task fallback:', clientErr);
+      }
+
+      // 2. Fallback Server Action hanya jika user memang punya activeTaskId tapi client SDK gagal
       const res = await getActiveTaskForUserAction(user.id);
       if (res.success && res.task) {
         setActiveTask(res.task);
@@ -90,10 +95,10 @@ export default function MemberDashboardPage() {
     if (!user) return;
     setLoadingApplications(true);
     try {
-      // 1. Coba lewat Client SDK langsung
+      // 1. Coba lewat Client SDK langsung (sesuai schema firestore.rules: userId)
       try {
         const db = getClientFirestore();
-        const q = query(collection(db, 'applications'), where('applicantUserId', '==', user.id));
+        const q = query(collection(db, 'applications'), where('userId', '==', user.id));
         const snap = await getDocs(q);
         const docs = snap.docs.map((d) => ({ ...(d.data() as ApplicationDocument), id: d.id }));
         setApplications(docs);

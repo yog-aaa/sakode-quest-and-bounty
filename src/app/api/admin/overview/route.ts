@@ -1,11 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getAdminDashboardOverview } from '@/server/services/admin-manage.service';
 import { serializeAuditEventDoc, sanitizeForSerialization } from '@/server/serializers';
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-    const uid = searchParams.get('uid');
+    const uid = req.nextUrl.searchParams.get('uid');
 
     if (!uid) {
       return NextResponse.json(
@@ -17,7 +16,7 @@ export async function GET(req: Request) {
     const overview = await getAdminDashboardOverview(uid);
     const cleanData = sanitizeForSerialization({
       ...overview,
-      recentAuditEvents: overview.recentAuditEvents.map(serializeAuditEventDoc),
+      recentAuditEvents: (overview.recentAuditEvents || []).map(serializeAuditEventDoc),
     });
 
     return NextResponse.json({
@@ -25,6 +24,15 @@ export async function GET(req: Request) {
       data: cleanData,
     });
   } catch (error: unknown) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'digest' in error &&
+      String((error as { digest?: string }).digest).startsWith('NEXT_')
+    ) {
+      throw error;
+    }
+
     console.error('Error fetching admin dashboard overview API:', error);
     return NextResponse.json(
       {

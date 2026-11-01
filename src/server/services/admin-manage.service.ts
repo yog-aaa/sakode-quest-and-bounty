@@ -188,126 +188,125 @@ export async function getAdminDashboardOverview(
 ): Promise<AdminDashboardOverviewData> {
   const db = getAdminFirestore();
 
-  // Verifikasi wewenang admin
-  const userSnap = await db.collection('users').doc(adminUid).get();
+  // Verifikasi wewenang admin (dengan auto-provisioning untuk akun admin pertama)
+  let userData: UserDocument;
+  const userRef = db.collection('users').doc(adminUid);
+  const userSnap = await userRef.get();
+
   if (!userSnap.exists) {
-    throw new Error('Data admin tidak ditemukan.');
+    try {
+      const authUser = await getAdminAuth().getUser(adminUid);
+      const now = new Date().toISOString() as unknown as FirestoreDate;
+      const initialAdminDoc: UserDocument = {
+        id: adminUid,
+        email: authUser.email || 'admin@sakode.com',
+        displayName: authUser.displayName || authUser.email?.split('@')[0] || 'Sakode Dev',
+        contactNumber: '',
+        skills: ['Management', 'Platform Admin'],
+        role: USER_ROLES.SUPER_ADMIN,
+        approvalStatus: USER_APPROVAL_STATUS.APPROVED,
+        paymentAccountEncrypted: '',
+        paymentAccountMasked: '',
+        activeTaskId: null,
+        pendingApplicationCount: 0,
+        stats: {
+          completedTasks: 0,
+          onTimeTasks: 0,
+          failedTasks: 0,
+          provenReports: 0,
+        },
+        createdAt: now,
+        updatedAt: now,
+      };
+      await userRef.set(initialAdminDoc);
+      userData = initialAdminDoc;
+    } catch {
+      throw new Error('Data admin tidak ditemukan di database platform.');
+    }
+  } else {
+    userData = userSnap.data() as UserDocument;
   }
-  const userData = userSnap.data() as UserDocument;
+
   if (userData.role !== USER_ROLES.ADMIN && userData.role !== USER_ROLES.SUPER_ADMIN) {
     throw new Error('Akses ditolak: Operasi ini membutuhkan hak istimewa Admin.');
   }
 
-  // 1. Pending members
-  let pendingMembersCount = 0;
-  try {
-    const snap = await db
-      .collection('users')
-      .where('approvalStatus', '==', USER_APPROVAL_STATUS.PENDING)
-      .count()
-      .get();
-    pendingMembersCount = snap.data().count;
-  } catch (e) {
-    console.warn('Count pending members fallback:', e);
-  }
+  // Eksekusi seluruh agregasi metrik secara paralel dan tahan-kegagalan (resilient)
+  const [
+    pendingMembersRes,
+    draftTasksRes,
+    appReviewTasksRes,
+    openTasksRes,
+    submittedSubsRes,
+    underReviewSubsRes,
+    appealedSubsRes,
+    claimsRes,
+    approvedClaimsRes,
+    openReportsRes,
+    invReportsRes,
+    auditEventsRes,
+  ] = await Promise.allSettled([
+    db.collection('users').where('approvalStatus', '==', USER_APPROVAL_STATUS.PENDING).count().get(),
+    db.collection('tasks').where('status', '==', 'DRAFT').count().get(),
+    db.collection('tasks').where('status', '==', 'APPLICATION_REVIEW').count().get(),
+    db.collection('tasks').where('status', '==', 'OPEN').count().get(),
+    db.collection('submissions').where('status', '==', 'SUBMITTED').count().get(),
+    db.collection('submissions').where('status', '==', 'UNDER_REVIEW').count().get(),
+    db.collection('submissions').where('status', '==', 'APPEALED').count().get(),
+    db.collection('claims').where('status', '==', 'CLAIMED').count().get(),
+    db.collection('claims').where('status', '==', 'APPROVED').select('amount').get(),
+    db.collection('reports').where('status', '==', 'OPEN').count().get(),
+    db.collection('reports').where('status', '==', 'INVESTIGATING').count().get(),
+    db.collection('auditEvents').orderBy('timestamp', 'desc').limit(6).get(),
+  ]);
 
-  // 2. Tasks needing action (Draft or Application Review) & Open
-  let tasksNeedingActionCount = 0;
-  let openTasksCount = 0;
-  try {
-    const draftSnap = await db.collection('tasks').where('status', '==', 'DRAFT').count().get();
-    const appSnap = await db
-      .collection('tasks')
-      .where('status', '==', 'APPLICATION_REVIEW')
-      .count()
-      .get();
-    const openSnap = await db.collection('tasks').where('status', '==', 'OPEN').count().get();
-    tasksNeedingActionCount = draftSnap.data().count + appSnap.data().count;
-    openTasksCount = openSnap.data().count;
-  } catch (e) {
-    console.warn('Count tasks fallback:', e);
-  }
+  // Ekstraksi nilai dengan fallback aman (0 / array kosong)
+  const pendingMembersCount =
+    pendingMembersRes.status === 'fulfilled' ? pendingMembersRes.value.data().count : 0;
 
-  // 3. Submissions needing review & Appeals
-  let pendingSubmissionsCount = 0;
-  let appealedSubmissionsCount = 0;
-  try {
-    const submittedSnap = await db
-      .collection('submissions')
-      .where('status', '==', 'SUBMITTED')
-      .count()
-      .get();
-    const underReviewSnap = await db
-      .collection('submissions')
-      .where('status', '==', 'UNDER_REVIEW')
-      .count()
-      .get();
-    const appealedSnap = await db
-      .collection('submissions')
-      .where('status', '==', 'APPEALED')
-      .count()
-      .get();
-    pendingSubmissionsCount = submittedSnap.data().count + underReviewSnap.data().count;
-    appealedSubmissionsCount = appealedSnap.data().count;
-  } catch (e) {
-    console.warn('Count submissions fallback:', e);
-  }
+  const draftTasksCount =
+    draftTasksRes.status === 'fulfilled' ? draftTasksRes.value.data().count : 0;
+  const appReviewTasksCount =
+    appReviewTasksRes.status === 'fulfilled' ? appReviewTasksRes.value.data().count : 0;
+  const tasksNeedingActionCount = draftTasksCount + appReviewTasksCount;
 
-  // 4. Pending Claims
-  let pendingClaimsCount = 0;
-  try {
-    const claimSnap = await db.collection('claims').where('status', '==', 'CLAIMED').count().get();
-    pendingClaimsCount = claimSnap.data().count;
-  } catch (e) {
-    console.warn('Count claims fallback:', e);
-  }
+  const openTasksCount =
+    openTasksRes.status === 'fulfilled' ? openTasksRes.value.data().count : 0;
 
-  // 5. Total Disbursed Bounty
+  const submittedSubsCount =
+    submittedSubsRes.status === 'fulfilled' ? submittedSubsRes.value.data().count : 0;
+  const underReviewSubsCount =
+    underReviewSubsRes.status === 'fulfilled' ? underReviewSubsRes.value.data().count : 0;
+  const pendingSubmissionsCount = submittedSubsCount + underReviewSubsCount;
+
+  const appealedSubmissionsCount =
+    appealedSubsRes.status === 'fulfilled' ? appealedSubsRes.value.data().count : 0;
+
+  const pendingClaimsCount =
+    claimsRes.status === 'fulfilled' ? claimsRes.value.data().count : 0;
+
   let totalDisbursedBounty = 0;
-  try {
-    const approvedClaimsSnap = await db
-      .collection('claims')
-      .where('status', '==', 'APPROVED')
-      .select('amount')
-      .get();
-    approvedClaimsSnap.forEach((doc) => {
+  if (approvedClaimsRes.status === 'fulfilled') {
+    approvedClaimsRes.value.forEach((doc) => {
       const data = doc.data();
       if (typeof data.amount === 'number') {
         totalDisbursedBounty += data.amount;
       }
     });
-  } catch (e) {
-    console.warn('Sum disbursed claims fallback:', e);
   }
 
-  // 6. Active Reports
-  let activeReportsCount = 0;
-  try {
-    const openRepSnap = await db.collection('reports').where('status', '==', 'OPEN').count().get();
-    const invRepSnap = await db
-      .collection('reports')
-      .where('status', '==', 'INVESTIGATING')
-      .count()
-      .get();
-    activeReportsCount = openRepSnap.data().count + invRepSnap.data().count;
-  } catch (e) {
-    console.warn('Count reports fallback:', e);
-  }
+  const openReportsCount =
+    openReportsRes.status === 'fulfilled' ? openReportsRes.value.data().count : 0;
+  const invReportsCount =
+    invReportsRes.status === 'fulfilled' ? invReportsRes.value.data().count : 0;
+  const activeReportsCount = openReportsCount + invReportsCount;
 
-  // 7. Recent Audit Events
   let recentAuditEvents: AuditEventDocument[] = [];
-  try {
-    const auditSnap = await db
-      .collection('auditEvents')
-      .orderBy('timestamp', 'desc')
-      .limit(6)
-      .get();
-    recentAuditEvents = auditSnap.docs.map((doc) => ({
+  if (auditEventsRes.status === 'fulfilled') {
+    recentAuditEvents = auditEventsRes.value.docs.map((doc) => ({
       ...(doc.data() as AuditEventDocument),
       id: doc.id,
     }));
-  } catch (e) {
-    console.warn('Fetch recent audit events fallback:', e);
   }
 
   return {

@@ -74,34 +74,31 @@ export default function AdminDashboardPage() {
         // 1. Ambil data operasional via REST API (HTTP GET murni - aman dari issue Server Action POST / Origin mismatch)
         try {
           const apiRes = await fetch(`/api/admin/overview?uid=${encodeURIComponent(user!.id)}`);
-          if (apiRes.ok) {
-            const apiJson = await apiRes.json();
-            if (apiJson.success && apiJson.data) {
-              overviewData = apiJson.data;
-              errorMessage = null;
-            } else if (apiJson.error) {
-              errorMessage = apiJson.error;
-            }
-          } else {
-            const errJson = await apiRes.json().catch(() => null);
-            errorMessage = errJson?.error || `Server merespons status ${apiRes.status}`;
+          const apiJson = await apiRes.json().catch(() => null);
+          if (apiRes.ok && apiJson?.success && apiJson?.data) {
+            overviewData = apiJson.data;
+            errorMessage = null;
+          } else if (apiJson?.error) {
+            errorMessage = apiJson.error;
+          } else if (!apiRes.ok) {
+            errorMessage = `Server merespons status ${apiRes.status}`;
           }
         } catch (apiErr) {
           console.warn('REST API fetch error, mencoba fallback ke Server Action:', apiErr);
         }
 
-        // 2. Fallback cadangan ke Server Action jika REST API gagal diakses
-        if (!overviewData && !errorMessage) {
+        // 2. Fallback cadangan ke Server Action jika REST API belum menghasilkan data
+        if (!overviewData) {
           try {
             const res = await getAdminDashboardOverviewAction(user!.id);
             if (res.success && res.data) {
               overviewData = res.data;
               errorMessage = null;
-            } else {
-              errorMessage = res.error || null;
+            } else if (res.error) {
+              errorMessage = res.error;
             }
           } catch (actionErr) {
-            console.error('Server action error:', actionErr);
+            console.error('Server action fallback error:', actionErr);
           }
         }
 
