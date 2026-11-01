@@ -12,6 +12,42 @@ import { getMessaging, type Messaging } from 'firebase-admin/messaging';
 
 let adminApp: App | null = null;
 
+function parsePrivateKey(rawKey?: string): string | undefined {
+  if (!rawKey) return undefined;
+  let key = rawKey.trim();
+
+  // Jika user memasukkan JSON utuh ke variabel private key
+  if (key.startsWith('{') && key.endsWith('}')) {
+    try {
+      const parsed = JSON.parse(key);
+      if (parsed.private_key) return parsePrivateKey(parsed.private_key);
+    } catch {}
+  }
+
+  // Bersihkan kutip luar
+  while (
+    (key.startsWith('"') && key.endsWith('"')) ||
+    (key.startsWith("'") && key.endsWith("'"))
+  ) {
+    key = key.slice(1, -1).trim();
+  }
+
+  // Normalisasi newline escapes yang sering terjadi di environment variables hosting
+  key = key.replace(/\\r\\n/g, '\n');
+  key = key.replace(/\\n/g, '\n');
+  key = key.replace(/\r\n/g, '\n');
+
+  // Jika newline hilang saat copy-paste ke input satu baris
+  if (!key.includes('\n') && key.includes('-----BEGIN PRIVATE KEY-----')) {
+    const header = '-----BEGIN PRIVATE KEY-----';
+    const footer = '-----END PRIVATE KEY-----';
+    const body = key.replace(header, '').replace(footer, '').trim();
+    key = `${header}\n${body}\n${footer}\n`;
+  }
+
+  return key;
+}
+
 export function getAdminApp(): App {
   if (adminApp) {
     return adminApp;
@@ -33,17 +69,28 @@ export function getAdminApp(): App {
     clientEmail = clientEmail.trim().replace(/^["']|["']$/g, '');
   }
 
-  let privateKey = process.env.FIREBASE_PRIVATE_KEY;
-  if (privateKey) {
-    privateKey = privateKey.trim();
-    while (
-      (privateKey.startsWith('"') && privateKey.endsWith('"')) ||
-      (privateKey.startsWith("'") && privateKey.endsWith("'"))
-    ) {
-      privateKey = privateKey.slice(1, -1).trim();
+  let privateKey = parsePrivateKey(process.env.FIREBASE_PRIVATE_KEY);
+
+  // Opsi fleksibel: Dukungan FIREBASE_SERVICE_ACCOUNT_KEY (JSON langsung atau Base64)
+  const rawServiceAccount =
+    process.env.FIREBASE_SERVICE_ACCOUNT_KEY || process.env.FIREBASE_SERVICE_ACCOUNT;
+  if (rawServiceAccount) {
+    try {
+      let jsonStr = rawServiceAccount.trim();
+      if (!jsonStr.startsWith('{')) {
+        try {
+          jsonStr = Buffer.from(jsonStr, 'base64').toString('utf8');
+        } catch {}
+      }
+      if (jsonStr.startsWith('{')) {
+        const parsed = JSON.parse(jsonStr);
+        if (parsed.project_id) projectId = parsed.project_id;
+        if (parsed.client_email) clientEmail = parsed.client_email;
+        if (parsed.private_key) privateKey = parsePrivateKey(parsed.private_key);
+      }
+    } catch (e) {
+      console.warn('Gagal membaca FIREBASE_SERVICE_ACCOUNT_KEY:', e);
     }
-    // Normalisasi newline escapes yang sering terjadi di environment variables Vercel
-    privateKey = privateKey.replace(/\\n/g, '\n');
   }
 
   if (projectId && clientEmail && privateKey) {
@@ -58,8 +105,19 @@ export function getAdminApp(): App {
       });
       return adminApp;
     } catch (certErr: unknown) {
-      console.warn('Gagal inisialisasi Firebase Admin dengan cert(), fallback ke projectId default:', certErr);
+      console.error('Gagal inisialisasi Firebase Admin dengan cert():', certErr);
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error(
+          `Firebase Admin cert() error: ${certErr instanceof Error ? certErr.message : String(certErr)}. Periksa format FIREBASE_PRIVATE_KEY atau FIREBASE_CLIENT_EMAIL di environment variables.`
+        );
+      }
     }
+  } else if (process.env.NODE_ENV === 'production') {
+    const missing = [];
+    if (!projectId) missing.push('FIREBASE_PROJECT_ID');
+    if (!clientEmail) missing.push('FIREBASE_CLIENT_EMAIL');
+    if (!privateKey) missing.push('FIREBASE_PRIVATE_KEY');
+    console.warn(`[Firebase Admin] Environment variables belum lengkap di production: ${missing.join(', ')}`);
   }
 
   // Fallback untuk development lokal / emulator / build time

@@ -71,33 +71,37 @@ export default function AdminDashboardPage() {
         let overviewData: AdminDashboardOverviewData | null = null;
         let errorMessage: string | null = null;
 
-        // 1. Coba lewat Server Action
+        // 1. Ambil data operasional via REST API (HTTP GET murni - aman dari issue Server Action POST / Origin mismatch)
         try {
-          const res = await getAdminDashboardOverviewAction(user!.id);
-          if (res.success && res.data) {
-            overviewData = res.data;
+          const apiRes = await fetch(`/api/admin/overview?uid=${encodeURIComponent(user!.id)}`);
+          if (apiRes.ok) {
+            const apiJson = await apiRes.json();
+            if (apiJson.success && apiJson.data) {
+              overviewData = apiJson.data;
+              errorMessage = null;
+            } else if (apiJson.error) {
+              errorMessage = apiJson.error;
+            }
           } else {
-            errorMessage = res.error || null;
+            const errJson = await apiRes.json().catch(() => null);
+            errorMessage = errJson?.error || `Server merespons status ${apiRes.status}`;
           }
-        } catch (actionErr) {
-          console.warn('Server action fallback to REST API:', actionErr);
+        } catch (apiErr) {
+          console.warn('REST API fetch error, mencoba fallback ke Server Action:', apiErr);
         }
 
-        // 2. Fallback resilien ke REST API Route Handler jika Server Action gagal atau 500
-        if (!overviewData) {
+        // 2. Fallback cadangan ke Server Action jika REST API gagal diakses
+        if (!overviewData && !errorMessage) {
           try {
-            const apiRes = await fetch(`/api/admin/overview?uid=${encodeURIComponent(user!.id)}`);
-            if (apiRes.ok) {
-              const apiJson = await apiRes.json();
-              if (apiJson.success && apiJson.data) {
-                overviewData = apiJson.data;
-                errorMessage = null;
-              } else if (apiJson.error) {
-                errorMessage = apiJson.error;
-              }
+            const res = await getAdminDashboardOverviewAction(user!.id);
+            if (res.success && res.data) {
+              overviewData = res.data;
+              errorMessage = null;
+            } else {
+              errorMessage = res.error || null;
             }
-          } catch (apiErr) {
-            console.error('REST API fallback error:', apiErr);
+          } catch (actionErr) {
+            console.error('Server action error:', actionErr);
           }
         }
 

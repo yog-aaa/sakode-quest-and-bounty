@@ -107,13 +107,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
   const [isMockSession, setIsMockSession] = useState<boolean>(() => !!getInitialMockUser());
 
-  // Muat profil dari Firestore (dengan server action & client-side fallback)
+  // Muat profil dari Firestore (mengutamakan Firebase Client SDK agar instan dan bebas Server Action 500)
   const loadProfile = useCallback(
     async (uid: string, fallbackEmail?: string | null, fallbackDisplayName?: string | null) => {
-      // 1. Coba via Server Actions terlebih dahulu
+      // 1. Prioritas Utama: Muat langsung via Firebase Client SDK (Instan, aman dari Serverless Cold Start & Server Action POST 500)
+      try {
+        const db = getClientFirestore();
+        const userDocRef = doc(db, 'users', uid);
+        const docSnap = await getDoc(userDocRef);
+
+        if (docSnap.exists()) {
+          const docData = docSnap.data() as UserDocument;
+          setUser(enrichUserProfile({ ...docData, id: uid }));
+          return;
+        } else {
+          const defaultDoc = buildDefaultUserDoc(uid, fallbackEmail || '', fallbackDisplayName);
+          await setDoc(
+            userDocRef,
+            {
+              ...defaultDoc,
+              createdAt: serverTimestamp(),
+              updatedAt: serverTimestamp(),
+            },
+            { merge: true }
+          );
+          setUser(enrichUserProfile(defaultDoc));
+          return;
+        }
+      } catch (clientErr: unknown) {
+        console.warn('Client-side Firestore profile load warning, mencoba sinkronisasi server:', clientErr);
+      }
+
+      // 2. Cadangan: Jika Client SDK terhalang (misal Firestore rules/offline), coba via Server Actions
       try {
         const timeoutPromise = new Promise<{ success: false; error: string }>((_, reject) =>
-          setTimeout(() => reject(new Error('Waktu muat profil habis (timeout)')), 5000)
+          setTimeout(() => reject(new Error('Waktu muat profil habis (timeout)')), 4000)
         );
 
         const fetchPromise = getUserProfileAction(uid);
@@ -134,37 +162,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return;
         }
       } catch (err: unknown) {
-        console.warn('Server action muat profil user gagal, mencoba client fallback:', err);
+        console.warn('Server action muat profil user gagal:', err);
       }
 
-      // 2. Client-Side Firestore Fallback (Mencegah user mental di login jika Server Action di Vercel bermasalah)
-      try {
-        const db = getClientFirestore();
-        const userDocRef = doc(db, 'users', uid);
-        const docSnap = await getDoc(userDocRef);
-
-        if (docSnap.exists()) {
-          const docData = docSnap.data() as UserDocument;
-          setUser(enrichUserProfile({ ...docData, id: uid }));
-        } else {
-          const defaultDoc = buildDefaultUserDoc(uid, fallbackEmail || '', fallbackDisplayName);
-          await setDoc(
-            userDocRef,
-            {
-              ...defaultDoc,
-              createdAt: serverTimestamp(),
-              updatedAt: serverTimestamp(),
-            },
-            { merge: true }
-          );
-          setUser(enrichUserProfile(defaultDoc));
-        }
-      } catch (clientErr: unknown) {
-        console.error('Client fallback Firestore error:', clientErr);
-        if (fallbackEmail) {
-          const memDoc = buildDefaultUserDoc(uid, fallbackEmail, fallbackDisplayName);
-          setUser(enrichUserProfile(memDoc));
-        }
+      // 3. Fallback memori terakhir jika Firestore belum terjangkau
+      if (fallbackEmail) {
+        const memDoc = buildDefaultUserDoc(uid, fallbackEmail, fallbackDisplayName);
+        setUser(enrichUserProfile(memDoc));
       }
     },
     []
