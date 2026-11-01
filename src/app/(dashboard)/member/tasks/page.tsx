@@ -14,6 +14,8 @@ import { CountdownTimer } from '@/components/ui/CountdownTimer';
 import { ViewModeToggle, type ViewMode } from '@/components/ui/ViewModeToggle';
 import { getAvailableTasksAction } from '@/server/actions/task.actions';
 import { instantTakeTaskAction, submitApplicationAction } from '@/server/actions/assignment.actions';
+import { getClientFirestore } from '@/lib/firebase/client';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { formatCurrencyIDR, formatDateWIB, toDateSafe } from '@/lib/utils';
 import { TASK_MODES, TASK_ASSIGNMENT_TYPES, TASK_STATUS } from '@/lib/constants';
 import type { TaskDocument } from '@/types/database';
@@ -75,11 +77,36 @@ export default function MemberTasksExplorePage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  // Load available tasks
+  // Load available tasks (Prioritaskan Client SDK untuk menghindari Server Action 500)
   const loadTasks = useCallback(async () => {
     setIsLoading(true);
     setErrorMsg(null);
     try {
+      // 1. Coba baca langsung dari Client Firestore SDK (sesuai firestore.rules: allow read: if isSignedIn())
+      try {
+        const db = getClientFirestore();
+        let q = query(collection(db, 'tasks'), where('status', '==', TASK_STATUS.OPEN));
+        if (modeFilter !== 'ALL') {
+          q = query(q, where('mode', '==', modeFilter));
+        }
+        if (typeFilter !== 'ALL') {
+          q = query(q, where('assignmentType', '==', typeFilter));
+        }
+        const snap = await getDocs(q);
+        const taskDocs = snap.docs.map((d) => ({ ...(d.data() as TaskDocument), id: d.id }));
+        taskDocs.sort((a, b) => {
+          const tA = toDateSafe(a.createdAt)?.getTime() || 0;
+          const tB = toDateSafe(b.createdAt)?.getTime() || 0;
+          return tB - tA;
+        });
+        setTasks(taskDocs);
+        setIsLoading(false);
+        return;
+      } catch (clientErr) {
+        console.warn('Client load tasks fallback:', clientErr);
+      }
+
+      // 2. Fallback cadangan ke Server Action
       const res = await getAvailableTasksAction({
         mode: modeFilter === 'ALL' ? undefined : modeFilter,
         assignmentType: typeFilter === 'ALL' ? undefined : typeFilter,

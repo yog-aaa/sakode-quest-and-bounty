@@ -13,6 +13,8 @@ import { CountdownTimer } from '@/components/ui/CountdownTimer';
 import { formatCurrencyIDR, formatDateWIB } from '@/lib/utils';
 import { TASK_STATUS, TASK_MODES, TASK_ASSIGNMENT_TYPES } from '@/lib/constants';
 import { getTaskDetailAction } from '@/server/actions/task.actions';
+import { getClientFirestore } from '@/lib/firebase/client';
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { instantTakeTaskAction, submitApplicationAction } from '@/server/actions/assignment.actions';
 import { getSubmissionsForTaskAction } from '@/server/actions/submission.actions';
 import { fileSubmissionAppealAction } from '@/server/actions/appeal.actions';
@@ -73,12 +75,32 @@ function TaskDetailContent() {
   const [appealEvidenceFiles, setAppealEvidenceFiles] = useState<EvidenceFile[]>([]);
   const [isSubmittingAppeal, setIsSubmittingAppeal] = useState(false);
 
-  // Load Task
+  // Load Task (Prioritaskan Client SDK untuk menghindari Server Action 500)
   const loadTask = useCallback(async () => {
     if (!taskId) return;
     setIsLoading(true);
     setErrorMsg(null);
     try {
+      // 1. Coba baca langsung dari Client Firestore SDK
+      try {
+        const db = getClientFirestore();
+        const taskSnap = await getDoc(doc(db, 'tasks', taskId));
+        if (taskSnap.exists()) {
+          setTask({ ...(taskSnap.data() as TaskDocument), id: taskSnap.id });
+          setIsLoading(false);
+          // Muat data submission jika ada
+          try {
+            const subQ = query(collection(db, 'submissions'), where('taskId', '==', taskId));
+            const subSnap = await getDocs(subQ);
+            setSubmissions(subSnap.docs.map((d) => ({ ...(d.data() as SubmissionDocument), id: d.id })));
+          } catch {}
+          return;
+        }
+      } catch (clientErr) {
+        console.warn('Client load task detail fallback:', clientErr);
+      }
+
+      // 2. Fallback cadangan ke Server Action
       const res = await getTaskDetailAction(taskId);
       if (res.success && res.task) {
         setTask(res.task);

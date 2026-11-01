@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/Button';
+import { getClientFirestore } from '@/lib/firebase/client';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import {
   getAdminDashboardOverviewAction,
 } from '@/server/actions/admin-manage.actions';
@@ -99,6 +101,44 @@ export default function AdminDashboardPage() {
             }
           } catch (actionErr) {
             console.error('Server action fallback error:', actionErr);
+          }
+        }
+
+        // 3. Fallback langsung ke Client SDK jika REST API dan Server Action keduanya bermasalah
+        if (!overviewData) {
+          try {
+            const db = getClientFirestore();
+            const [usersPendingSnap, tasksDraftSnap, tasksReviewSnap, tasksOpenSnap, claimsSnap] =
+              await Promise.allSettled([
+                getDocs(query(collection(db, 'users'), where('approvalStatus', '==', 'PENDING'))),
+                getDocs(query(collection(db, 'tasks'), where('status', '==', 'DRAFT'))),
+                getDocs(query(collection(db, 'tasks'), where('status', '==', 'APPLICATION_REVIEW'))),
+                getDocs(query(collection(db, 'tasks'), where('status', '==', 'OPEN'))),
+                getDocs(query(collection(db, 'claims'), where('status', '==', 'CLAIMED'))),
+              ]);
+
+            const pendingMembersCount =
+              usersPendingSnap.status === 'fulfilled' ? usersPendingSnap.value.size : 0;
+            const draftCount = tasksDraftSnap.status === 'fulfilled' ? tasksDraftSnap.value.size : 0;
+            const reviewCount =
+              tasksReviewSnap.status === 'fulfilled' ? tasksReviewSnap.value.size : 0;
+            const openTasksCount = tasksOpenSnap.status === 'fulfilled' ? tasksOpenSnap.value.size : 0;
+            const pendingClaimsCount = claimsSnap.status === 'fulfilled' ? claimsSnap.value.size : 0;
+
+            overviewData = {
+              pendingMembersCount,
+              tasksNeedingActionCount: draftCount + reviewCount,
+              openTasksCount,
+              pendingSubmissionsCount: 0,
+              pendingClaimsCount,
+              totalDisbursedBounty: 0,
+              activeReportsCount: 0,
+              appealedSubmissionsCount: 0,
+              recentAuditEvents: [],
+            };
+            errorMessage = null;
+          } catch (clientErr) {
+            console.warn('Client overview fallback warning:', clientErr);
           }
         }
 
