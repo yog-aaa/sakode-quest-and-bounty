@@ -16,7 +16,7 @@ import { getAuditEvents, type AuditFilterParams } from '@/server/services/audit.
 import {
   type AdminRoleManagementInput,
 } from '@/lib/validations/report';
-import { serializeUserDoc, serializeAuditEventDoc } from '@/server/serializers';
+import { serializeUserDoc, serializeAuditEventDoc, sanitizeForSerialization } from '@/server/serializers';
 import type { UserDocument, AuditEventDocument } from '@/types/database';
 
 function getErrorMessage(error: unknown, fallback: string): string {
@@ -118,13 +118,14 @@ export async function getAdminDashboardOverviewAction(
 ): Promise<{ success: boolean; data?: AdminDashboardOverviewData; error?: string }> {
   try {
     const overview = await getAdminDashboardOverview(adminUid);
-    return {
-      success: true,
-      data: {
-        ...overview,
-        recentAuditEvents: overview.recentAuditEvents.map(serializeAuditEventDoc),
-      },
+    const cleanData: AdminDashboardOverviewData = {
+      ...overview,
+      recentAuditEvents: overview.recentAuditEvents.map(serializeAuditEventDoc),
     };
+    return sanitizeForSerialization({
+      success: true,
+      data: cleanData,
+    });
   } catch (error: unknown) {
     console.error('Error on getAdminDashboardOverviewAction:', error);
     return {

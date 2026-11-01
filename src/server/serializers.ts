@@ -180,9 +180,44 @@ export function serializePenaltyDoc(penalty: PenaltyDocument): PenaltyDocument {
   };
 }
 
+export function sanitizeForSerialization<T>(obj: T): T {
+  if (obj === null || obj === undefined) {
+    return obj;
+  }
+  const raw = obj as unknown;
+  if (typeof (raw as { toDate?: () => Date })?.toDate === 'function') {
+    return (raw as { toDate: () => Date }).toDate().toISOString() as unknown as T;
+  }
+  if (raw instanceof Date) {
+    return raw.toISOString() as unknown as T;
+  }
+  if (
+    typeof (raw as { seconds?: number; nanoseconds?: number })?.seconds === 'number' &&
+    typeof (raw as { seconds?: number; nanoseconds?: number })?.nanoseconds === 'number'
+  ) {
+    return new Date((raw as { seconds: number }).seconds * 1000).toISOString() as unknown as T;
+  }
+  if (Array.isArray(raw)) {
+    return raw.map((item) => sanitizeForSerialization(item)) as unknown as T;
+  }
+  if (typeof raw === 'object') {
+    const res: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
+      if (value === undefined) {
+        res[key] = null;
+      } else {
+        res[key] = sanitizeForSerialization(value);
+      }
+    }
+    return res as unknown as T;
+  }
+  return obj;
+}
+
 export function serializeAuditEventDoc(event: AuditEventDocument): AuditEventDocument {
+  const sanitized = sanitizeForSerialization(event);
   return {
-    ...event,
+    ...sanitized,
     timestamp: serializeDate(event.timestamp),
   };
 }
