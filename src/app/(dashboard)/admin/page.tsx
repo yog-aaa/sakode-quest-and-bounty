@@ -205,14 +205,25 @@ export default function AdminDashboardPage() {
 
           {/* Feedback Alert jika ada error */}
           {errorMsg && (
-            <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800/80 text-xs text-amber-900 dark:text-amber-200 flex items-center justify-between gap-3 shadow-2xs">
+            <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800/80 text-xs text-amber-900 dark:text-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
                 <span>{errorMsg}</span>
               </div>
-              <Button variant="outline" size="sm" onClick={handleRefresh} className="h-8 text-xs font-bold">
-                Coba Lagi
-              </Button>
+              <div className="flex items-center gap-2 shrink-0">
+                <a
+                  href={`/api/admin/debug-firebase?uid=${user?.id || ''}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-3 py-1.5 rounded-lg border border-amber-300 dark:border-amber-700 bg-white dark:bg-slate-900 text-amber-900 dark:text-amber-200 font-semibold hover:bg-amber-100 transition-colors inline-flex items-center gap-1 text-[11px]"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  <span>Diagnosa Sistem</span>
+                </a>
+                <Button variant="outline" size="sm" onClick={handleRefresh} className="h-8 text-xs font-bold">
+                  Coba Lagi
+                </Button>
+              </div>
             </div>
           )}
 

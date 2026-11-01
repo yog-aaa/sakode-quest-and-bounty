@@ -12,6 +12,8 @@ import { CountdownTimer } from '@/components/ui/CountdownTimer';
 import { formatCurrencyIDR, formatDateWIB } from '@/lib/utils';
 import { getActiveTaskForUserAction } from '@/server/actions/task.actions';
 import { getUserApplicationsAction, withdrawApplicationAction } from '@/server/actions/assignment.actions';
+import { getClientFirestore } from '@/lib/firebase/client';
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import type { TaskDocument, ApplicationDocument } from '@/types/database';
 import {
   Compass,
@@ -48,11 +50,27 @@ export default function MemberDashboardPage() {
   const [actionSuccessMsg, setActionSuccessMsg] = useState<string | null>(null);
   const [actionErrorMsg, setActionErrorMsg] = useState<string | null>(null);
 
-  // Load Active Task
+  // Load Active Task (Prioritaskan Client SDK untuk menghindari Server Action 500)
   const loadActiveTask = useCallback(async () => {
     if (!user) return;
     setLoadingActiveTask(true);
     try {
+      // 1. Coba lewat Client SDK langsung jika user punya activeTaskId
+      if (user.activeTaskId) {
+        try {
+          const db = getClientFirestore();
+          const snap = await getDoc(doc(db, 'tasks', user.activeTaskId));
+          if (snap.exists()) {
+            setActiveTask({ ...(snap.data() as TaskDocument), id: snap.id });
+            setLoadingActiveTask(false);
+            return;
+          }
+        } catch (clientErr) {
+          console.warn('Client load active task fallback:', clientErr);
+        }
+      }
+
+      // 2. Fallback Server Action
       const res = await getActiveTaskForUserAction(user.id);
       if (res.success && res.task) {
         setActiveTask(res.task);
@@ -61,16 +79,31 @@ export default function MemberDashboardPage() {
       }
     } catch (err: unknown) {
       console.error(err);
+      setActiveTask(null);
     } finally {
       setLoadingActiveTask(false);
     }
   }, [user]);
 
-  // Load User Applications
+  // Load User Applications (Prioritaskan Client SDK untuk menghindari Server Action 500)
   const loadApplications = useCallback(async () => {
     if (!user) return;
     setLoadingApplications(true);
     try {
+      // 1. Coba lewat Client SDK langsung
+      try {
+        const db = getClientFirestore();
+        const q = query(collection(db, 'applications'), where('applicantUserId', '==', user.id));
+        const snap = await getDocs(q);
+        const docs = snap.docs.map((d) => ({ ...(d.data() as ApplicationDocument), id: d.id }));
+        setApplications(docs);
+        setLoadingApplications(false);
+        return;
+      } catch (clientErr) {
+        console.warn('Client load applications fallback:', clientErr);
+      }
+
+      // 2. Fallback Server Action
       const res = await getUserApplicationsAction(user.id);
       if (res.success && res.applications) {
         setApplications(res.applications);
