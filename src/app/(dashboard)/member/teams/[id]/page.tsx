@@ -24,6 +24,8 @@ import {
   startTeamTaskAction,
 } from '@/server/actions/team.actions';
 import { getTaskDetailAction } from '@/server/actions/task.actions';
+import { getClientFirestore } from '@/lib/firebase/client';
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import type { TeamDocument, TeamMembershipDocument, TaskDocument } from '@/types/database';
 import {
   TEAM_STATUS,
@@ -78,10 +80,32 @@ function TeamDetailPageContent() {
     setIsLoading(true);
     setErrorMsg(null);
     try {
+      // 1. Prioritaskan Client SDK
+      try {
+        const db = getClientFirestore();
+        const teamSnap = await getDoc(doc(db, 'teams', teamId));
+        if (teamSnap.exists()) {
+          const teamData = { ...(teamSnap.data() as TeamDocument), id: teamSnap.id };
+          setTeam(teamData);
+          if (teamData.taskId) {
+            const taskSnap = await getDoc(doc(db, 'tasks', teamData.taskId));
+            if (taskSnap.exists()) {
+              setTask({ ...(taskSnap.data() as TaskDocument), id: taskSnap.id });
+            }
+          }
+          const memSnap = await getDocs(query(collection(db, 'teamMemberships'), where('teamId', '==', teamId)));
+          setMembers(memSnap.docs.map(d => ({ ...(d.data() as TeamMembershipDocument), id: d.id })));
+          setIsLoading(false);
+          return;
+        }
+      } catch (clientErr) {
+        console.warn('Client load team fallback:', clientErr);
+      }
+
+      // 2. Fallback Server Action
       const resTeam = await getTeamDetailAction(teamId);
       if (resTeam.success && resTeam.team) {
         setTeam(resTeam.team);
-        // Load task detail
         const resTask = await getTaskDetailAction(resTeam.team.taskId);
         if (resTask.success && resTask.task) {
           setTask(resTask.task);

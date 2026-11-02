@@ -11,7 +11,9 @@ import {
   markNotificationReadAction,
   markAllNotificationsReadAction,
 } from '@/server/actions/notification.actions';
-import { formatDateWIB, formatRelativeTime } from '@/lib/utils';
+import { formatDateWIB, formatRelativeTime, toDateSafe } from '@/lib/utils';
+import { getClientFirestore } from '@/lib/firebase/client';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { ViewModeToggle, type ViewMode } from '@/components/ui/ViewModeToggle';
 import type { NotificationDocument, NotificationCategory } from '@/types/database';
 import {
@@ -55,6 +57,25 @@ export default function AdminNotificationsPage() {
     if (!userId) return;
     setLoading(true);
     try {
+      // 1. Prioritaskan Client SDK Firestore
+      try {
+        const db = getClientFirestore();
+        const q = query(collection(db, 'notifications'), where('userId', '==', userId));
+        const snap = await getDocs(q);
+        const docs = snap.docs.map((d) => ({ ...(d.data() as NotificationDocument), id: d.id }));
+        docs.sort((a, b) => {
+          const tA = toDateSafe(a.createdAt)?.getTime() || 0;
+          const tB = toDateSafe(b.createdAt)?.getTime() || 0;
+          return tB - tA;
+        });
+        setNotifications(docs.slice(0, 50));
+        setLoading(false);
+        return;
+      } catch (clientErr) {
+        console.warn('Client load notifications fallback:', clientErr);
+      }
+
+      // 2. Fallback Server Action
       const res = await getUserNotificationsAction(userId, 50);
       if (res.success && res.notifications) {
         setNotifications(res.notifications);

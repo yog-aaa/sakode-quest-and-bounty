@@ -7,7 +7,9 @@ import { AuthGuard } from '@/components/auth/AuthGuard';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import { formatDateWIB } from '@/lib/utils';
+import { formatDateWIB, toDateSafe } from '@/lib/utils';
+import { getClientFirestore } from '@/lib/firebase/client';
+import { collection, getDocs } from 'firebase/firestore';
 import { getReportsQueueAction } from '@/server/actions/report.actions';
 import { ViewModeToggle, type ViewMode } from '@/components/ui/ViewModeToggle';
 import type { ReportDocument } from '@/types/database';
@@ -48,6 +50,24 @@ export default function AdminReportsPage() {
     setIsLoading(true);
     setErrorMsg(null);
     try {
+      // 1. Prioritaskan Client SDK Firestore
+      try {
+        const db = getClientFirestore();
+        const snap = await getDocs(collection(db, 'reports'));
+        const docs = snap.docs.map((d) => ({ ...(d.data() as ReportDocument), id: d.id }));
+        docs.sort((a, b) => {
+          const tA = toDateSafe(a.createdAt)?.getTime() || 0;
+          const tB = toDateSafe(b.createdAt)?.getTime() || 0;
+          return tB - tA;
+        });
+        setReports(docs);
+        setIsLoading(false);
+        return;
+      } catch (clientErr) {
+        console.warn('Client reports fallback:', clientErr);
+      }
+
+      // 2. Fallback Server Action
       const res = await getReportsQueueAction(user.id);
       if (res.success && res.reports) {
         setReports(res.reports);

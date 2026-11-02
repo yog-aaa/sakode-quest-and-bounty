@@ -9,6 +9,8 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { formatDateWIB } from '@/lib/utils';
+import { getClientFirestore } from '@/lib/firebase/client';
+import { doc, getDoc } from 'firebase/firestore';
 import {
   getReportDetailAction,
   resolveReportAction,
@@ -61,6 +63,27 @@ function ReportDetailContent() {
     setIsLoading(true);
     setErrorMsg(null);
     try {
+      // 1. Prioritaskan Client SDK Firestore
+      try {
+        const db = getClientFirestore();
+        const repSnap = await getDoc(doc(db, 'reports', reportId));
+        if (repSnap.exists()) {
+          const rData = { ...(repSnap.data() as ReportDocument), id: repSnap.id };
+          setReport(rData);
+          setPenaltyTargetUserId(rData.targetId);
+          const rec = getRecommendedPenalty(rData.category);
+          setPenaltyType(rec.penaltyType);
+          if (rec.durationDays) {
+            setPenaltyDurationDays(rec.durationDays);
+          }
+          setIsLoading(false);
+          return;
+        }
+      } catch (clientErr) {
+        console.warn('Client report detail fallback:', clientErr);
+      }
+
+      // 2. Fallback Server Action
       const res = await getReportDetailAction(user.id, reportId);
       if (res.success && res.report) {
         setReport(res.report);

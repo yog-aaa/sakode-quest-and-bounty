@@ -13,6 +13,8 @@ import {
   manageAdminRoleAction,
 } from '@/server/actions/admin-manage.actions';
 import { ViewModeToggle, type ViewMode } from '@/components/ui/ViewModeToggle';
+import { getClientFirestore } from '@/lib/firebase/client';
+import { collection, getDocs } from 'firebase/firestore';
 import type { UserDocument } from '@/types/database';
 import {
   ShieldCheck,
@@ -59,6 +61,22 @@ export default function SuperAdminRolesPage() {
     setIsLoading(true);
     setErrorMsg(null);
     try {
+      // 1. Prioritaskan Client SDK Firestore
+      try {
+        const db = getClientFirestore();
+        const usersSnap = await getDocs(collection(db, 'users'));
+        const allUsers = usersSnap.docs.map((d) => ({ ...(d.data() as UserDocument), id: d.id }));
+        const staffList = allUsers.filter((u) => u.role === 'ADMIN' || u.role === 'SUPER_ADMIN');
+        const memberList = allUsers.filter((u) => u.role === 'MEMBER' && u.approvalStatus === 'APPROVED');
+        setStaff(staffList);
+        setMembers(memberList);
+        setIsLoading(false);
+        return;
+      } catch (clientErr) {
+        console.warn('Client roles fallback:', clientErr);
+      }
+
+      // 2. Fallback Server Action
       const [resStaff, resMembers] = await Promise.all([
         getAdminStaffListAction(user.id),
         getEligibleMembersForPromotionAction(user.id),

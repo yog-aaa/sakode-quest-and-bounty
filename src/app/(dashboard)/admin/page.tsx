@@ -73,72 +73,57 @@ export default function AdminDashboardPage() {
         let overviewData: AdminDashboardOverviewData | null = null;
         let errorMessage: string | null = null;
 
-        // 1. Ambil data operasional via REST API (HTTP GET murni - aman dari issue Server Action POST / Origin mismatch)
+        // 1. Prioritaskan Client SDK Firestore (langsung dari browser, <50ms, bebas error 500)
         try {
-          const apiRes = await fetch(`/api/admin/overview?uid=${encodeURIComponent(user!.id)}`);
-          const apiJson = await apiRes.json().catch(() => null);
-          if (apiRes.ok && apiJson?.success && apiJson?.data) {
-            overviewData = apiJson.data;
-            errorMessage = null;
-          } else if (apiJson?.error) {
-            errorMessage = apiJson.error;
-          } else if (!apiRes.ok) {
-            errorMessage = `Server merespons status ${apiRes.status}`;
-          }
-        } catch (apiErr) {
-          console.warn('REST API fetch error, mencoba fallback ke Server Action:', apiErr);
+          const db = getClientFirestore();
+          const [usersPendingSnap, tasksDraftSnap, tasksReviewSnap, tasksOpenSnap, claimsSnap, subsSnap] =
+            await Promise.allSettled([
+              getDocs(query(collection(db, 'users'), where('approvalStatus', '==', 'PENDING'))),
+              getDocs(query(collection(db, 'tasks'), where('status', '==', 'DRAFT'))),
+              getDocs(query(collection(db, 'tasks'), where('status', '==', 'APPLICATION_REVIEW'))),
+              getDocs(query(collection(db, 'tasks'), where('status', '==', 'OPEN'))),
+              getDocs(query(collection(db, 'claims'), where('status', '==', 'CLAIMED'))),
+              getDocs(query(collection(db, 'submissions'), where('status', 'in', ['SUBMITTED', 'UNDER_REVIEW']))),
+            ]);
+
+          const pendingMembersCount =
+            usersPendingSnap.status === 'fulfilled' ? usersPendingSnap.value.size : 0;
+          const draftCount = tasksDraftSnap.status === 'fulfilled' ? tasksDraftSnap.value.size : 0;
+          const reviewCount =
+            tasksReviewSnap.status === 'fulfilled' ? tasksReviewSnap.value.size : 0;
+          const openTasksCount = tasksOpenSnap.status === 'fulfilled' ? tasksOpenSnap.value.size : 0;
+          const pendingClaimsCount = claimsSnap.status === 'fulfilled' ? claimsSnap.value.size : 0;
+          const pendingSubmissionsCount = subsSnap.status === 'fulfilled' ? subsSnap.value.size : 0;
+
+          overviewData = {
+            pendingMembersCount,
+            tasksNeedingActionCount: draftCount + reviewCount,
+            openTasksCount,
+            pendingSubmissionsCount,
+            pendingClaimsCount,
+            totalDisbursedBounty: 0,
+            activeReportsCount: 0,
+            appealedSubmissionsCount: 0,
+            recentAuditEvents: [],
+          };
+          errorMessage = null;
+        } catch (clientErr) {
+          console.warn('Client overview error, fallback to REST:', clientErr);
         }
 
-        // 2. Fallback cadangan ke Server Action jika REST API belum menghasilkan data
+        // 2. Fallback REST API hanya jika Client SDK terkendala
         if (!overviewData) {
           try {
-            const res = await getAdminDashboardOverviewAction(user!.id);
-            if (res.success && res.data) {
-              overviewData = res.data;
+            const apiRes = await fetch(`/api/admin/overview?uid=${encodeURIComponent(user!.id)}`);
+            const apiJson = await apiRes.json().catch(() => null);
+            if (apiRes.ok && apiJson?.success && apiJson?.data) {
+              overviewData = apiJson.data;
               errorMessage = null;
-            } else if (res.error) {
-              errorMessage = res.error;
+            } else if (apiJson?.error) {
+              errorMessage = apiJson.error;
             }
-          } catch (actionErr) {
-            console.error('Server action fallback error:', actionErr);
-          }
-        }
-
-        // 3. Fallback langsung ke Client SDK jika REST API dan Server Action keduanya bermasalah
-        if (!overviewData) {
-          try {
-            const db = getClientFirestore();
-            const [usersPendingSnap, tasksDraftSnap, tasksReviewSnap, tasksOpenSnap, claimsSnap] =
-              await Promise.allSettled([
-                getDocs(query(collection(db, 'users'), where('approvalStatus', '==', 'PENDING'))),
-                getDocs(query(collection(db, 'tasks'), where('status', '==', 'DRAFT'))),
-                getDocs(query(collection(db, 'tasks'), where('status', '==', 'APPLICATION_REVIEW'))),
-                getDocs(query(collection(db, 'tasks'), where('status', '==', 'OPEN'))),
-                getDocs(query(collection(db, 'claims'), where('status', '==', 'CLAIMED'))),
-              ]);
-
-            const pendingMembersCount =
-              usersPendingSnap.status === 'fulfilled' ? usersPendingSnap.value.size : 0;
-            const draftCount = tasksDraftSnap.status === 'fulfilled' ? tasksDraftSnap.value.size : 0;
-            const reviewCount =
-              tasksReviewSnap.status === 'fulfilled' ? tasksReviewSnap.value.size : 0;
-            const openTasksCount = tasksOpenSnap.status === 'fulfilled' ? tasksOpenSnap.value.size : 0;
-            const pendingClaimsCount = claimsSnap.status === 'fulfilled' ? claimsSnap.value.size : 0;
-
-            overviewData = {
-              pendingMembersCount,
-              tasksNeedingActionCount: draftCount + reviewCount,
-              openTasksCount,
-              pendingSubmissionsCount: 0,
-              pendingClaimsCount,
-              totalDisbursedBounty: 0,
-              activeReportsCount: 0,
-              appealedSubmissionsCount: 0,
-              recentAuditEvents: [],
-            };
-            errorMessage = null;
-          } catch (clientErr) {
-            console.warn('Client overview fallback warning:', clientErr);
+          } catch (apiErr) {
+            console.warn('REST API fetch fallback error:', apiErr);
           }
         }
 

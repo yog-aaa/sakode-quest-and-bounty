@@ -33,9 +33,44 @@ function serializeNullableDate(d: unknown): string | null {
   return serializeDate(d);
 }
 
+export function sanitizeForSerialization<T>(obj: T): T {
+  if (obj === null || obj === undefined) {
+    return obj;
+  }
+  const raw = obj as unknown;
+  if (typeof (raw as { toDate?: () => Date })?.toDate === 'function') {
+    return (raw as { toDate: () => Date }).toDate().toISOString() as unknown as T;
+  }
+  if (raw instanceof Date) {
+    return raw.toISOString() as unknown as T;
+  }
+  if (
+    typeof (raw as { seconds?: number; nanoseconds?: number })?.seconds === 'number' &&
+    typeof (raw as { seconds?: number; nanoseconds?: number })?.nanoseconds === 'number'
+  ) {
+    return new Date((raw as { seconds: number }).seconds * 1000).toISOString() as unknown as T;
+  }
+  if (Array.isArray(raw)) {
+    return raw.map((item) => sanitizeForSerialization(item)) as unknown as T;
+  }
+  if (typeof raw === 'object') {
+    const res: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
+      if (value === undefined) {
+        res[key] = null;
+      } else {
+        res[key] = sanitizeForSerialization(value);
+      }
+    }
+    return res as unknown as T;
+  }
+  return obj;
+}
+
 export function serializeUserDoc(user: UserDocument): UserDocument {
+  const sanitized = sanitizeForSerialization(user);
   return {
-    ...user,
+    ...sanitized,
     createdAt: serializeDate(user.createdAt),
     updatedAt: serializeDate(user.updatedAt),
     approvedAt: user.approvedAt ? serializeDate(user.approvedAt) : null,
@@ -43,8 +78,9 @@ export function serializeUserDoc(user: UserDocument): UserDocument {
 }
 
 export function serializeTaskDoc(task: TaskDocument): TaskDocument {
+  const sanitized = sanitizeForSerialization(task);
   return {
-    ...task,
+    ...sanitized,
     id: String(task.id || ''),
     title: String(task.title || ''),
     description: String(task.description || ''),
@@ -85,24 +121,27 @@ export function serializeTaskDoc(task: TaskDocument): TaskDocument {
 }
 
 export function serializeApplicationDoc(app: ApplicationDocument): ApplicationDocument {
+  const sanitized = sanitizeForSerialization(app);
   return {
-    ...app,
+    ...sanitized,
     createdAt: serializeDate(app.createdAt),
     updatedAt: serializeDate(app.updatedAt),
   };
 }
 
 export function serializeTeamDoc(team: TeamDocument): TeamDocument {
+  const sanitized = sanitizeForSerialization(team);
   return {
-    ...team,
+    ...sanitized,
     createdAt: serializeDate(team.createdAt),
     updatedAt: serializeDate(team.updatedAt),
   };
 }
 
 export function serializeTeamMembershipDoc(m: TeamMembershipDocument): TeamMembershipDocument {
+  const sanitized = sanitizeForSerialization(m);
   return {
-    ...m,
+    ...sanitized,
     agreedTermsAt: serializeNullableDate(m.agreedTermsAt),
     createdAt: serializeDate(m.createdAt),
     updatedAt: m.updatedAt ? serializeDate(m.updatedAt) : undefined,
@@ -110,8 +149,9 @@ export function serializeTeamMembershipDoc(m: TeamMembershipDocument): TeamMembe
 }
 
 export function serializeSubmissionDoc(sub: SubmissionDocument): SubmissionDocument {
+  const sanitized = sanitizeForSerialization(sub);
   return {
-    ...sub,
+    ...sanitized,
     revisionDeadlineAt: serializeNullableDate(sub.revisionDeadlineAt),
     reviewedAt: serializeNullableDate(sub.reviewedAt),
     reviewLockedUntil: serializeNullableDate(sub.reviewLockedUntil),
@@ -128,16 +168,18 @@ export function serializeSubmissionDoc(sub: SubmissionDocument): SubmissionDocum
 }
 
 export function serializeRewardLedgerDoc(ledger: RewardLedgerDocument): RewardLedgerDocument {
+  const sanitized = sanitizeForSerialization(ledger);
   return {
-    ...ledger,
+    ...sanitized,
     createdAt: serializeDate(ledger.createdAt),
     updatedAt: serializeDate(ledger.updatedAt),
   };
 }
 
 export function serializeClaimDoc(claim: ClaimDocument): ClaimDocument {
+  const sanitized = sanitizeForSerialization(claim);
   return {
-    ...claim,
+    ...sanitized,
     processedAt: serializeNullableDate(claim.processedAt),
     confirmedAt: serializeNullableDate(claim.confirmedAt),
     createdAt: serializeDate(claim.createdAt),
@@ -148,8 +190,9 @@ export function serializeClaimDoc(claim: ClaimDocument): ClaimDocument {
 export function serializeTeamDistributionDoc(
   dist: TeamDistributionDocument
 ): TeamDistributionDocument {
+  const sanitized = sanitizeForSerialization(dist);
   return {
-    ...dist,
+    ...sanitized,
     allocations: dist.allocations.map((a) => ({
       ...a,
       agreedAt: serializeNullableDate(a.agreedAt),
@@ -165,53 +208,21 @@ export function serializeTeamDistributionDoc(
 }
 
 export function serializeReportDoc(report: ReportDocument): ReportDocument {
+  const sanitized = sanitizeForSerialization(report);
   return {
-    ...report,
+    ...sanitized,
     createdAt: serializeDate(report.createdAt),
     updatedAt: serializeDate(report.updatedAt),
   };
 }
 
 export function serializePenaltyDoc(penalty: PenaltyDocument): PenaltyDocument {
+  const sanitized = sanitizeForSerialization(penalty);
   return {
-    ...penalty,
+    ...sanitized,
     validUntil: serializeNullableDate(penalty.validUntil),
     createdAt: serializeDate(penalty.createdAt),
   };
-}
-
-export function sanitizeForSerialization<T>(obj: T): T {
-  if (obj === null || obj === undefined) {
-    return obj;
-  }
-  const raw = obj as unknown;
-  if (typeof (raw as { toDate?: () => Date })?.toDate === 'function') {
-    return (raw as { toDate: () => Date }).toDate().toISOString() as unknown as T;
-  }
-  if (raw instanceof Date) {
-    return raw.toISOString() as unknown as T;
-  }
-  if (
-    typeof (raw as { seconds?: number; nanoseconds?: number })?.seconds === 'number' &&
-    typeof (raw as { seconds?: number; nanoseconds?: number })?.nanoseconds === 'number'
-  ) {
-    return new Date((raw as { seconds: number }).seconds * 1000).toISOString() as unknown as T;
-  }
-  if (Array.isArray(raw)) {
-    return raw.map((item) => sanitizeForSerialization(item)) as unknown as T;
-  }
-  if (typeof raw === 'object') {
-    const res: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
-      if (value === undefined) {
-        res[key] = null;
-      } else {
-        res[key] = sanitizeForSerialization(value);
-      }
-    }
-    return res as unknown as T;
-  }
-  return obj;
 }
 
 export function serializeAuditEventDoc(event: AuditEventDocument): AuditEventDocument {
@@ -223,8 +234,9 @@ export function serializeAuditEventDoc(event: AuditEventDocument): AuditEventDoc
 }
 
 export function serializeNotificationDoc(notif: NotificationDocument): NotificationDocument {
+  const sanitized = sanitizeForSerialization(notif);
   return {
-    ...notif,
+    ...sanitized,
     createdAt: serializeDate(notif.createdAt),
   };
 }

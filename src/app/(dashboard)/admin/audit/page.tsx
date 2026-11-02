@@ -7,7 +7,9 @@ import { AuthGuard } from '@/components/auth/AuthGuard';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import { formatDateWIB } from '@/lib/utils';
+import { formatDateWIB, toDateSafe } from '@/lib/utils';
+import { getClientFirestore } from '@/lib/firebase/client';
+import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { getAuditEventsAction } from '@/server/actions/admin-manage.actions';
 import { ViewModeToggle, type ViewMode } from '@/components/ui/ViewModeToggle';
 import type { AuditEventDocument } from '@/types/database';
@@ -50,6 +52,29 @@ export default function AdminAuditTrailPage() {
     setIsLoading(true);
     setErrorMsg(null);
     try {
+      // 1. Prioritaskan Client SDK Firestore
+      try {
+        const db = getClientFirestore();
+        const colRef = collection(db, 'auditEvents');
+        let queryRef = query(colRef, limit(150));
+        if (selectedAction !== 'ALL') {
+          queryRef = query(colRef, where('action', '==', selectedAction), limit(150));
+        }
+        const snap = await getDocs(queryRef);
+        const docs = snap.docs.map((d) => ({ ...(d.data() as AuditEventDocument), id: d.id }));
+        docs.sort((a, b) => {
+          const tA = toDateSafe(a.timestamp)?.getTime() || 0;
+          const tB = toDateSafe(b.timestamp)?.getTime() || 0;
+          return tB - tA;
+        });
+        setEvents(docs);
+        setIsLoading(false);
+        return;
+      } catch (clientErr) {
+        console.warn('Client audit fallback:', clientErr);
+      }
+
+      // 2. Fallback Server Action
       const res = await getAuditEventsAction(user.id, {
         action: selectedAction !== 'ALL' ? selectedAction : undefined,
         limit: 150,

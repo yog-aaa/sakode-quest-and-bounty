@@ -13,6 +13,8 @@ import { CountdownTimer } from '@/components/ui/CountdownTimer';
 import { FileUploadDropzone } from '@/components/submission/FileUploadDropzone';
 import { formatCurrencyIDR, formatDateWIB, toDateSafe } from '@/lib/utils';
 import { getTaskDetailAction } from '@/server/actions/task.actions';
+import { getClientFirestore } from '@/lib/firebase/client';
+import { doc, getDoc } from 'firebase/firestore';
 import { getTeamDetailAction } from '@/server/actions/team.actions';
 import { submitTaskWorkAction } from '@/server/actions/submission.actions';
 import type { TaskDocument, TeamDocument, EvidenceFile } from '@/types/database';
@@ -55,6 +57,29 @@ function TaskSubmitInner() {
     setIsLoading(true);
     setErrorMsg(null);
     try {
+      // 1. Prioritaskan Client Firestore SDK
+      try {
+        const db = getClientFirestore();
+        const taskSnap = await getDoc(doc(db, 'tasks', taskId));
+        if (taskSnap.exists()) {
+          const tData = { ...(taskSnap.data() as TaskDocument), id: taskSnap.id };
+          setTask(tData);
+          if (tData.mode === TASK_MODES.TEAM && tData.assignedTeamId) {
+            try {
+              const teamSnap = await getDoc(doc(db, 'teams', tData.assignedTeamId));
+              if (teamSnap.exists()) {
+                setTeam({ ...(teamSnap.data() as TeamDocument), id: teamSnap.id });
+              }
+            } catch {}
+          }
+          setIsLoading(false);
+          return;
+        }
+      } catch (clientErr) {
+        console.warn('Client load task submit fallback:', clientErr);
+      }
+
+      // 2. Fallback Server Action
       const res = await getTaskDetailAction(taskId);
       if (res.success && res.task) {
         setTask(res.task);

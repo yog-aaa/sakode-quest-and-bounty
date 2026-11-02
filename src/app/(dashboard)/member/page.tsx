@@ -68,18 +68,25 @@ export default function MemberDashboardPage() {
         const snap = await getDoc(doc(db, 'tasks', user.activeTaskId));
         if (snap.exists()) {
           setActiveTask({ ...(snap.data() as TaskDocument), id: snap.id });
-          setLoadingActiveTask(false);
-          return;
+        } else {
+          setActiveTask(null);
         }
+        setLoadingActiveTask(false);
+        return;
       } catch (clientErr) {
         console.warn('Client load active task fallback:', clientErr);
       }
 
-      // 2. Fallback Server Action hanya jika user memang punya activeTaskId tapi client SDK gagal
-      const res = await getActiveTaskForUserAction(user.id);
-      if (res.success && res.task) {
-        setActiveTask(res.task);
-      } else {
+      // 2. Fallback Server Action hanya jika Client SDK mengalami exception jaringan
+      try {
+        const res = await getActiveTaskForUserAction(user.id);
+        if (res.success && res.task) {
+          setActiveTask(res.task);
+        } else {
+          setActiveTask(null);
+        }
+      } catch (actErr) {
+        console.warn('Server action fallback error for active task:', actErr);
         setActiveTask(null);
       }
     } catch (err: unknown) {
@@ -108,10 +115,14 @@ export default function MemberDashboardPage() {
         console.warn('Client load applications fallback:', clientErr);
       }
 
-      // 2. Fallback Server Action
-      const res = await getUserApplicationsAction(user.id);
-      if (res.success && res.applications) {
-        setApplications(res.applications);
+      // 2. Fallback Server Action hanya jika Client SDK terkendala
+      try {
+        const res = await getUserApplicationsAction(user.id);
+        if (res.success && res.applications) {
+          setApplications(res.applications);
+        }
+      } catch (actErr) {
+        console.warn('Server action fallback error for applications:', actErr);
       }
     } catch (err: unknown) {
       console.error(err);

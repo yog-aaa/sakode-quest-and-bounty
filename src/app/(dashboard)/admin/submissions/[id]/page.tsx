@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { StatusPill } from '@/components/ui/StatusPill';
 import { formatCurrencyIDR, formatDateWIB } from '@/lib/utils';
+import { getClientFirestore } from '@/lib/firebase/client';
+import { doc, getDoc } from 'firebase/firestore';
 import {
   getSubmissionDetailAction,
   acquireReviewLockAction,
@@ -97,6 +99,29 @@ function SubmissionDetailInner() {
     setIsLoading(true);
     setErrorMsg(null);
     try {
+      // 1. Prioritaskan Client SDK untuk load submission & task
+      try {
+        const db = getClientFirestore();
+        const subSnap = await getDoc(doc(db, 'submissions', submissionId));
+        if (subSnap.exists()) {
+          const sData = { ...(subSnap.data() as SubmissionDocument), id: subSnap.id };
+          setSubmission(sData);
+          if (sData.taskId) {
+            const taskSnap = await getDoc(doc(db, 'tasks', sData.taskId));
+            if (taskSnap.exists()) {
+              const tData = { ...(taskSnap.data() as TaskDocument), id: taskSnap.id };
+              setTask(tData);
+              if (tData.totalReward) {
+                setPartialRewardAmount(Math.floor(tData.totalReward * 0.5));
+              }
+            }
+          }
+        }
+      } catch (clientErr) {
+        console.warn('Client load submission detail fallback:', clientErr);
+      }
+
+      // 2. Fallback Server Action jika belum terisi
       const res = await getSubmissionDetailAction(submissionId);
       if (res.success && res.submission && res.task) {
         setSubmission(res.submission);

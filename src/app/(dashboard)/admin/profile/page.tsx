@@ -7,6 +7,8 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { formatDateWIB } from '@/lib/utils';
+import { getClientFirestore } from '@/lib/firebase/client';
+import { doc, getDoc } from 'firebase/firestore';
 import { SUPPORTED_PAYMENT_PROVIDERS, type SupportedPaymentProvider } from '@/lib/validations/auth';
 import { getUserProfileAction, updateSelfProfileAction } from '@/server/actions/user.actions';
 import type { UserDocument } from '@/types/database';
@@ -52,6 +54,23 @@ export default function AdminProfilePage() {
     async function loadData() {
       setIsLoading(true);
       try {
+        // 1. Prioritaskan Client SDK Firestore
+        try {
+          const db = getClientFirestore();
+          const uSnap = await getDoc(doc(db, 'users', authUserId!));
+          if (!ignore && uSnap.exists()) {
+            const uData = { ...(uSnap.data() as UserDocument), id: uSnap.id };
+            setProfile(uData);
+            setDisplayName(uData.displayName || '');
+            setContactNumber(uData.contactNumber || '');
+            setIsLoading(false);
+            return;
+          }
+        } catch (clientErr) {
+          console.warn('Client profile load fallback:', clientErr);
+        }
+
+        // 2. Fallback Server Action
         const res = await getUserProfileAction(authUserId!);
         if (!ignore && res.success && res.user) {
           setProfile(res.user);

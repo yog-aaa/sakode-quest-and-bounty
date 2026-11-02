@@ -25,6 +25,14 @@ export async function GET(req: Request) {
       data: cleanData,
     });
   } catch (error: unknown) {
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'digest' in error &&
+      (error as { digest?: string }).digest === 'NEXT_PRERENDER_INTERRUPTED'
+    ) {
+      throw error;
+    }
     console.error('Error fetching admin dashboard overview API:', error);
     return NextResponse.json(
       {
