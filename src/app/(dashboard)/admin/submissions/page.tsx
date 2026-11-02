@@ -15,6 +15,9 @@ import {
 } from '@/server/actions/submission.actions';
 import { getAppealsQueueAction } from '@/server/actions/appeal.actions';
 import type { SubmissionDocument } from '@/types/database';
+import { getClientFirestore } from '@/lib/firebase/client';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { toDateSafe } from '@/lib/utils';
 import { SUBMISSION_STATUS } from '@/lib/constants';
 import {
   ClipboardCheck,
@@ -64,6 +67,30 @@ export default function AdminSubmissionsQueuePage() {
     setIsLoading(true);
     setErrorMsg(null);
     try {
+      // 1. Prioritaskan Client SDK
+      try {
+        const db = getClientFirestore();
+        let q = query(collection(db, 'submissions'));
+        if (filterTab === 'PENDING') {
+          q = query(q, where('status', 'in', ['SUBMITTED', 'UNDER_REVIEW']));
+        } else if (filterTab === 'APPEALS') {
+          q = query(q, where('status', '==', 'APPEALED'));
+        }
+        const snap = await getDocs(q);
+        const subDocs = snap.docs.map((d) => ({ ...(d.data() as SubmissionDocument), id: d.id }));
+        subDocs.sort((a, b) => {
+          const tA = toDateSafe(a.createdAt)?.getTime() || 0;
+          const tB = toDateSafe(b.createdAt)?.getTime() || 0;
+          return tB - tA;
+        });
+        setSubmissions(subDocs);
+        setIsLoading(false);
+        return;
+      } catch (clientErr) {
+        console.warn('Client load submissions fallback:', clientErr);
+      }
+
+      // 2. Fallback Server Action
       if (filterTab === 'PENDING') {
         const res = await getPendingSubmissionsQueueAction();
         if (res.success && res.submissions) {

@@ -6,11 +6,13 @@ import { AuthGuard } from '@/components/auth/AuthGuard';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import { formatCurrencyIDR } from '@/lib/utils';
+import { formatCurrencyIDR, toDateSafe } from '@/lib/utils';
 import {
   getAllClaimsForAdminAction,
   adminProcessClaimAction,
 } from '@/server/actions/claim.actions';
+import { getClientFirestore } from '@/lib/firebase/client';
+import { collection, query, where, getDocs, type DocumentData, type QueryDocumentSnapshot } from 'firebase/firestore';
 import { TransferProofUploader } from '@/components/claim/TransferProofUploader';
 import { ViewModeToggle, type ViewMode } from '@/components/ui/ViewModeToggle';
 import type { ClaimDocument } from '@/types/database';
@@ -69,6 +71,28 @@ export default function AdminClaimsPage() {
     setIsLoading(true);
     setErrorMsg(null);
     try {
+      // 1. Prioritaskan Client SDK
+      try {
+        const db = getClientFirestore();
+        let q = query(collection(db, 'claims'));
+        if (filterStatus !== 'ALL') {
+          q = query(q, where('status', '==', filterStatus));
+        }
+        const snap = await getDocs(q);
+        const claimDocs = snap.docs.map((d) => ({ ...(d.data() as ClaimDocument), id: d.id }));
+        claimDocs.sort((a, b) => {
+          const tA = toDateSafe(a.createdAt)?.getTime() || 0;
+          const tB = toDateSafe(b.createdAt)?.getTime() || 0;
+          return tB - tA;
+        });
+        setClaims(claimDocs);
+        setIsLoading(false);
+        return;
+      } catch (clientErr) {
+        console.warn('Client load claims fallback:', clientErr);
+      }
+
+      // 2. Fallback Server Action
       const res = await getAllClaimsForAdminAction(
         user.id,
         filterStatus !== 'ALL' ? (filterStatus as ClaimStatus) : undefined

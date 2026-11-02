@@ -9,9 +9,11 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { StatusPill } from '@/components/ui/StatusPill';
 import { Input } from '@/components/ui/Input';
-import { formatDateWIB } from '@/lib/utils';
+import { formatDateWIB, toDateSafe } from '@/lib/utils';
 import type { UserDocument } from '@/types/database';
 import type { BankAccountDetails } from '@/lib/crypto';
+import { getClientFirestore } from '@/lib/firebase/client';
+import { collection, query, getDocs } from 'firebase/firestore';
 import {
   getUsersListAction,
   approveMemberAction,
@@ -122,11 +124,36 @@ export default function AdminMembersPage() {
     const adminUid = currentAdmin.id;
     setIsLoading(true);
 
-    getUsersListAction(adminUid, 'ALL').then((res) => {
-      if (ignore) return;
-      if (res.success && res.users) {
-        setMembers(res.users);
-      } else {
+    // 1. Coba baca langsung dari Client Firestore SDK
+    try {
+      const db = getClientFirestore();
+      getDocs(query(collection(db, 'users'))).then((snap) => {
+        if (ignore) return;
+        if (!snap.empty) {
+          const userDocs = snap.docs.map((d) => ({ ...(d.data() as UserDocument), id: d.id }));
+          userDocs.sort((a, b) => {
+            const tA = toDateSafe(a.createdAt)?.getTime() || 0;
+            const tB = toDateSafe(b.createdAt)?.getTime() || 0;
+            return tB - tA;
+          });
+          setMembers(userDocs);
+          setIsLoading(false);
+          return;
+        }
+        fallbackServerAction();
+      }).catch(() => {
+        if (!ignore) fallbackServerAction();
+      });
+    } catch {
+      fallbackServerAction();
+    }
+
+    function fallbackServerAction() {
+      getUsersListAction(adminUid, 'ALL').then((res) => {
+        if (ignore) return;
+        if (res.success && res.users) {
+          setMembers(res.users);
+        } else {
         const mockList: UserDocument[] = [
           {
             id: 'user-pending-01',
@@ -181,7 +208,8 @@ export default function AdminMembersPage() {
         setMembers(mockList);
       }
       setIsLoading(false);
-    });
+      });
+    }
 
     return () => {
       ignore = true;

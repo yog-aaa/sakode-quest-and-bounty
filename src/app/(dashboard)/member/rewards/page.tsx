@@ -7,7 +7,7 @@ import { AuthGuard } from '@/components/auth/AuthGuard';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import { formatCurrencyIDR } from '@/lib/utils';
+import { formatCurrencyIDR, toDateSafe } from '@/lib/utils';
 import {
   getUserRewardLedgersAction,
   getUserClaimsAction,
@@ -16,6 +16,8 @@ import {
 } from '@/server/actions/claim.actions';
 import { CreateReportModal } from '@/components/report/CreateReportModal';
 import type { RewardLedgerDocument, ClaimDocument } from '@/types/database';
+import { getClientFirestore } from '@/lib/firebase/client';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import {
   Coins,
   Wallet,
@@ -61,6 +63,34 @@ export default function MemberRewardsPage() {
     setIsLoading(true);
     setErrorMsg(null);
     try {
+      // 1. Prioritaskan Client SDK langsung
+      try {
+        const db = getClientFirestore();
+        const [ledgersSnap, claimsSnap] = await Promise.all([
+          getDocs(query(collection(db, 'rewardLedgers'), where('ownerUserId', '==', user.id))),
+          getDocs(query(collection(db, 'claims'), where('userId', '==', user.id))),
+        ]);
+        const lDocs = ledgersSnap.docs.map((d) => ({ ...(d.data() as RewardLedgerDocument), id: d.id }));
+        const cDocs = claimsSnap.docs.map((d) => ({ ...(d.data() as ClaimDocument), id: d.id }));
+        lDocs.sort((a, b) => {
+          const tA = toDateSafe(a.createdAt)?.getTime() || 0;
+          const tB = toDateSafe(b.createdAt)?.getTime() || 0;
+          return tB - tA;
+        });
+        cDocs.sort((a, b) => {
+          const tA = toDateSafe(a.createdAt)?.getTime() || 0;
+          const tB = toDateSafe(b.createdAt)?.getTime() || 0;
+          return tB - tA;
+        });
+        setLedgers(lDocs);
+        setClaims(cDocs);
+        setIsLoading(false);
+        return;
+      } catch (clientErr) {
+        console.warn('Client load rewards fallback:', clientErr);
+      }
+
+      // 2. Fallback Server Action
       const [resLedgers, resClaims] = await Promise.all([
         getUserRewardLedgersAction(user.id),
         getUserClaimsAction(user.id),

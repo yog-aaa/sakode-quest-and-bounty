@@ -11,6 +11,8 @@ import { StatusPill } from '@/components/ui/StatusPill';
 import { formatCurrencyIDR, formatDateWIB, toDateSafe } from '@/lib/utils';
 import { TASK_STATUS, TASK_MODES, TASK_ASSIGNMENT_TYPES } from '@/lib/constants';
 import { getAllTasksForAdminAction, publishTaskAction } from '@/server/actions/task.actions';
+import { getClientFirestore } from '@/lib/firebase/client';
+import { collection, query, getDocs } from 'firebase/firestore';
 import { getApplicationsForTaskAction, selectApplicantAction } from '@/server/actions/assignment.actions';
 import {
   getTeamDetailAction,
@@ -110,6 +112,24 @@ export default function AdminTasksPage() {
     setIsLoading(true);
     setErrorMsg(null);
     try {
+      // 1. Prioritaskan Client Firestore SDK
+      try {
+        const db = getClientFirestore();
+        const snap = await getDocs(query(collection(db, 'tasks')));
+        const taskDocs = snap.docs.map((d) => ({ ...(d.data() as TaskDocument), id: d.id }));
+        taskDocs.sort((a, b) => {
+          const tA = toDateSafe(a.createdAt)?.getTime() || 0;
+          const tB = toDateSafe(b.createdAt)?.getTime() || 0;
+          return tB - tA;
+        });
+        setTasks(taskDocs);
+        setIsLoading(false);
+        return;
+      } catch (clientErr) {
+        console.warn('Client load tasks fallback:', clientErr);
+      }
+
+      // 2. Fallback ke Server Action
       const res = await getAllTasksForAdminAction(user.id, undefined);
       if (res.success && res.tasks) {
         setTasks(res.tasks);

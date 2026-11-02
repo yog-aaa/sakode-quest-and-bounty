@@ -105,6 +105,39 @@ export async function GET(req: Request) {
           error: dbErr instanceof Error ? dbErr.message : String(dbErr),
         };
       }
+
+      // 5. Uji getAdminFirestore() dari '@/lib/firebase/admin'
+      try {
+        const { getAdminFirestore } = await import('@/lib/firebase/admin');
+        const db2 = getAdminFirestore();
+        const testDoc = await db2.collection('users').doc(uid).get();
+        result.adminLibTest = {
+          success: true,
+          exists: testDoc.exists,
+        };
+      } catch (aErr) {
+        result.adminLibTest = {
+          success: false,
+          error: aErr instanceof Error ? aErr.message : String(aErr),
+          stack: aErr instanceof Error ? aErr.stack : null,
+        };
+      }
+
+      // 6. Uji getAdminDashboardOverview()
+      try {
+        const { getAdminDashboardOverview } = await import('@/server/services/admin-manage.service');
+        const ov = await getAdminDashboardOverview(uid);
+        result.overviewServiceTest = {
+          success: true,
+          data: ov,
+        };
+      } catch (ovErr) {
+        result.overviewServiceTest = {
+          success: false,
+          error: ovErr instanceof Error ? ovErr.message : String(ovErr),
+          stack: ovErr instanceof Error ? ovErr.stack : null,
+        };
+      }
     }
   } catch (initErr) {
     result.adminInitSuccess = false;

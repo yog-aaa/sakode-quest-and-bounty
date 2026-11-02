@@ -1,10 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getAdminDashboardOverview } from '@/server/services/admin-manage.service';
 import { serializeAuditEventDoc, sanitizeForSerialization } from '@/server/serializers';
 
-export async function GET(req: NextRequest) {
+export async function GET(req: Request) {
   try {
-    const uid = req.nextUrl.searchParams.get('uid');
+    const { searchParams } = new URL(req.url);
+    const uid = searchParams.get('uid');
 
     if (!uid) {
       return NextResponse.json(
@@ -24,20 +25,12 @@ export async function GET(req: NextRequest) {
       data: cleanData,
     });
   } catch (error: unknown) {
-    if (
-      error &&
-      typeof error === 'object' &&
-      'digest' in error &&
-      String((error as { digest?: string }).digest).startsWith('NEXT_')
-    ) {
-      throw error;
-    }
-
     console.error('Error fetching admin dashboard overview API:', error);
     return NextResponse.json(
       {
         success: false,
         error: error instanceof Error ? error.message : 'Gagal memuat ringkasan operasional admin',
+        stack: error instanceof Error ? error.stack : undefined,
       },
       { status: 200 }
     );
