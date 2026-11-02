@@ -6,9 +6,9 @@
 
 import { getApps, initializeApp, cert, type App } from 'firebase-admin/app';
 import { getFirestore, type Firestore } from 'firebase-admin/firestore';
-import { getAuth, type Auth } from 'firebase-admin/auth';
-import { getStorage, type Storage } from 'firebase-admin/storage';
-import { getMessaging, type Messaging } from 'firebase-admin/messaging';
+import type { Auth } from 'firebase-admin/auth';
+import type { Storage } from 'firebase-admin/storage';
+import type { Messaging } from 'firebase-admin/messaging';
 
 let adminApp: App | null = null;
 
@@ -142,13 +142,19 @@ export function getAdminFirestore(): Firestore {
 }
 
 export function getAdminAuth(): Auth {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { getAuth } = require('firebase-admin/auth');
   return getAuth(getAdminApp());
 }
 
 export function getAdminStorage(): Storage {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { getStorage } = require('firebase-admin/storage');
   return getStorage(getAdminApp());
 }
 
 export function getAdminMessaging(): Messaging {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { getMessaging } = require('firebase-admin/messaging');
   return getMessaging(getAdminApp());
 }
