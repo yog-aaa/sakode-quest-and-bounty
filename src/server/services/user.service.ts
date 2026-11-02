@@ -420,6 +420,19 @@ export async function updateSelfUserProfile(
     updatedAt: FieldValue.serverTimestamp(),
   };
 
+  if (Array.isArray(input.skills)) {
+    updatePayload.skills = input.skills.map((s) => s.trim()).filter(Boolean);
+  }
+  if (typeof input.bio === 'string') {
+    updatePayload.bio = input.bio.trim();
+  }
+  if (typeof input.portfolioUrl === 'string') {
+    updatePayload.portfolioUrl = input.portfolioUrl.trim();
+  }
+  if (typeof input.photoURL === 'string') {
+    updatePayload.photoURL = input.photoURL.trim();
+  };
+
   // Jika menyertakan update rekening baru secara lengkap
   if (input.bankName && input.accountNumber && input.accountHolderName) {
     const encrypted = encryptBankAccount({

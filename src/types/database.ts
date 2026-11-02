@@ -130,6 +130,9 @@ export interface UserDocument {
   displayName: string;
   contactNumber: string; // WhatsApp / Telegram
   skills: string[]; // Tag keahlian member
+  photoURL?: string | null;
+  bio?: string;
+  portfolioUrl?: string;
   role: UserRole;
   approvalStatus: UserApprovalStatus;
   paymentAccountEncrypted: string; // AES-256 info bank / e-wallet

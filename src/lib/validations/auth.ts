@@ -135,6 +135,10 @@ export const adminProfileUpdateSchema = z.object({
       indonesiaPhoneRegex,
       'Nomor kontak tidak valid. Gunakan format 08xxxxxxxx atau +628xxxxxxxx'
     ),
+  skills: z.array(z.string().trim()).optional(),
+  bio: z.string().trim().max(500, 'Bio maksimal 500 karakter').optional(),
+  portfolioUrl: z.string().trim().optional(),
+  photoURL: z.string().trim().optional(),
   bankName: z.enum(SUPPORTED_PAYMENT_PROVIDERS).optional(),
   accountNumber: z
     .string()

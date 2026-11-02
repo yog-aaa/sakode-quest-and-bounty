@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Compass, Layers, ClipboardCheck, Coins, Target, LogIn } from 'lucide-react';
+import { Compass, Layers, ClipboardCheck, Coins, Target, LogIn, User } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 export const MobileNav: React.FC = () => {
@@ -32,6 +32,7 @@ export const MobileNav: React.FC = () => {
     { href: '/member/tasks', label: 'Eksplor', icon: Compass },
     { href: '/member', label: 'Task Saya', icon: Layers },
     { href: '/member/rewards', label: 'Reward', icon: Coins },
+    { href: '/member/profile', label: 'Profil', icon: User },
     ...(user?.isAdmin
       ? [{ href: '/admin/submissions', label: 'Review', icon: ClipboardCheck }]
       : []),
