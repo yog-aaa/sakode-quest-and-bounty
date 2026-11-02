@@ -116,6 +116,32 @@ function SubmissionDetailInner() {
               }
             }
           }
+          // Attempt review lock
+          try {
+            const lockRes = await acquireReviewLockAction(user.id, submissionId);
+            if (lockRes.success) {
+              if (lockRes.locked) {
+                setIsLockedByMe(true);
+                setIsLockedByOther(false);
+                if (lockRes.expiresAt) {
+                  setLockExpiresAt(new Date(lockRes.expiresAt));
+                }
+              } else if (lockRes.lockedByOther) {
+                setIsLockedByMe(false);
+                setIsLockedByOther(true);
+                setLockedByAdminName(lockRes.lockedByAdminName || 'Admin Lain');
+                if (lockRes.expiresAt) {
+                  setLockExpiresAt(new Date(lockRes.expiresAt));
+                }
+              }
+            }
+          } catch {}
+          setIsLoading(false);
+          return;
+        } else {
+          setErrorMsg('Submission tidak ditemukan.');
+          setIsLoading(false);
+          return;
         }
       } catch (clientErr) {
         console.warn('Client load submission detail fallback:', clientErr);

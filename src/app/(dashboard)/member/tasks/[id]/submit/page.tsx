@@ -74,6 +74,10 @@ function TaskSubmitInner() {
           }
           setIsLoading(false);
           return;
+        } else {
+          setErrorMsg('Task tidak ditemukan.');
+          setIsLoading(false);
+          return;
         }
       } catch (clientErr) {
         console.warn('Client load task submit fallback:', clientErr);

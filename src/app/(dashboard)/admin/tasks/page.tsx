@@ -12,7 +12,7 @@ import { formatCurrencyIDR, formatDateWIB, toDateSafe } from '@/lib/utils';
 import { TASK_STATUS, TASK_MODES, TASK_ASSIGNMENT_TYPES } from '@/lib/constants';
 import { getAllTasksForAdminAction, publishTaskAction } from '@/server/actions/task.actions';
 import { getClientFirestore } from '@/lib/firebase/client';
-import { collection, query, getDocs } from 'firebase/firestore';
+import { collection, query, getDocs, doc, getDoc, where } from 'firebase/firestore';
 import { getApplicationsForTaskAction, selectApplicantAction } from '@/server/actions/assignment.actions';
 import {
   getTeamDetailAction,
@@ -190,6 +190,20 @@ export default function AdminTasksPage() {
     setLoadingApplicants(true);
     setApplicants([]);
     try {
+      // 1. Client SDK
+      try {
+        const db = getClientFirestore();
+        const q = query(collection(db, 'applications'), where('taskId', '==', task.id));
+        const snap = await getDocs(q);
+        const docs = snap.docs.map((d) => ({ ...(d.data() as ApplicationDocument), id: d.id }));
+        setApplicants(docs);
+        setLoadingApplicants(false);
+        return;
+      } catch (clientErr) {
+        console.warn('Client applicants fallback:', clientErr);
+      }
+
+      // 2. Fallback Server Action
       const res = await getApplicationsForTaskAction(task.id);
       if (res.success && res.applications) {
         setApplicants(res.applications);
@@ -237,6 +251,24 @@ export default function AdminTasksPage() {
     setTeamMembers([]);
     setSelectedTeam(null);
     try {
+      // 1. Client SDK
+      try {
+        const db = getClientFirestore();
+        const teamSnap = await getDoc(doc(db, 'teams', task.assignedTeamId));
+        if (teamSnap.exists()) {
+          setSelectedTeam({ ...(teamSnap.data() as TeamDocument), id: teamSnap.id });
+        }
+        const memSnap = await getDocs(
+          query(collection(db, 'teamMemberships'), where('teamId', '==', task.assignedTeamId))
+        );
+        setTeamMembers(memSnap.docs.map((d) => ({ ...(d.data() as TeamMembershipDocument), id: d.id })));
+        setLoadingTeam(false);
+        return;
+      } catch (clientErr) {
+        console.warn('Client team roster fallback:', clientErr);
+      }
+
+      // 2. Fallback Server Action
       const resTeam = await getTeamDetailAction(task.assignedTeamId);
       if (resTeam.success && resTeam.team) {
         setSelectedTeam(resTeam.team);

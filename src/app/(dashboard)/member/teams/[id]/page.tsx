@@ -97,6 +97,10 @@ function TeamDetailPageContent() {
           setMembers(memSnap.docs.map(d => ({ ...(d.data() as TeamMembershipDocument), id: d.id })));
           setIsLoading(false);
           return;
+        } else {
+          setErrorMsg('Tim tidak ditemukan.');
+          setIsLoading(false);
+          return;
         }
       } catch (clientErr) {
         console.warn('Client load team fallback:', clientErr);

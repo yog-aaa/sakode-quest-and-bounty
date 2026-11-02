@@ -9,6 +9,8 @@ import {
   confirmTeamMemberDistributionAction,
 } from '@/server/actions/claim.actions';
 import { formatCurrencyIDR } from '@/lib/utils';
+import { getClientFirestore } from '@/lib/firebase/client';
+import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import type {
   TeamDistributionDocument,
   TeamMembershipDocument,
@@ -72,12 +74,43 @@ export function TeamDistributionModal({
     setIsLoading(true);
     setErrorMsg(null);
     try {
+      // 1. Prioritaskan Client SDK Firestore
+      try {
+        const db = getClientFirestore();
+        const q = query(collection(db, 'teamDistributions'), where('teamId', '==', teamId), limit(1));
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+          const doc = snap.docs[0];
+          setDistribution({ ...(doc.data() as TeamDistributionDocument), id: doc.id });
+          setIsLoading(false);
+          return;
+        } else {
+          setDistribution(null);
+          const activeMembers = members.filter(
+            (m) => m.status === 'APPROVED' || m.status === 'TERMS_ACCEPTED'
+          );
+          const count = activeMembers.length || 1;
+          const equalShare = Math.floor(totalReward / count);
+          const remainder = totalReward - equalShare * count;
+          setAllocations(
+            activeMembers.map((m, idx) => ({
+              userId: m.userId,
+              amount: equalShare + (idx === 0 ? remainder : 0),
+            }))
+          );
+          setIsLoading(false);
+          return;
+        }
+      } catch (clientErr) {
+        console.warn('Client distribution fallback:', clientErr);
+      }
+
+      // 2. Fallback Server Action
       const res = await getTeamDistributionAction(teamId);
       if (res.success && res.distribution) {
         setDistribution(res.distribution);
       } else {
         setDistribution(null);
-        // Inisialisasi draft alokasi sama rata untuk form Team Lead
         const activeMembers = members.filter(
           (m) => m.status === 'APPROVED' || m.status === 'TERMS_ACCEPTED'
         );

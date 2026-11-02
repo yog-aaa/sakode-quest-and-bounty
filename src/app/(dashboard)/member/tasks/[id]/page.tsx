@@ -95,6 +95,10 @@ function TaskDetailContent() {
             setSubmissions(subSnap.docs.map((d) => ({ ...(d.data() as SubmissionDocument), id: d.id })));
           } catch {}
           return;
+        } else {
+          setErrorMsg('Task tidak ditemukan.');
+          setIsLoading(false);
+          return;
         }
       } catch (clientErr) {
         console.warn('Client load task detail fallback:', clientErr);
