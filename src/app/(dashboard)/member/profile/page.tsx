@@ -384,8 +384,13 @@ function MemberProfileInner() {
 
   // Compute Gamification Level & Achievements
   const activeUser = profile || authUser;
+
+  const allAchievements: AchievementItem[] = activeUser
+    ? evaluateUserAchievements(activeUser, { totalBountyEarned })
+    : [];
+
   const levelProgress: UserLevelProgress = activeUser
-    ? calculateUserLevel(activeUser, totalBountyEarned)
+    ? calculateUserLevel(activeUser, totalBountyEarned, allAchievements)
     : {
         totalXp: 0,
         currentTier: LEVEL_TIERS[0],
@@ -394,10 +399,6 @@ function MemberProfileInner() {
         xpInCurrentTier: 0,
         xpNeededForNext: 100,
       };
-
-  const allAchievements: AchievementItem[] = activeUser
-    ? evaluateUserAchievements(activeUser, { totalBountyEarned })
-    : [];
 
   const unlockedCount = allAchievements.filter((a) => a.unlocked).length;
   const lockedCount = allAchievements.length - unlockedCount;
@@ -708,6 +709,23 @@ function MemberProfileInner() {
                     <span>Maksimal</span>
                   )}
                 </div>
+
+                {levelProgress.breakdown && levelProgress.breakdown.achievementXp > 0 && (
+                  <div className="pt-2 mt-1 border-t border-white/10 flex flex-wrap items-center justify-between text-[10px] text-slate-300">
+                    <span className="text-slate-400 font-semibold">Rincian Perolehan XP:</span>
+                    <div className="flex items-center gap-2 font-medium">
+                      {levelProgress.breakdown.taskXp + levelProgress.breakdown.onTimeXp > 0 && (
+                        <span>Task: +{levelProgress.breakdown.taskXp + levelProgress.breakdown.onTimeXp} XP</span>
+                      )}
+                      <span className="text-emerald-400 font-bold bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/60">
+                        Lencana: +{levelProgress.breakdown.achievementXp} XP
+                      </span>
+                      {levelProgress.breakdown.bountyXp > 0 && (
+                        <span>Reward: +{levelProgress.breakdown.bountyXp} XP</span>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

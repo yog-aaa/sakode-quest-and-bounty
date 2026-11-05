@@ -82,12 +82,23 @@ export interface UserLevelProgress {
   progressPercent: number;
   xpInCurrentTier: number;
   xpNeededForNext: number;
+  breakdown?: {
+    taskXp: number;
+    onTimeXp: number;
+    reportXp: number;
+    bountyXp: number;
+    achievementXp: number;
+  };
 }
 
 /**
  * Menghitung akumulasi XP dan status level pengguna berdasarkan data aktivitas
  */
-export function calculateUserLevel(user: UserDocument, totalBountyEarned: number = 0): UserLevelProgress {
+export function calculateUserLevel(
+  user: UserDocument,
+  totalBountyEarned: number = 0,
+  achievements?: AchievementItem[]
+): UserLevelProgress {
   const stats = user.stats || { completedTasks: 0, onTimeTasks: 0, failedTasks: 0, provenReports: 0 };
   
   // XP Formula:
@@ -95,12 +106,18 @@ export function calculateUserLevel(user: UserDocument, totalBountyEarned: number
   // - 25 XP bonus per on-time task
   // - 30 XP per proven report
   // - 10 XP per Rp 100.000 total bounty yang diterima
+  // - Bonus XP dari Lencana Pencapaian (Achievements) yang berhasil diraih
   const taskXp = (stats.completedTasks || 0) * 50;
   const onTimeXp = (stats.onTimeTasks || 0) * 25;
   const reportXp = (stats.provenReports || 0) * 30;
   const bountyXp = Math.floor((totalBountyEarned || 0) / 100000) * 10;
 
-  const totalXp = taskXp + onTimeXp + reportXp + bountyXp;
+  const evaluatedAchievements = achievements || evaluateUserAchievements(user, { totalBountyEarned });
+  const achievementXp = evaluatedAchievements
+    .filter((a) => a.unlocked)
+    .reduce((sum, a) => sum + (a.xpBonus || 0), 0);
+
+  const totalXp = taskXp + onTimeXp + reportXp + bountyXp + achievementXp;
 
   let currentTier = LEVEL_TIERS[0];
   let nextTier: LevelTier | null = LEVEL_TIERS[1];
@@ -130,6 +147,13 @@ export function calculateUserLevel(user: UserDocument, totalBountyEarned: number
     progressPercent,
     xpInCurrentTier,
     xpNeededForNext,
+    breakdown: {
+      taskXp,
+      onTimeXp,
+      reportXp,
+      bountyXp,
+      achievementXp,
+    },
   };
 }
 
