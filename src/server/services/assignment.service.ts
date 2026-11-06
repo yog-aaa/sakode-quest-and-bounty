@@ -35,6 +35,10 @@ import {
 } from '@/lib/constants';
 import type { ApplyTaskInput } from '@/lib/validations/task';
 import { assertAdminPrivilege } from './user.service';
+import { dispatchNotification } from './notification.service';
+import { taskAssignedEmail } from './email/templates';
+import { formatCurrencyIDR, formatDateWIB } from '@/lib/utils';
+import { NOTIFICATION_CATEGORIES } from '@/lib/constants';
 import { generateInviteCode } from './team.service';
 import { toDateSafe } from '@/lib/utils';
 
@@ -561,6 +565,42 @@ export async function selectApplicant(
           updatedAt: FieldValue.serverTimestamp(),
         });
       }
+    }
+
+    // 3. Notifikasi & Email ke Applicant yang Terpilih
+    try {
+      const taskDoc = await db.collection('tasks').doc(taskId).get();
+      const taskData = taskDoc.data() as TaskDocument;
+      const applicantUserDoc = await db.collection('users').doc(applicantId).get();
+      const applicantUserData = applicantUserDoc.data() as UserDocument;
+
+      const taskUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://work.sakode.com'}/member/tasks/${taskId}`;
+      const deadlineStr = taskData.deadlineAt
+        ? formatDateWIB(new Date(taskData.deadlineAt as unknown as string))
+        : 'Sesuai instruksi';
+
+      const emailData = taskAssignedEmail(
+        applicantUserData?.displayName || 'Member SAKODE',
+        taskData.title,
+        formatCurrencyIDR(taskData.totalReward),
+        deadlineStr,
+        taskUrl
+      );
+
+      dispatchNotification(applicantId, {
+        title: `Permohonan Diterima: ${taskData.title}`,
+        message: `Selamat! Anda resmi ditugaskan untuk mengerjakan "${taskData.title}". Segera pelajari instruksi dan kumpulkan deliverable sebelum deadline.`,
+        category: NOTIFICATION_CATEGORIES.APPLICATION,
+        link: `/member/tasks/${taskId}`,
+        emailPayload: {
+          toEmail: applicantUserData?.email,
+          subject: emailData.subject,
+          html: emailData.html,
+          text: emailData.text,
+        },
+      }).catch((err) => console.warn('[selectApplicant] dispatchNotification error:', err));
+    } catch (notifErr) {
+      console.warn('[selectApplicant] Non-blocking notification error:', notifErr);
     }
 
     return result;

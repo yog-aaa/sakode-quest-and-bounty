@@ -3,7 +3,7 @@
  * Mengimplementasikan Adapter Pattern untuk pengiriman email transaksional via Resend.
  * 
  * STRICT INVARIANT: Non-Blocking Architecture
- * Kegagalan pengiriman email (koneksi putus, API key kosong/invalid, rate limit)
+ * Kegagalan pengiriman email (koneksi putus, API key kosong/invalid, rate limit, domain unverified)
  * MUTLAK TIDAK BOLEH membuat crash server atau me-rollback transaksi database.
  */
 
@@ -32,41 +32,69 @@ export interface EmailAdapter {
  */
 export class ResendEmailAdapter implements EmailAdapter {
   private resend: Resend | null = null;
-  private fromAddress: string;
+  private cachedApiKey: string | null = null;
 
-  constructor() {
-    const apiKey = process.env.RESEND_API_KEY;
-    this.fromAddress =
-      process.env.EMAIL_FROM_ADDRESS || 'SAKODE Academy <notifications@sakode.id>';
-
-    if (apiKey && apiKey.trim() !== '') {
-      try {
-        this.resend = new Resend(apiKey);
-      } catch (err) {
-        console.warn('[ResendEmailAdapter] Gagal menginisialisasi client Resend:', err);
-      }
-    } else {
-      console.info(
-        '[ResendEmailAdapter] RESEND_API_KEY tidak terkonfigurasi. Email adapter aktif dalam mode dummy/fallback logging.'
-      );
+  private getResendClient(): Resend | null {
+    const apiKey = (process.env.RESEND_API_KEY || '').trim();
+    if (!apiKey) {
+      return null;
     }
+
+    if (this.resend && this.cachedApiKey === apiKey) {
+      return this.resend;
+    }
+
+    try {
+      this.resend = new Resend(apiKey);
+      this.cachedApiKey = apiKey;
+      return this.resend;
+    } catch (err) {
+      console.warn('[ResendEmailAdapter] Gagal menginisialisasi client Resend:', err);
+      return null;
+    }
+  }
+
+  private resolveFromAddress(): string {
+    const configuredFrom = (process.env.EMAIL_FROM_ADDRESS || '').trim().replace(/^"|"$/g, '');
+
+    // Resend menolak pengiriman dari domain webmail publik (@gmail.com, @yahoo, dll)
+    // Jika belum diset atau salah konfigurasi ke gmail, gunakan fallback resmi testing Resend
+    if (!configuredFrom) {
+      return 'SAKODE Academy <onboarding@resend.dev>';
+    }
+
+    if (/@(gmail|yahoo|hotmail|outlook)\.com/i.test(configuredFrom)) {
+      console.warn(
+        `[ResendEmailAdapter] Alamat pengirim "${configuredFrom}" tidak didukung oleh Resend API (tidak boleh menggunakan @gmail.com dsb). Mengalihkan otomatis ke "SAKODE Academy <onboarding@resend.dev>". Harap verifikasi domain khusus di resend.com/domains.`
+      );
+      return 'SAKODE Academy <onboarding@resend.dev>';
+    }
+
+    return configuredFrom;
   }
 
   async sendEmail(options: SendEmailOptions): Promise<SendEmailResult> {
     const { to, subject, html, text, replyTo } = options;
+    const client = this.getResendClient();
 
-    // Jika API Key tidak ada, simulasikan pengiriman sukses (fallback non-blocking untuk dev & testing)
-    if (!this.resend) {
-      console.info(`[ResendEmailAdapter Dummy] Simulasi pengiriman email ke: ${Array.isArray(to) ? to.join(', ') : to} | Subjek: "${subject}"`);
+    // Jika API Key tidak ada, simulasikan pengiriman sukses (fallback dummy untuk dev/testing lokal)
+    if (!client) {
+      console.info(
+        `[ResendEmailAdapter Dummy] Simulasi pengiriman email ke: ${
+          Array.isArray(to) ? to.join(', ') : to
+        } | Subjek: "${subject}"`
+      );
       return {
         success: true,
         messageId: `dummy-${Date.now()}`,
       };
     }
 
+    const fromAddress = this.resolveFromAddress();
+
     try {
-      const response = await this.resend.emails.send({
-        from: this.fromAddress,
+      const response = await client.emails.send({
+        from: fromAddress,
         to: Array.isArray(to) ? to : [to],
         subject,
         html,
@@ -81,6 +109,12 @@ export class ResendEmailAdapter implements EmailAdapter {
           error: response.error.message,
         };
       }
+
+      console.info(
+        `[ResendEmailAdapter] Email berhasil dikirim via Resend ke ${
+          Array.isArray(to) ? to.join(', ') : to
+        } | MsgID: ${response.data?.id}`
+      );
 
       return {
         success: true,

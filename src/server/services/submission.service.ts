@@ -31,7 +31,8 @@ import { assertAdminPrivilege } from './user.service';
 import { toDateSafe } from '@/lib/utils';
 import { createRewardLedgerInsideTransaction } from './claim.service';
 import { dispatchNotification } from './notification.service';
-import { revisionRequestedEmail } from './email/templates';
+import { revisionRequestedEmail, submissionApprovedEmail } from './email/templates';
+import { formatCurrencyIDR } from '@/lib/utils';
 import { formatDateWIB } from '@/lib/utils';
 
 /**
@@ -476,11 +477,24 @@ export async function reviewSubmission(
       const recipientUid = result.submission.submittedByUserId;
       if (recipientUid) {
         if (validated.action === 'APPROVE') {
+          const claimUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://work.sakode.com'}/member/rewards`;
+          const emailData = submissionApprovedEmail(
+            'Member SAKODE',
+            result.task.title,
+            formatCurrencyIDR(result.task.totalReward),
+            claimUrl
+          );
+
           dispatchNotification(recipientUid, {
             title: `Deliverable Disetujui: ${result.task.title}`,
             message: `Pengerjaan tugas "${result.task.title}" telah diverifikasi dan disetujui oleh Administrator SAKODE. Reward kini siap diklaim!`,
             category: NOTIFICATION_CATEGORIES.SUBMISSION,
             link: '/member/rewards',
+            emailPayload: {
+              subject: emailData.subject,
+              html: emailData.html,
+              text: emailData.text,
+            },
           }).catch((err) => console.warn('[reviewSubmission] approve notif error:', err));
         } else if (validated.action === 'REQUEST_REVISION') {
           const deadlineText = validated.revisionDeadline

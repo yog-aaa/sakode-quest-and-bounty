@@ -25,7 +25,12 @@ import {
 import { formatMaskedPaymentAccount, toDateSafe } from '@/lib/utils';
 import { setCustomUserClaims } from './auth.service';
 import { dispatchNotification } from './notification.service';
-import { accountApprovedEmail } from './email/templates';
+import {
+  accountApprovedEmail,
+  accountRegisteredEmail,
+  accountRejectedEmail,
+  profileRevisionRequestedEmail,
+} from './email/templates';
 
 /**
  * Memverifikasi apakah pengguna memiliki hak akses Admin atau Super Admin.
@@ -118,6 +123,28 @@ export async function completeUserProfile(
     role: USER_ROLES.MEMBER,
     approvalStatus: USER_APPROVAL_STATUS.PENDING,
   });
+
+  // Strict Invariant: Non-blocking Notification Dispatch
+  try {
+    const userEmail = (userSnap.data() as UserDocument).email || '';
+    const dashboardUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://work.sakode.com'}/pending-approval`;
+    const emailData = accountRegisteredEmail(validated.displayName, dashboardUrl);
+
+    dispatchNotification(uid, {
+      title: 'Pendaftaran Akun SAKODE Sedang Ditinjau',
+      message: 'Formulir biodata dan data rekening Anda telah berhasil kami terima dan sedang dalam antrean verifikasi tim Administrator.',
+      category: NOTIFICATION_CATEGORIES.ACCOUNT,
+      link: '/pending-approval',
+      emailPayload: {
+        toEmail: userEmail,
+        subject: emailData.subject,
+        html: emailData.html,
+        text: emailData.text,
+      },
+    }).catch((err) => console.warn('[completeUserProfile] notification dispatch error:', err));
+  } catch (err) {
+    console.warn('[completeUserProfile] Non-blocking notification error:', err);
+  }
 
   const updatedSnap = await userRef.get();
   return { ...(updatedSnap.data() as UserDocument), id: uid };
@@ -304,6 +331,31 @@ export async function rejectUser(
     reason: reason.trim(),
     timestamp: FieldValue.serverTimestamp(),
   });
+
+  // Strict Invariant: Non-blocking Notification Dispatch
+  try {
+    const supportUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://work.sakode.com'}/rejected`;
+    const emailData = accountRejectedEmail(
+      beforeData.displayName || beforeData.email,
+      reason.trim(),
+      supportUrl
+    );
+
+    dispatchNotification(targetUserId, {
+      title: 'Pemberitahuan Status Pendaftaran Akun SAKODE',
+      message: `Pendaftaran akun Anda belum dapat disetujui. Alasan: "${reason.trim()}".`,
+      category: NOTIFICATION_CATEGORIES.ACCOUNT,
+      link: '/rejected',
+      emailPayload: {
+        toEmail: beforeData.email,
+        subject: emailData.subject,
+        html: emailData.html,
+        text: emailData.text,
+      },
+    }).catch((err) => console.warn('[rejectUser] dispatchNotification background error:', err));
+  } catch (err) {
+    console.warn('[rejectUser] Non-blocking notification dispatch error:', err);
+  }
 }
 
 /**
@@ -352,6 +404,31 @@ export async function requestProfileRevision(
     reason: notes.trim(),
     timestamp: FieldValue.serverTimestamp(),
   });
+
+  // Strict Invariant: Non-blocking Notification Dispatch
+  try {
+    const onboardingUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://work.sakode.com'}/onboarding`;
+    const emailData = profileRevisionRequestedEmail(
+      beforeData.displayName || beforeData.email,
+      notes.trim(),
+      onboardingUrl
+    );
+
+    dispatchNotification(targetUserId, {
+      title: 'Permintaan Perbaikan Data Pendaftaran Akun SAKODE',
+      message: `Administrator meminta perbaikan data pendaftaran Anda. Catatan: "${notes.trim()}". Silakan perbarui profil Anda.`,
+      category: NOTIFICATION_CATEGORIES.ACCOUNT,
+      link: '/onboarding',
+      emailPayload: {
+        toEmail: beforeData.email,
+        subject: emailData.subject,
+        html: emailData.html,
+        text: emailData.text,
+      },
+    }).catch((err) => console.warn('[requestProfileRevision] dispatchNotification background error:', err));
+  } catch (err) {
+    console.warn('[requestProfileRevision] Non-blocking notification dispatch error:', err);
+  }
 }
 
 /**
